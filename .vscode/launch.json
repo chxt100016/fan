@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "TransactionService",
+            "request": "launch",
+            "mainClass": "com.chxt.domain.transaction.TransactionService",
+            "projectName": "fan-domain"
+        },
+        {
+            "type": "java",
+            "name": "PicExample",
+            "request": "launch",
+            "mainClass": "com.chxt.domain.pic.PicExample",
+            "projectName": "fan-domain"
+        },
+        {
+            "type": "java",
+            "name": "TimeTable",
+            "request": "launch",
+            "mainClass": "com.chxt.domain.pic.TimeTable",
+            "projectName": "fan-domain"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Application<start>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.chxt.Application",
+            "projectName": "start",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "javaExec": "/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home/bin/java"
+        }
+    ]
+}
