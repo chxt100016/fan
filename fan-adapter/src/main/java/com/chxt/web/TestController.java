@@ -34,26 +34,29 @@ public class TestController {
         response.setContentType("multipart/x-mixed-replace;boundary=frame");
         
         while (true) {
-            // 1. 获取最新JPEG帧 (可以从摄像头、文件等获取)
-            byte[] imageBytes = getLatestImageFrame();
-            
-            // 2. 写入MJPEG格式
-            response.getOutputStream().write((
-                "--frame\r\n" +
-                "Content-Type: image/jpeg\r\n" +
-                "Content-Length: " + imageBytes.length + "\r\n" +
-                "\r\n").getBytes());
-            response.getOutputStream().write(imageBytes);
-            response.getOutputStream().write("\r\n".getBytes());
-            response.getOutputStream().flush();
-            
-            // 3. 控制帧率
             try {
-                Thread.sleep(1000); // 10 FPS
+                byte[] imageBytes = getLatestImageFrame();
+                writeFrameToResponse(response, imageBytes);
+                Thread.sleep(1000); // 控制帧率为10 FPS
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // 恢复中断状态
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
                 break;
             }
         }
+    }
+    
+    private void writeFrameToResponse(HttpServletResponse response, byte[] imageBytes) throws IOException {
+        response.getOutputStream().write((
+            "--frame\r\n" +
+            "Content-Type: image/jpeg\r\n" +
+            "Content-Length: " + imageBytes.length + "\r\n" +
+            "\r\n").getBytes());
+        response.getOutputStream().write(imageBytes);
+        response.getOutputStream().write("\r\n".getBytes());
+        response.getOutputStream().flush();
     }
     
     private byte[] getLatestImageFrame() {
