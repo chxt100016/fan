@@ -1,6 +1,5 @@
 package com.chxt.domain.pic;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -46,6 +45,14 @@ public class TimeCell {
         this.name = timetableEnum.getName();
         this.iconBase64 = timetableEnum.getIconBase64();
         this.date = DateUtils.parseDate(dateStr, "yyyy-MM-dd HH:mm");
+    }
+
+    @SneakyThrows
+    public TimeCell(Date date, TimetableEnum timetableEnum) {
+        this.key = timetableEnum.getCode();
+        this.name = timetableEnum.getName();
+        this.iconBase64 = timetableEnum.getIconBase64();
+        this.date = date;
     }
 
     public String getDesc() {

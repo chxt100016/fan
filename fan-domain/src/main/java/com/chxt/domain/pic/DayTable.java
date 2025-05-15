@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 
 @Data
 @Builder
@@ -93,7 +94,8 @@ public class DayTable {
      * @param dataList 数据列表
      * @return 图片字节数组
      */
-    public byte[] getByte(List<TimeCell> dataList) throws IOException {
+    @SneakyThrows
+    public byte[] getByte(List<TimeCell> dataList) {
         // 分组
         Map<Integer, List<TimeCell>> groupedData = groupDataByWeekday(dataList);
         // 计算最大数据行数
