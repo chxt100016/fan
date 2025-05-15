@@ -2,6 +2,7 @@ package com.chxt.domain.transaction.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,4 +56,17 @@ public class TransactionLog {
      * 交易日志id
      */
     private String logId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransactionLog that = (TransactionLog) o;
+        return Objects.equals(logId, that.logId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(logId);
+    }
 }
