@@ -1,5 +1,8 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.dependency.packagePresentation": "hierarchical"
+    "java.dependency.packagePresentation": "hierarchical",
+    "java.configuration.maven.userSettings": "D:\\tool\\apache-maven-3.9.9\\conf\\settings-aliyun.xml",
+    "java.configuration.maven.globalSettings": "D:\\tool\\apache-maven-3.9.9\\conf\\settings-aliyun.xml",
+    "spring-boot.ls.java.home": "D:\\tool\\jdk-17.0.14"
 }

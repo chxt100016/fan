@@ -1,0 +1,121 @@
+package com.chxt.domain.transaction.parser.impl;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.time.DateUtils;
+
+import com.chxt.domain.transaction.constants.TransactionEnums;
+import com.chxt.domain.transaction.parser.MailParserStrategy;
+import com.chxt.domain.utils.Excel;
+import com.chxt.domain.utils.Mail;
+import com.chxt.domain.utils.Zip;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class AliPayParser implements MailParserStrategy<Map<String,String>> {
+
+    private final static String ALI_PAY_FROM = "service@mail.alipay.com";
+
+    private final static String ALI_PAY_SUBJECT = "支付宝交易流水明细";
+    
+    private final static String ALIPAY_HEADER_MARKER = "------------------------支付宝（中国）网络技术有限公司  电子客户回单------------------------";
+
+
+
+    @Override
+    public String getFrom() {
+        return ALI_PAY_FROM;
+    }
+
+    @Override
+    public String getSubject() {
+       return ALI_PAY_SUBJECT;
+    }
+
+    @Override
+    public String getChannel() {
+        return TransactionEnums.CHANNEL.CMB_CREDIT.getCode();
+    }
+
+    @Override
+    public String getType(Map<String,String> data) {
+        return data.get("收/支");
+    }
+    
+    @Override
+    public BigDecimal getAmount(Map<String,String> data) {
+        return new BigDecimal(data.get("金额"));
+    }
+    
+    @Override
+    public String getCurrency(Map<String,String> data) {
+        return TransactionEnums.CURRENCY.CNY.getCode();
+    }
+    
+    @Override
+    public String getMethod(Map<String,String> data) {
+        return null;
+    }
+    
+    @Override
+    public String getDesc(Map<String,String> data) {
+        return String.format("交易对方: %s;对方账号: %s;商品说明: %s", data.get("交易对方"), data.get("对方账号"), data.get("商品说明"));
+    }
+    
+    @Override
+    @SneakyThrows
+    public Date getDateTime(Map<String,String> data) {
+        return DateUtils.parseDate(data.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
+    }
+    
+    @Override
+    @SneakyThrows
+    public Date getTransactionStartDate(Mail mail, List<Map<String,String>> data) {
+        String name = mail.getAttachmentFileName();
+        // start time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
+        Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            String startDateStr = matcher.group(1);
+            return DateUtils.parseDate(startDateStr, "yyyyMMdd");
+        }
+        throw new Exception("支付宝交易明细文件名格式不正确");
+    }
+    
+    @Override
+    @SneakyThrows
+    public Date getTransactionEndDate(Mail mail, List<Map<String,String>> data) {
+        String name = mail.getAttachmentFileName();
+        // end time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
+        Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            String endDateStr = matcher.group(2);
+            return DateUtils.parseDate(endDateStr, "yyyyMMdd");
+        }
+        throw new Exception("支付宝交易明细文件名格式不正确");
+    }
+
+    @Override
+    @SneakyThrows
+    public List<Map<String,String>> parse(Mail mail) {
+
+        // 要求用户输入解压密码
+        // Scanner scanner = new Scanner(System.in);
+        // System.out.print("请输入支付宝交易流水明细ZIP文件的解压密码: ");
+        // String password = scanner.nextLine();
+        String password = "142268";
+        // 解压ZIP文件
+        Zip zip = new Zip(mail.getAttachment(), password);
+        Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);
+        return excel.getDataMap();
+    } 
+
+}

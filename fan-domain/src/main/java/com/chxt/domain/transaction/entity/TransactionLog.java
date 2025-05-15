@@ -1,5 +1,6 @@
 package com.chxt.domain.transaction.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class TransactionLog {
     /**
      * 交易金额
      */
-    private Double amount;
+    private BigDecimal amount;
     
     /**
      * 交易币种
@@ -49,4 +50,9 @@ public class TransactionLog {
      * 交易描述
      */
     private String desc;
+
+    /**
+     * 交易日志id
+     */
+    private String logId;
 }

@@ -1,15 +1,12 @@
 package com.chxt.domain.transaction;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
-import javax.mail.Message;
-import javax.mail.internet.MimeUtility;
-
 import com.alibaba.fastjson2.JSON;
+import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.parser.MailManager;
-import com.chxt.domain.transaction.parser.impl.AliPayStrategy;
+import com.chxt.domain.transaction.parser.impl.AliPayParser;
 import com.chxt.domain.utils.MailClient;
 
 import lombok.SneakyThrows;
@@ -34,15 +31,16 @@ public class TransactionService {
             // 注册策略
             MailManager manager = new MailManager();
             // strategyManager.addStrategy(new CmbCreditStrategy());
-            manager.addStrategy(new AliPayStrategy());
+            manager.addStrategy(new AliPayParser());
     
         
             // 使用策略管理器处理邮件
-            List<TransactionLog> allLogs = manager.process(mailClient, startDateStr);
+            List<TransactionChannel> list = manager.parse(mailClient, startDateStr);
+
         
             // 输出所有解析结果
-            System.out.println("总共解析到 " + allLogs.size() + " 条交易记录");
-            write(allLogs);
+            System.out.println("总共解析到 " + list.get(0).getTransactionLogs().size() + " 条交易记录");
+            write(list.get(0).getTransactionLogs());
            
             
         } catch (Exception e) {
