@@ -2,28 +2,31 @@ package com.chxt.domain.transaction.entity;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.alibaba.fastjson.JSON;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@Data
 @Slf4j
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionChannel {
 
-    
+    @Getter
     private String channel;
 
     //mutidateRange
@@ -44,23 +47,52 @@ public class TransactionChannel {
     }
 
     public void addDateRange(Date startDate, Date endDate) {
-        DateRange newRange = new DateRange(startDate, endDate);
+        startDate = DateUtils.truncate(startDate, Calendar.DATE);
+        endDate = DateUtils.truncate(endDate, Calendar.DATE);
+        
+        DateRange waitMergeRange = new DateRange(startDate, endDate);
         if (this.dateRanges == null) {
             this.dateRanges = new ArrayList<>();  
-            this.dateRanges.add(newRange);
-        } else {
-            boolean merged = false;
-            for (DateRange existingRange : this.dateRanges) {
-                if (existingRange.merge(newRange)) {
+        } 
+
+        processMerge(waitMergeRange);
+        
+                    
+        
+    }
+
+    private void processMerge(DateRange waitMergeRange) {
+        boolean merged = false;
+        ListIterator<DateRange> iterator = this.dateRanges.listIterator();
+        while (iterator.hasNext()) {
+            DateRange item = iterator.next();
+            if (item.merge(waitMergeRange)) {
+                waitMergeRange = item;
+                iterator.remove();
+                iterator = this.dateRanges.listIterator();
+            } else {
+                if (item.getStartDate().getTime() > waitMergeRange.getEndDate().getTime()) {
+                    iterator.previous();
+                    iterator.add(waitMergeRange);
                     merged = true;
                     break;
                 }
             }
-            if (!merged) {
-                this.dateRanges.add(newRange);
-            }
         }
-        
+        if (!merged) {
+            this.dateRanges.add(waitMergeRange);
+        }
+    }
+
+    /**
+     * 防止被修改
+     * @return
+     */
+    public List<DateRange> getDateRanges() {
+        if (this.dateRanges == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(this.dateRanges);
     }
 
     @Data
@@ -71,27 +103,44 @@ public class TransactionChannel {
         private Date endDate;
 
         public boolean merge(DateRange other) {
-            if (this.endDate.equals(DateUtils.addDays(other.startDate, -1)) ||
-                this.startDate.equals(DateUtils.addDays(other.endDate, 1)) ||
-                (this.startDate.before(other.endDate) && this.endDate.after(other.startDate))) {
-                this.startDate = this.startDate.before(other.startDate) ? this.startDate : other.startDate;
-                this.endDate = this.endDate.after(other.endDate) ? this.endDate : other.endDate;
+            if (isOverlap(other)) {
+                this.startDate = min(this.startDate, other.getStartDate());
+                this.endDate = max(this.endDate, other.getEndDate());
                 return true;
             }
+            
             return false;
+        }
+
+        private boolean isOverlap(DateRange other) {
+            Long fixedStart = DateUtils.addDays(this.getStartDate(), -1).getTime();
+            Long fixedEnd = DateUtils.addDays(this.getEndDate(), 1).getTime();
+            return other.getStartDate().getTime() >= fixedStart && other.getStartDate().getTime() <= fixedEnd
+                || other.getEndDate().getTime() >= fixedStart && other.getEndDate().getTime() <= fixedEnd
+                || other.getStartDate().getTime() < fixedStart && other.getEndDate().getTime() > fixedEnd
+            ;
+        }
+
+        private Date max(Date date1, Date date2) {
+            return date1.getTime() > date2.getTime() ? date1 : date2;
+        }
+
+        private Date min(Date date1, Date date2) {
+            return date1.getTime() < date2.getTime() ? date1 : date2;
         }
     }
 
     @SneakyThrows
     public static void main(String[] args) {
         TransactionChannel channel = new TransactionChannel("aliPay");
-        channel.addDateRange(DateUtils.parseDate("2025-05-01", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-02", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-03", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-04", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-05", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-06", "yyyy-MM-dd"));
         channel.addDateRange(DateUtils.parseDate("2025-05-07", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-08", "yyyy-MM-dd"));
         channel.addDateRange(DateUtils.parseDate("2025-05-09", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-10", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-11", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-12", "yyyy-MM-dd"));
-        
+        channel.addDateRange(DateUtils.parseDate("2025-05-12", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-13", "yyyy-MM-dd"));
+
+        channel.addDateRange(DateUtils.parseDate("2025-05-15", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-15", "yyyy-MM-dd"));
+        channel.addDateRange(DateUtils.parseDate("2025-05-11", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-11", "yyyy-MM-dd"));
+
+        channel.addDateRange(DateUtils.parseDate("2025-05-01", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-01", "yyyy-MM-dd"));
         channel.getDateRanges().forEach(range -> {
             System.out.println(DateFormat.getDateInstance().format(range.getStartDate()) + " - " + DateFormat.getDateInstance().format(range.getEndDate()));
         });
