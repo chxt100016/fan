@@ -39,8 +39,8 @@ public class TransactionService {
 
         
             // 输出所有解析结果
-            System.out.println("总共解析到 " + list.get(0).getTransactionLogs().size() + " 条交易记录");
-            write(list.get(0).getTransactionLogs());
+            System.out.println("总共解析到 " + list.get(0).getLogs().size() + " 条交易记录");
+            write(list.get(0).getLogs().stream().toList());
            
             
         } catch (Exception e) {

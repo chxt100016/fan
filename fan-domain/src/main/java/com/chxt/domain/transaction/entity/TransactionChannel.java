@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -32,18 +33,19 @@ public class TransactionChannel {
     //mutidateRange
     private List<DateRange> dateRanges;
 
-    private List<TransactionLog> transactionLogs;
+    @Getter
+    private Set<TransactionLog> logs;
 
     public TransactionChannel(String channel) {
         this.channel = channel;
     }
 
 
-    public void addLog(TransactionLog transactionLog) {
-        if (this.transactionLogs == null) {
-            this.transactionLogs = new ArrayList<>();
+    public void addLogs(List<TransactionLog> transactionLogs) {
+        if (this.logs == null) {
+            this.logs = new HashSet<>();
         }
-        this.transactionLogs.add(transactionLog);
+        this.logs.addAll(transactionLogs);
     }
 
     public void addDateRange(Date startDate, Date endDate) {

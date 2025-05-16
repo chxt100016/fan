@@ -32,7 +32,7 @@ public class TennisNoticeController {
     }
 
 
-    @GetMapping("/stilImage")
+    @GetMapping("/stillImage")
     @SneakyThrows
     public void latest(HttpServletResponse response) {
         byte[] image = this.tennisService.getStilImage();

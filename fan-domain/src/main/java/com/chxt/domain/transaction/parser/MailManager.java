@@ -2,17 +2,22 @@ package com.chxt.domain.transaction.parser;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
+
 
 import org.springframework.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +59,11 @@ public class MailManager {
         for (int i = 0; i < strategies.size(); i++) {
             MailParserStrategy<?> strategy = strategies.get(i);
             List<Mail> mails = allStrategyMails.get(i);
-            this.handleMails(mails, strategy);
+
+            TransactionChannel handleMails = this.handleMails(mails, strategy);
+            if (handleMails != null && !CollectionUtils.isEmpty(handleMails.getLogs())) {
+                res.add(handleMails);
+            }
         }
         
         return res;
@@ -73,35 +82,19 @@ public class MailManager {
 
         TransactionChannel channel = new TransactionChannel(strategy.getChannel());
 
-        Set<String> exist = new HashSet<>();
         for (Mail mail : mails) {
-            List<T> rows = strategy.parse(mail);
-            if (CollectionUtils.isEmpty(rows)) {
+            MailParser<T> parser = new MailParser<>(strategy, mail);
+            if (!parser.canGetData()) {
                 continue;
             }
-            for (T row : rows) {
-                TransactionLog log = TransactionLog.builder()
-                    .dateTime(strategy.getDateTime(row))
-                    .amount(strategy.getAmount(row))
-                    .currency(strategy.getCurrency(row))
-                    .type(strategy.getType(row))
-                    .method(strategy.getMethod(row))
-                    .channel(strategy.getChannel())
-                    .desc(strategy.getDesc(row))
-                    .logId(strategy.getLogId(row))
-                    .build();
-                if (exist.add(log.getLogId())) {
-                    channel.addLog(log);
-                }
-            }
-
-            Date startDate = strategy.getTransactionStartDate(mail, rows);
-            Date endDate = strategy.getTransactionEndDate(mail, rows);
+            Date startDate = parser.getStartDate();
+            Date endDate = parser.getEndDate();
             channel.addDateRange(startDate, endDate);
+            channel.addLogs(parser.getLogs());
         }
+        
         return channel;
     }
-
 
     /**
      * 获取所有策略需要得邮件
@@ -118,4 +111,57 @@ public class MailManager {
         return allStrategyMails;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private class MailParser<T> {
+
+        private List<TransactionLog> logs;
+
+        private Date startDate;
+
+        private Date endDate;
+
+        private boolean success;
+
+        public MailParser(MailParserStrategy<T> strategy, Mail mail) {
+            try {
+                process(strategy, mail);
+                this.success = true;
+            } catch (Exception e) {
+                this.success = false;
+                log.error("transaction mail parse error, mail: {}, strategy: {}", JSON.toJSONString(mail), JSON.toJSONString(strategy), e);
+            }
+        }
+
+        public void process(MailParserStrategy<T> strategy, Mail mail) {
+            List<T> data = strategy.parse(mail);
+            this.startDate = strategy.getTransactionStartDate(mail, data);
+            this.endDate = strategy.getTransactionEndDate(mail, data);
+
+            List<TransactionLog> logs = new ArrayList<>();
+            for (T item : data) {
+                TransactionLog log = TransactionLog.builder()
+                    .dateTime(strategy.getDateTime(item))
+                    .amount(strategy.getAmount(item))
+                    .currency(strategy.getCurrency(item))
+                    .type(strategy.getType(item))
+                    .method(strategy.getMethod(item))
+                    .channel(strategy.getChannel())
+                    .desc(strategy.getDesc(item))
+                    .logId(strategy.getLogId(item))
+                    .build();
+                logs.add(log);
+            }
+            this.logs = logs;
+        }
+
+        public boolean canGetData() {
+            return success && !CollectionUtils.isEmpty(logs) && startDate != null && endDate != null;
+        }
+    }
+
+  
+
+    
 } 

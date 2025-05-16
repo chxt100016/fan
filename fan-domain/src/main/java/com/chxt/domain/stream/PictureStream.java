@@ -10,11 +10,15 @@ import lombok.SneakyThrows;
 
 public class PictureStream {
     
-    private final static String HEADER = """
-            --frame\r\n
-            Content-Type: image/jpeg\r\n
-            Content-Length: %d\r\n
-            \r\n
+    /**
+     * 标准MJPEG格式头， 一个空格都改不得
+     */
+    private final static String HEADER = 
+            """
+            --frame
+            Content-Type: image/jpeg
+            Content-Length: %d
+            
             """;    
     
     private final String name;
