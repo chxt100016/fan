@@ -8,6 +8,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 
 import com.chxt.domain.pic.TimetableEnum;
+import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.utils.HttpOperator;
 
 
@@ -51,7 +52,7 @@ public class HuanglongClient {
                 .entity(entity)
                 .doPost()
                 .result(BookInfoResponse.class);
-        return TennisCourt.getList(response, date, TimetableEnum.HL_OUTDOOR);
+        return response.toTennisCourt(date, TimetableEnum.HL_OUTDOOR);
     }
 
     public List<TennisCourt> getInnerBookInfo(Date date) {
@@ -71,7 +72,7 @@ public class HuanglongClient {
                 .doPost()
                 .result(BookInfoResponse.class);
 
-        return TennisCourt.getList(response, date, TimetableEnum.HL_INDOOR);
+        return response.toTennisCourt(date, TimetableEnum.HL_INDOOR);
     }
 
 }

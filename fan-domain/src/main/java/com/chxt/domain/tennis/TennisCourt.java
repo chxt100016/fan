@@ -1,0 +1,29 @@
+package com.chxt.domain.tennis;
+
+
+import java.util.Date;
+
+import com.chxt.domain.pic.TimetableEnum;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Slf4j
+public class TennisCourt {
+
+    private Date date;
+    private Boolean bookable;
+    private Integer price;
+    private String fieldName;
+
+    private TimetableEnum timetableEnum;
+
+
+}

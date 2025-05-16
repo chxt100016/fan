@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.SneakyThrows;
 
@@ -21,11 +22,25 @@ public class PictureStream {
             
             """;    
     
+    /**
+     * 名称
+     */
     private final String name;
 
-    private boolean hasChange = false;
+    /**
+     * 是否变化
+     */
+    private volatile boolean hasChange = false;
 
+    /**
+     * 图片列表
+     */
     private volatile List<byte[]> pictureList;
+
+    /**
+     * 唯一标识
+     */
+    private volatile String uniqueId;
 
     public PictureStream(String name) {
         this.name = name;
@@ -44,12 +59,22 @@ public class PictureStream {
         }
     }
 
-    public synchronized void update(List<byte[]> pictureList) {
-        if (CollectionUtils.isEmpty(pictureList)) {
+    public boolean isSame(String uniqueId) {
+        return StringUtils.equals(this.uniqueId, uniqueId);
+    }
+
+    public synchronized void update(String uniqueId, List<byte[]> pictureList) {
+        if (CollectionUtils.isEmpty(pictureList) || StringUtils.isBlank(uniqueId)) {
             return;
         }
+
+        if (this.isSame(uniqueId)) {
+            return;
+        }
+
         this.pictureList = pictureList;
         this.hasChange = true;
+        this.uniqueId = uniqueId;
     }
 
     public synchronized byte[] getStillImage() {
