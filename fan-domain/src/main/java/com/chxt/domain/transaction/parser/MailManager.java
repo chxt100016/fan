@@ -2,7 +2,9 @@ package com.chxt.domain.transaction.parser;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.util.CollectionUtils;
 
@@ -71,6 +73,7 @@ public class MailManager {
 
         TransactionChannel channel = new TransactionChannel(strategy.getChannel());
 
+        Set<String> exist = new HashSet<>();
         for (Mail mail : mails) {
             List<T> rows = strategy.parse(mail);
             if (CollectionUtils.isEmpty(rows)) {
@@ -87,7 +90,9 @@ public class MailManager {
                     .desc(strategy.getDesc(row))
                     .logId(strategy.getLogId(row))
                     .build();
-                channel.addLog(log);
+                if (exist.add(log.getLogId())) {
+                    channel.addLog(log);
+                }
             }
 
             Date startDate = strategy.getTransactionStartDate(mail, rows);
