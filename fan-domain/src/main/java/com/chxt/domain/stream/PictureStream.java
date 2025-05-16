@@ -49,6 +49,9 @@ public class PictureStream {
     }
 
     public synchronized byte[] getStillImage() {
+        if (CollectionUtils.isEmpty(this.pictureList)) {
+            return new byte[0];
+        }
         return this.pictureList.get(0);
     }
 

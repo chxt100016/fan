@@ -2,6 +2,11 @@ package com.chxt.domain.pic;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -59,6 +64,37 @@ public class TimeCell {
         return this.name + DateFormatUtils.format(this.date, "HH点");
     }
     
+    /**
+     * 合并相同key和date的TimeCell列表
+     * @param dataList 原始TimeCell列表
+     * @return 合并后的TimeCell列表
+     */
+    public static List<TimeCell> mergeByKeyAndDate(List<TimeCell> dataList) {
+        if (dataList == null || dataList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        Map<String, TimeCell> mergedMap = new HashMap<>();
+        
+        for (TimeCell cell : dataList) {
+            if (cell.getDate() == null || cell.getKey() == null) {
+                continue;
+            }
+            
+            // 使用日期格式化为字符串和key组合作为Map的键
+            String mapKey = DateFormatUtils.format(cell.getDate(), "yyyy-MM-dd HH:mm") + "_" + cell.getKey();
+            
+            // 如果Map中不存在该键，则添加
+            if (!mergedMap.containsKey(mapKey)) {
+                mergedMap.put(mapKey, cell);
+            }
+            // 如果需要特殊的合并逻辑，可以在这里添加
+            // 例如：合并name字段或选择保留特定的记录等
+        }
+        
+        // 将Map转换回List
+        return new ArrayList<>(mergedMap.values());
+    }
 
     public String getDayOfWeek() {
         return DateStandardUtils.getDayOfWeekStr(this.date);

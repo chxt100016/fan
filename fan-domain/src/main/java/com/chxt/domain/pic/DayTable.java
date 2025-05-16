@@ -96,6 +96,8 @@ public class DayTable {
      */
     @SneakyThrows
     public byte[] getByte(List<TimeCell> dataList) {
+
+        dataList = TimeCell.mergeByKeyAndDate(dataList);
         // 分组
         Map<Integer, List<TimeCell>> groupedData = groupDataByWeekday(dataList);
         // 计算最大数据行数

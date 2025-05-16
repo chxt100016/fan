@@ -28,11 +28,6 @@ public class TennisNoticeService {
     @Resource
     private HuanglongClient huanglongClient;
 
-    public byte[] getStilImage() {
-        PictureStream pictureStream = pictureStreamCache.getPictureStream(STREAM_NAME);
-        return pictureStream.getStillImage();
-    }
-
     public void touch() {
         List<TennisCourt> now = huanglongClient.getOutdoorAndIndoor(5);
         TennisCourtSelector selector = new TennisCourtSelector();
@@ -50,6 +45,12 @@ public class TennisNoticeService {
         pictureStreamCache.getPictureStream(STREAM_NAME).update(Collections.singletonList(bytes));
 
     }
+
+    public byte[] getStilImage() {
+        PictureStream pictureStream = pictureStreamCache.getPictureStream(STREAM_NAME);
+        return pictureStream.getStillImage();
+    }
+
 
     public boolean check() {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(STREAM_NAME);
