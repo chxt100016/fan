@@ -46,4 +46,12 @@ public class Zip {
     public byte[] getOne() {
         return fileMap.values().iterator().next();
     }
+
+    public byte[] getOne(String extension) {
+        return fileMap.entrySet().stream().filter(data -> data.getKey().endsWith(extension)).findFirst().orElse(null).getValue();
+    }
+
+    public String getOneName(String extension) {
+        return fileMap.entrySet().stream().filter(data -> data.getKey().endsWith(extension)).findFirst().orElse(null).getKey();
+    }
 }

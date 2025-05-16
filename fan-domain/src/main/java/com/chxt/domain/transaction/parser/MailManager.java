@@ -130,7 +130,7 @@ public class MailManager {
                 this.success = true;
             } catch (Exception e) {
                 this.success = false;
-                log.error("transaction mail parse error, mail: {}, strategy: {}", JSON.toJSONString(mail), JSON.toJSONString(strategy), e);
+                log.error("transaction mail parse error, subject:{}, from:{}, date:{}, strategy: {}", mail.getSubject(), mail.getFrom(), mail.getDate(), JSON.toJSONString(strategy), e);
             }
         }
 

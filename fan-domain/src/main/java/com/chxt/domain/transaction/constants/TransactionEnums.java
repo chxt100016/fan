@@ -11,6 +11,7 @@ public class TransactionEnums {
         
         CMB_CREDIT("cmb_credit", "招商银行信用卡"),
         ALI_PAY("ali_pay", "支付宝"),
+        WECHAT_PAY("wechat_pay", "微信支付"),
         ;
 
         private final String code;

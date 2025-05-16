@@ -7,6 +7,8 @@ import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.parser.MailManager;
 import com.chxt.domain.transaction.parser.impl.AliPayParser;
+import com.chxt.domain.transaction.parser.impl.WechatPayParser;
+import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 
 import lombok.SneakyThrows;
@@ -27,12 +29,13 @@ public class TransactionService {
     
         try (MailClient mailClient = new MailClient(host, username, password, true)) {
          
+         
             
             // 注册策略
             MailManager manager = new MailManager();
             // strategyManager.addStrategy(new CmbCreditStrategy());
-            manager.addStrategy(new AliPayParser());
-    
+            // manager.addStrategy(new AliPayParser());
+            manager.addStrategy(new WechatPayParser());
         
             // 使用策略管理器处理邮件
             List<TransactionChannel> list = manager.parse(mailClient, startDateStr);
