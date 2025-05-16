@@ -80,7 +80,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     @SneakyThrows
     public Date getTransactionEndDate(Mail mail, List<Map<String, String>> data) {
         String name = mail.getAttachmentFileName();
-        // end time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
+        // end time of the day from name,  example: 微信支付账单(20250313-20250513)——【解压密码可在微信支付公众号查看】.csv
         Pattern pattern = Pattern.compile("微信支付账单\\((\\d{8})-(\\d{8})\\)——【解压密码可在微信支付公众号查看】.csv");
         Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {
@@ -91,39 +91,42 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     }
 
     @Override
+    @SneakyThrows
     public Date getDateTime(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDateTime'");
+        return DateUtils.parseDate(data.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
     }
 
     @Override
     public BigDecimal getAmount(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAmount'");
+        return new BigDecimal(data.get("金额").replace("¥", "").trim());
     }
 
     @Override
     public String getCurrency(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCurrency'");
+        return TransactionEnums.CURRENCY.CNY.getCode();
     }
 
     @Override
     public String getType(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getType'");
+        return data.get("收/支");
     }
 
     @Override
     public String getMethod(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMethod'");
+        return data.get("支付方式");
     }
 
     @Override
     public String getDesc(Map<String, String> data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDesc'");
+        String format = """
+            交易类型: %s;
+            交易对方: %s;
+            商品: %s;
+            交易状态: %s;
+            备注: %s;
+            当前状态: %s;
+            """;
+        return String.format(format, data.get("交易类型"), data.get("交易对方"), data.get("商品"), data.get("交易状态"), data.get("备注"), data.get("当前状态"));
     }
 
 
