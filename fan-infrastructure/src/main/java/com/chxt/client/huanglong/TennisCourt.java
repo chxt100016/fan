@@ -9,6 +9,8 @@ import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import com.chxt.client.huanglong.BookInfoResponse.BookRow;
+import com.chxt.client.huanglong.BookInfoResponse.BookingInfo;
 import com.chxt.domain.pic.TimetableEnum;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +18,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.var;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -40,8 +42,8 @@ public class TennisCourt {
         if (response.getData().getBookingArray() == null) {
             return tennisCourts;
         }
-        for (var item : response.getData().getBookingArray()) {
-            for (var inner : item.getBookingInfos()) {
+        for (BookRow item : response.getData().getBookingArray()) {
+            for (BookingInfo inner : item.getBookingInfos()) {
                 try {
                     if (inner.getStartDateHours() == 20) {
                         String aStr = dateStr + " 20:00";
