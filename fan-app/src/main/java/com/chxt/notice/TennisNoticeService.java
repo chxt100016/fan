@@ -16,7 +16,7 @@ import com.chxt.domain.pic.TimeTable;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.tennis.TennisCourtSelector;
-import com.chxt.domain.utils.DateStandardUtils;
+
 
 import jakarta.annotation.Resource;
 
@@ -27,12 +27,16 @@ public class TennisNoticeService {
     
     private static final Integer DAY_RANGE = 4;
 
-    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+    // 室外场地 工作日
+    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
 
+    // 室外场地 周末
     private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
 
-    private static final List<Integer> IN_DOOR_WEEKDAY_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+    // 室内场地 工作日
+    private static final List<Integer> IN_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
 
+    // 室内场地 周末
     private static final List<Integer> IN_DOOR_WEEKEND_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
 
     @Resource
