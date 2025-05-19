@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.chxt.db.transaction.TransactionLogPO;
 import com.chxt.db.transaction.TransactionRepository;
+import com.chxt.db.transaction.entity.TransactionLogPO;
 import com.chxt.domain.transaction.TransactionService;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 

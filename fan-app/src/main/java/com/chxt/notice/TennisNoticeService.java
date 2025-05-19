@@ -2,11 +2,8 @@ package com.chxt.notice;
 
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -18,6 +15,7 @@ import com.chxt.domain.pic.TimeCell;
 import com.chxt.domain.pic.TimeTable;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.tennis.TennisCourt;
+import com.chxt.domain.tennis.TennisCourtSelector;
 import com.chxt.domain.utils.DateStandardUtils;
 
 import jakarta.annotation.Resource;
@@ -26,6 +24,16 @@ import jakarta.annotation.Resource;
 public class TennisNoticeService {
 
     private static final String TEENIS_STREAM = "tennis";
+    
+    private static final Integer DAY_RANGE = 4;
+
+    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+
+    private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+
+    private static final List<Integer> IN_DOOR_WEEKDAY_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
+
+    private static final List<Integer> IN_DOOR_WEEKEND_HOURS = Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22);
 
     @Resource
     private PictureStreamCache pictureStreamCache;
@@ -34,19 +42,27 @@ public class TennisNoticeService {
     private HuanglongClient huanglongClient;
 
     public void touch() {
-        List<TennisCourt> tennisCourts = huanglongClient.getOutdoorAndIndoor(5);
-        tennisCourts = tennisCourts.stream().filter(item -> item.getBookable()).collect(Collectors.toList());
-        String allCountStr = tennisCourts.stream()
-            .map(item -> item.getTimetableEnum().getCode() + ":" + DateStandardUtils.getDayHour(item.getDate()) + ":" + item.getFieldName())
-            .collect(Collectors.joining(";"));
-        String uniqueId = DigestUtils.md5Hex(allCountStr);
+        List<TennisCourt> all = huanglongClient.getOutdoorAndIndoor(DAY_RANGE);
+
+        // 根据时间限制，获取可预约的场地
+        TennisCourtSelector selector = TennisCourtSelector.builder()
+            .outDoorWeekdayHours(OUT_DOOR_WEEKDAY_HOURS)
+            .outDoorWeekendHours(OUT_DOOR_WEEKEND_HOURS)
+            .inDoorWeekdayHours(IN_DOOR_WEEKDAY_HOURS)
+            .intDoorWeekendHours(IN_DOOR_WEEKEND_HOURS)
+            .build();
+        List<TennisCourt> available = selector.getAvailable(all);
+
+        // 获取唯一标识 
+        String uniqueStr = TennisCourt.getUniqueString(available);
+        String uniqueId = DigestUtils.md5Hex(uniqueStr);
         PictureStream pictureStream = pictureStreamCache.getPictureStream(TEENIS_STREAM);
 
         if (pictureStream.isSame(uniqueId)) {
             return;
         }
 
-        List<TimeCell> timeTables = tennisCourts.stream()
+        List<TimeCell> timeTables = available.stream()
                 .map(item -> new TimeCell(item.getDate(), item.getTimetableEnum()))
                 .collect(Collectors.toList());
 

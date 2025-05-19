@@ -1,4 +1,4 @@
-package com.chxt.db.transaction;
+package com.chxt.db.transaction.entity;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class TransactionLogPO {
 
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 交易日期时间

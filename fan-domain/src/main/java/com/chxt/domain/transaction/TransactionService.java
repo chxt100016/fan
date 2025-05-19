@@ -2,6 +2,7 @@ package com.chxt.domain.transaction;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.parser.MailManager;
 import com.chxt.domain.transaction.parser.impl.WechatPayParser;
@@ -44,6 +45,11 @@ public class TransactionService {
         }
 
         return null;
+    }
+
+    public static void main(String[] args) {
+        List<TransactionChannel> list = init();
+        System.out.println(JSON.toJSONString(list));
     }
 
 

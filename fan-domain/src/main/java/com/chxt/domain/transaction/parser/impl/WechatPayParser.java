@@ -118,14 +118,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
 
     @Override
     public String getDescription(Map<String, String> data) {
-        String format = """
-            交易类型: %s;
-            交易对方: %s;
-            商品: %s;
-            交易状态: %s;
-            备注: %s;
-            当前状态: %s;
-            """;
+        String format = "交易类型: %s;交易对方: %s;商品: %s;交易状态: %s;备注: %s;当前状态: %s;";
         return String.format(format, data.get("交易类型"), data.get("交易对方"), data.get("商品"), data.get("交易状态"), data.get("备注"), data.get("当前状态"));
     }
 

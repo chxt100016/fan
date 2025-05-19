@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import com.chxt.db.transaction.TransactionLogPO;
+import com.chxt.db.transaction.entity.TransactionLogPO;
 import com.chxt.domain.transaction.entity.TransactionLog;
 
 @Mapper
