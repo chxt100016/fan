@@ -16,8 +16,9 @@ import com.chxt.domain.utils.MailClient;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,19 +27,24 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MailManager {
+
+    private final MailConfig mailConfig;
     
     private final List<MailParserStrategy<?>> strategies = new ArrayList<>();
-    
-    /**
-     * 添加邮件解析策略
-     * @param strategy 解析策略
-     * @return 当前管理器实例
-     */
-    public MailManager addStrategy(MailParserStrategy<?> strategy) {
-        strategies.add(strategy);
-        return this;
+
+    public MailManager(String host, String username, String password, List<MailParserStrategy<?>> strategies) {
+        this.mailConfig = new MailConfig(host, username, password);
+        this.strategies.addAll(strategies);
     }
-    
+
+    public static Builder Builder() {
+        return new Builder();
+    }
+
+
+    public List<TransactionChannel> parse(String startDateStr) {
+        return parse(startDateStr, false);
+    }
     
     
     /**
@@ -48,25 +54,41 @@ public class MailManager {
      * @return 所有交易记录列表
      */
     @SneakyThrows
-    public List<TransactionChannel> parse(MailClient mailClient, String startDateStr) {
-        List<TransactionChannel> res = new ArrayList<>();
-        
-        // 一次性获取所有策略的邮件
-        List<List<Mail>> allStrategyMails = searchAll(mailClient, startDateStr);
-        
-       
-        // 处理邮件
-        for (int i = 0; i < strategies.size(); i++) {
-            MailParserStrategy<?> strategy = strategies.get(i);
-            List<Mail> mails = allStrategyMails.get(i);
+    public List<TransactionChannel> parse(String startDateStr, boolean printInfo) {
 
-            TransactionChannel handleMails = this.handleMails(mails, strategy);
-            if (handleMails != null && !CollectionUtils.isEmpty(handleMails.getLogs())) {
-                res.add(handleMails);
-            }
-        }
+
+        try (MailClient mailClient = new MailClient(this.mailConfig.getHost(), this.mailConfig.getUsername(), this.mailConfig.getPassword(), printInfo)) {
+         
+         
+            List<TransactionChannel> res = new ArrayList<>();
         
-        return res;
+            // 一次性获取所有策略的邮件
+            List<List<Mail>> allStrategyMails = searchAll(mailClient, startDateStr);
+            
+           
+            // 处理邮件
+            for (int i = 0; i < strategies.size(); i++) {
+                MailParserStrategy<?> strategy = strategies.get(i);
+                List<Mail> mails = allStrategyMails.get(i);
+    
+                TransactionChannel handleMails = this.handleMails(mails, strategy);
+                if (handleMails != null && !CollectionUtils.isEmpty(handleMails.getLogs())) {
+                    res.add(handleMails);
+                }
+            }
+            
+            return res;
+       
+            
+        } catch (Exception e) {
+            System.err.println("处理邮件时发生错误: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+
+
+      
     }
 
     /**
@@ -162,6 +184,62 @@ public class MailManager {
     }
 
   
+    /**
+     * 邮件配置
+     */
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    private class MailConfig {
+        
+        private String host;
 
+        private String username;
+
+        private String password;
+    }
+
+    public static class Builder {
+
+
+        private String host;
+
+
+        private String username;
+
+
+        private String password;
+
+        private List<MailParserStrategy<?>> strategies;
+
+        public Builder setHost(String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder setUsername(String username) {
+            this.username = username;
+            return this;
+        }
+        
+        public Builder setPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder addStrategy(MailParserStrategy<?> strategy) {
+            if (this.strategies == null) {
+                this.strategies = new ArrayList<>();
+            }
+            this.strategies.add(strategy);
+            return this;
+        }
+        
+
+        public MailManager build() {
+            return new MailManager(host, username, password, strategies);
+        }
+    }
+    
     
 } 

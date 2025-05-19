@@ -1,19 +1,23 @@
 package com.chxt.domain.transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
+import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.parser.MailManager;
 import com.chxt.domain.transaction.parser.impl.WechatPayParser;
-import com.chxt.domain.utils.MailClient;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TransactionService {
     
     @SneakyThrows
     public static List<TransactionChannel>  init() {
+        log.info("开始解析交易记录");
         // 配置信息
         String host = "imap.qq.com";  // QQ邮箱的IMAP服务器
         String username = "546555918@qq.com";  // 你的QQ邮箱地址
@@ -21,35 +25,37 @@ public class TransactionService {
         String startDateStr = "2025-05-01";  // 开始日期，格式为yyyy-MM-dd
         
 
-        try (MailClient mailClient = new MailClient(host, username, password, true)) {
-         
-         
-            
-            // 注册策略
-            MailManager manager = new MailManager();
-            // strategyManager.addStrategy(new CmbCreditStrategy());
-            // manager.addStrategy(new AliPayParser());
-            manager.addStrategy(new WechatPayParser());
-        
-            // 使用策略管理器处理邮件
-            List<TransactionChannel> list = manager.parse(mailClient, startDateStr);
+        // 注册策略
+        MailManager manager = MailManager.Builder()
+            .setHost(host)
+            .setUsername(username)
+            .setPassword(password)
+            .addStrategy(new WechatPayParser())
+            .build();
+        // strategyManager.addStrategy(new CmbCreditStrategy());
+        // manager.addStrategy(new AliPayParser());
+        // manager.addStrategy(new WechatPayParser());
 
-        
-            // 输出所有解析结果
-            return list;
-           
-            
-        } catch (Exception e) {
-            System.err.println("处理邮件时发生错误: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // 使用策略管理器处理邮件
+        List<TransactionChannel> list = manager.parse(startDateStr, true);
 
-        return null;
+
+        // 输出所有解析结果
+        return list;
     }
 
     public static void main(String[] args) {
         List<TransactionChannel> list = init();
-        System.out.println(JSON.toJSONString(list));
+        List<TransactionLog> part = new ArrayList<>();
+        Integer limit = 20;
+        for (TransactionChannel transactionChannel : list) {
+            for (TransactionLog transactionLog : transactionChannel.getLogs()) {
+                if (part.size() < limit) {
+                    part.add(transactionLog);
+                }
+            }
+        }
+        System.out.println(JSON.toJSONString(part));
     }
 
 
