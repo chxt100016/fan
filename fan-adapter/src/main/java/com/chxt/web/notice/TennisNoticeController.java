@@ -2,8 +2,7 @@ package com.chxt.web.notice;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chxt.notice.TennisNoticeService;
 
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 
 @RequestMapping("/notice/tennis")

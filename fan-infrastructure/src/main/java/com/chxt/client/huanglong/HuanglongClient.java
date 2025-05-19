@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 
+import com.chxt.client.huanglong.model.BookInfoRequest;
+import com.chxt.client.huanglong.model.BookInfoResponse;
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.utils.HttpOperator;

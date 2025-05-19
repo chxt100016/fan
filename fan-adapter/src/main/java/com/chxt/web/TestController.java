@@ -5,22 +5,39 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.chxt.cache.token.TokenEnum;
+import com.chxt.cache.token.TokenFactory;
+import com.chxt.client.ezviz.EzvizClient;
+import com.chxt.client.ezviz.model.CaptureResponse;
+
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @RestController
 @RequestMapping("/test")
 public class TestController {
 
+    @Resource
+    private EzvizClient ezvizClient;
+
     private String flag = "1";
 
     @GetMapping("/hello")
     public String hello() {
         return "hello";
+    }
+
+    @GetMapping("/ezviz")
+    public String ezviz() {
+        CaptureResponse capture = this.ezvizClient.capture("G69552993", TokenFactory.innerStore(TokenEnum.EZVIZ));
+        this.ezvizClient.downloadImg(capture.getData().getPicUrl(), "/Users/chenxintong/Downloads/1.jpeg");
+        return "success";
+
     }
 
     @GetMapping("/flag")

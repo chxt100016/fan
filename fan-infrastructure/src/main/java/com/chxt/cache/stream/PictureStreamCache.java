@@ -1,4 +1,4 @@
-package com.chxt.cache;
+package com.chxt.cache.stream;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -142,13 +142,13 @@ public class MailManager {
             List<TransactionLog> logs = new ArrayList<>();
             for (T item : data) {
                 TransactionLog log = TransactionLog.builder()
-                    .dateTime(strategy.getDateTime(item))
+                    .date(strategy.getDate(item))
                     .amount(strategy.getAmount(item))
                     .currency(strategy.getCurrency(item))
                     .type(strategy.getType(item))
                     .method(strategy.getMethod(item))
                     .channel(strategy.getChannel())
-                    .desc(strategy.getDesc(item))
+                    .description(strategy.getDescription(item))
                     .logId(strategy.getLogId(item))
                     .build();
                 logs.add(log);

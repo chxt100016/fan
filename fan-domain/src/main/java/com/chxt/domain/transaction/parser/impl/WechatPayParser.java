@@ -92,13 +92,13 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
 
     @Override
     @SneakyThrows
-    public Date getDateTime(Map<String, String> data) {
+    public Date getDate(Map<String, String> data) {
         return DateUtils.parseDate(data.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
     }
 
     @Override
     public BigDecimal getAmount(Map<String, String> data) {
-        return new BigDecimal(data.get("金额").replace("¥", "").trim());
+        return new BigDecimal(data.get("金额(元)").replace("¥", "").trim());
     }
 
     @Override
@@ -117,7 +117,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     }
 
     @Override
-    public String getDesc(Map<String, String> data) {
+    public String getDescription(Map<String, String> data) {
         String format = """
             交易类型: %s;
             交易对方: %s;

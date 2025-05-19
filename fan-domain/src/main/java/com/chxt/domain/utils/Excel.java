@@ -1,7 +1,10 @@
 package com.chxt.domain.utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +16,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.support.ExcelTypeEnum;
 
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -100,6 +104,15 @@ public class Excel {
         } catch (Exception e) {
             log.error("解析CSV字节数组失败", e);
             return new ArrayList<>();
+        }
+    }
+
+    @SneakyThrows
+    public void download(String path) {
+        try {
+            Files.write(Paths.get(path), data);
+        } catch (IOException e) {
+            log.error("下载文件失败", e);
         }
     }
 

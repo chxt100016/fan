@@ -1,4 +1,4 @@
-package com.chxt.client.huanglong;
+package com.chxt.client.huanglong.model;
 
 
 import lombok.AllArgsConstructor;

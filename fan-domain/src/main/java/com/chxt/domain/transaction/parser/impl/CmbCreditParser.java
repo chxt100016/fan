@@ -62,21 +62,21 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     }
     
     @Override
-    public String getDesc(String[] data) {
+    public String getDescription(String[] data) {
         return data[5];
     }
     
     @Override
     @SneakyThrows
-    public Date getDateTime(String[] data) {
+    public Date getDate(String[] data) {
         return DateUtils.parseDate(data[0], "yyyy-MM-dd HH:mm:ss");
     }
     
     @Override
     public Date getTransactionStartDate(Mail mail, List<String[]> data) {
         // start time of the day
-        Date dateTime = getDateTime(data.get(0));
-        return DateUtils.truncate(dateTime, Calendar.HOUR_OF_DAY);
+        Date date = getDate(data.get(0));
+        return DateUtils.truncate(date, Calendar.HOUR_OF_DAY);
     }
     
     @Override

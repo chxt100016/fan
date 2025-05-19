@@ -65,7 +65,7 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     }
     
     @Override
-    public String getDesc(Map<String,String> data) {
+    public String getDescription(Map<String,String> data) {
         String format = """
             交易分类: %s;
             交易对方: %s;
@@ -79,7 +79,7 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     
     @Override
     @SneakyThrows
-    public Date getDateTime(Map<String,String> data) {
+    public Date getDate(Map<String,String> data) {
         return DateUtils.parseDate(data.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
     }
     

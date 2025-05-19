@@ -20,7 +20,7 @@ public class TransactionLog {
     /**
      * 交易日期时间
      */
-    private Date dateTime;
+    private Date date;
     
     /**
      * 交易金额
@@ -50,7 +50,7 @@ public class TransactionLog {
     /**
      * 交易描述
      */
-    private String desc;
+    private String description;
 
     /**
      * 交易日志id

@@ -21,7 +21,7 @@ public class Transaction {
     /**
      * 消费时间
      */
-    private Date dateTime;
+    private Date date;
     
     
     /**

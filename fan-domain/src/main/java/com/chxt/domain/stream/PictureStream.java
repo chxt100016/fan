@@ -8,7 +8,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PictureStream {
     
     /**
@@ -79,22 +81,33 @@ public class PictureStream {
 
     public synchronized byte[] getStillImage() {
         if (CollectionUtils.isEmpty(this.pictureList)) {
+            log.error("image pictureList is empty");
             return new byte[0];
         }
         return this.pictureList.get(0);
     }
 
     @SneakyThrows
-    public void stream(OutputStream outputStream, int interval) {
+    public void stream(OutputStream outputStream, int interval, int fps) {
+        if (CollectionUtils.isEmpty(this.pictureList)) {
+            log.error("stream pictureList is empty");
+            return;
+        }
+
         int index = 0;
+        int fpt = 1000 / fps;
+        
         while(true) {
-            byte[] imageBytes = pictureList.get(index);
+            byte[] imageBytes = pictureList.get((index / interval) % pictureList.size());
             outputStream.write(String.format(HEADER, imageBytes.length).getBytes());
             outputStream.write(imageBytes);
             outputStream.write("\r\n".getBytes());
             outputStream.flush();
-            TimeUnit.MILLISECONDS.sleep(interval);
-            index = (index + 1) % pictureList.size();
+            TimeUnit.MILLISECONDS.sleep(fpt);
+
+            index += fpt;
+
+            
         }
     }
 

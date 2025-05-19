@@ -1,22 +1,26 @@
 package com.chxt.notice;
 
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
+
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 
-import com.chxt.cache.PictureStreamCache;
+import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
+import com.chxt.domain.pic.DayTable;
 import com.chxt.domain.pic.TimeCell;
 import com.chxt.domain.pic.TimeTable;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.utils.DateStandardUtils;
+
+import jakarta.annotation.Resource;
 
 @Service
 public class TennisNoticeService {
@@ -47,8 +51,10 @@ public class TennisNoticeService {
                 .collect(Collectors.toList());
 
         // byte[] bytes = new DayTable().getByte(timeTables);
-        byte[] bytes = new TimeTable().getByte(timeTables);
-        pictureStream.update(uniqueId, Collections.singletonList(bytes));
+        byte[] a = new TimeTable().getByte(timeTables);
+        byte[] b = new DayTable().getByte(timeTables);
+
+        pictureStream.update(uniqueId, Arrays.asList(a, b));
 
     }
 
@@ -65,6 +71,6 @@ public class TennisNoticeService {
 
     public void streamMjpeg(OutputStream outputStream) {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(TEENIS_STREAM);
-        pictureStream.stream(outputStream, 1000);
+        pictureStream.stream(outputStream, 1000, 15);
     }
 }

@@ -18,8 +18,10 @@
 
         <cola.components.version>5.0.0</cola.components.version>
 
-        <spring-boot.version>2.7.2</spring-boot.version>
-        <mybatis-starter.version>2.2.2</mybatis-starter.version>
+        <spring-boot.version>3.2.3</spring-boot.version>
+        <mybatis-starter.version>3.0.3</mybatis-starter.version>
+        <mysql-connector-java.version>8.0.27</mysql-connector-java.version>
+        <org.mapstruct.version>1.6.2</org.mapstruct.version>
     </properties>
 
     <modules>
@@ -42,9 +44,17 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
+
+        
         <dependencies>
             <!--Project modules-->
             <dependency>
@@ -83,11 +93,46 @@
                 <scope>import</scope>
             </dependency>
            
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector-java.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <!-- Lombok 必须在 MapStruct 之前 -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.24</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <!-- 这个处理器用于解决 Lombok 和 MapStruct 的兼容性问题 -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>

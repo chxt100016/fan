@@ -43,7 +43,7 @@ public interface MailParserStrategy<T> {
 
     Date getTransactionEndDate(Mail mail, List<T> data);
 
-    Date getDateTime(T data);
+    Date getDate(T data);
 
     BigDecimal getAmount(T data);
 
@@ -53,7 +53,7 @@ public interface MailParserStrategy<T> {
 
     String getMethod(T data);
 
-    String getDesc(T data);
+    String getDescription(T data);
 
     default String getLogId(T data) {
         return this.getChannel() + ":" + DigestUtils.md5Hex(data.toString());

@@ -33,11 +33,14 @@ public class TransactionChannel {
     //mutidateRange
     private List<DateRange> dateRanges;
 
-    @Getter
     private Set<TransactionLog> logs;
 
     public TransactionChannel(String channel) {
         this.channel = channel;
+    }
+
+    public List<TransactionLog> getLogs() {
+        return this.logs == null ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(this.logs));
     }
 
 

@@ -224,7 +224,7 @@ public class HttpOperator {
                 this.contentByteArray = new byte[0];
                 this.request.releaseConnection();
             }
-            if (this.message != null) log.info("HTTP请求{}完成, statusCode:{}, response:{}", this.message, this.statusLine.getStatusCode(), new String(this.contentByteArray));
+            
         } catch (Exception e) {
             log.error("http请求异常, url:{}, entity:{}", JSON.toJSONString(this.request.getURI()), JSON.toJSONString(this.entity), e);
         } finally {
