@@ -36,15 +36,18 @@ public class Transaction {
     private String currency;
 
     /**
-     * 记录类型 
+     * 收支
      */
     private String type;
 
     /**
      * 
      */
-    private List<TransactionLog> recordSourceList;
+    private List<TransactionLog> logs;
   
-    
+    // public Transactopn(List<TransactionLog> logs) {
+    //     this.date = logs.stream().map(TransactionLog::getDate).min(Date::compareTo).orElse(null);
+    //     this. amount
+    // }
 
 } 

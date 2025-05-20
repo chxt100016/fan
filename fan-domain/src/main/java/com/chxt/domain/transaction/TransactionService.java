@@ -2,11 +2,14 @@ package com.chxt.domain.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.parser.MailManager;
+import com.chxt.domain.transaction.parser.impl.AliPayParser;
+import com.chxt.domain.transaction.parser.impl.CmbCreditParser;
 import com.chxt.domain.transaction.parser.impl.WechatPayParser;
 
 import lombok.SneakyThrows;
@@ -31,6 +34,8 @@ public class TransactionService {
             .setUsername(username)
             .setPassword(password)
             .addStrategy(new WechatPayParser())
+            .addStrategy(new AliPayParser())
+            .addStrategy(new CmbCreditParser())
             .build();
         // strategyManager.addStrategy(new CmbCreditStrategy());
         // manager.addStrategy(new AliPayParser());
@@ -38,6 +43,16 @@ public class TransactionService {
 
         // 使用策略管理器处理邮件
         List<TransactionChannel> list = manager.parse(startDateStr, true);
+
+
+        List<List<TransactionLog>> allLogs = list.stream().map(TransactionChannel::getLogs).collect(Collectors.toList());
+
+        
+
+
+
+
+            
 
 
         // 输出所有解析结果

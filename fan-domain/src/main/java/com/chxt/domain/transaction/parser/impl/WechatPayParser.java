@@ -108,7 +108,14 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
 
     @Override
     public String getType(Map<String, String> data) {
-        return data.get("收/支");
+        switch (data.get("收/支")) {
+            case "收入":
+                return TransactionEnums.TYPE.INCOME.getCode();
+            case "支出":
+                return TransactionEnums.TYPE.EXPENSE.getCode();
+            default:
+                return null;
+        }
     }
 
     @Override
