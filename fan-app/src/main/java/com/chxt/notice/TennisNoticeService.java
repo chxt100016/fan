@@ -91,6 +91,6 @@ public class TennisNoticeService {
 
     public void streamMjpeg(OutputStream outputStream) {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(TEENIS_STREAM);
-        pictureStream.stream(outputStream, 1000, 15);
+        pictureStream.stream(outputStream, 3000, 15);
     }
 }
