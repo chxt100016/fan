@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
-import com.chxt.domain.pic.DayTable;
 import com.chxt.domain.pic.TimeCell;
 import com.chxt.domain.pic.TimeTable;
 import com.chxt.domain.stream.PictureStream;
@@ -72,9 +71,8 @@ public class TennisNoticeService {
 
         // byte[] bytes = new DayTable().getByte(timeTables);
         byte[] a = new TimeTable().getByte(timeTables);
-        byte[] b = new DayTable().getByte(timeTables);
 
-        pictureStream.update(uniqueId, Arrays.asList(a, b));
+        pictureStream.update(uniqueId, Arrays.asList(a));
 
     }
 

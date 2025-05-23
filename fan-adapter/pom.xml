@@ -28,19 +28,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JavaCV dependencies -->
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>javacv-platform</artifactId>
-            <version>1.5.9</version>
-        </dependency>
-
-        <!-- Netty dependencies -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.94.Final</version>
-        </dependency>
 
         <!-- Lombok for convenience -->
         <dependency>

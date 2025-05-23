@@ -114,7 +114,8 @@ public class TimeTable {
        
     
     public byte[] getByte(List<TimeCell> TimeCells) {
-        BufferedImage bufferedImage = new BufferedImage(config.getWidth(), config.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        // 直接创建RGB格式的图片
+        BufferedImage bufferedImage = new BufferedImage(config.getWidth(), config.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bufferedImage.createGraphics();
 
         // 绘制背景
@@ -137,6 +138,17 @@ public class TimeTable {
         
         // 绘制图标
         drawIcons(g2d, TimeCells, cellWidth, cellHeight);
+
+        // 添加时间戳
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timestamp = sdf.format(new Date());
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font(config.getFontName(), Font.PLAIN, 12));
+        FontMetrics metrics = g2d.getFontMetrics();
+        int timeWidth = metrics.stringWidth(timestamp);
+        g2d.drawString(timestamp, 
+            config.getWidth() - timeWidth - 10,
+            config.getHeight() - 10);
 
         g2d.dispose();
 
@@ -286,7 +298,7 @@ public class TimeTable {
     
     private byte[] convertToByteArray(BufferedImage bufferedImage) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(bufferedImage, "png", baos);
+            ImageIO.write(bufferedImage, "jpg", baos);
             return baos.toByteArray();
         } catch (Exception e) {
             e.printStackTrace();
