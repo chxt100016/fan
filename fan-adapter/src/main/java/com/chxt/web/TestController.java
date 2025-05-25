@@ -49,7 +49,7 @@ public class TestController {
     @GetMapping(value = "/stream", produces = "multipart/x-mixed-replace;boundary=frame")
     public void streamMjpeg(HttpServletResponse response) throws IOException {
         response.setContentType("multipart/x-mixed-replace;boundary=frame");
-        
+         
         while (true) {
             try {
                 byte[] imageBytes = getLatestImageFrame();
