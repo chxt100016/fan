@@ -8,6 +8,12 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import javax.imageio.ImageIO;
 
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.cache.token.TokenEnum;
@@ -34,21 +40,28 @@ public class GateNoticeService {
     @SneakyThrows
     public void touch() {
         List<byte[]> images = new ArrayList<>();
-        
-        
-        // // 拍5张照片并收集图片数据
-        // for (int i = 0; i < 5; i++) {
-        //     CaptureResponse response = this.ezvizClient.capture(DEVICE_SERIAL, TokenFactory.innerStore(TokenEnum.EZVIZ));
-        //     byte[] image = this.ezvizClient.downloadImg(response.getData().getPicUrl());
-        //     images.add(image);
-        // }
+        String rtspUrl = "rtsp://admin:IZOGRT@192.168.1.239:554/h264/ch1/main/av_stream";
+        FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(rtspUrl);
+        grabber.start();
+
+        Java2DFrameConverter converter = new Java2DFrameConverter();
+
+        for (int i = 0; i < 3; i++) {
+            Frame frame = grabber.grabImage();
+            if (frame != null) {
+                BufferedImage bufferedImage = converter.convert(frame);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpeg", baos);
+                images.add(baos.toByteArray());
+            }
+            Thread.sleep(1000); // 间隔1秒
+        }
+
+        grabber.stop();
 
         // 生成唯一ID，使用时间戳作为标识
         String uniqueId = DigestUtils.md5Hex(DEVICE_SERIAL + System.currentTimeMillis());
-        
-        byte [] a = Files.readAllBytes(Paths.get("/Users/chenxintong/Downloads/1.jpeg"));
-        images.add(a);
-        
+
         // 更新图片流
         pictureStreamCache.getPictureStream(GATE_STREAM).update(uniqueId, images);
     }
