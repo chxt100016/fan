@@ -1,10 +1,11 @@
 package com.chxt.domain.transaction;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.alibaba.fastjson.JSON;
+import org.apache.commons.compress.archivers.tar.TarConstants;
+
+import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.parser.MailManager;
@@ -34,8 +35,8 @@ public class TransactionService {
             .setUsername(username)
             .setPassword(password)
             .addStrategy(new WechatPayParser())
-            .addStrategy(new AliPayParser())
-            .addStrategy(new CmbCreditParser())
+            // .addStrategy(new AliPayParser())
+            // .addStrategy(new CmbCreditParser())
             .build();
         // strategyManager.addStrategy(new CmbCreditStrategy());
         // manager.addStrategy(new AliPayParser());
@@ -46,6 +47,8 @@ public class TransactionService {
 
 
         List<List<TransactionLog>> allLogs = list.stream().map(TransactionChannel::getLogs).collect(Collectors.toList());
+
+
 
         
 
@@ -61,16 +64,11 @@ public class TransactionService {
 
     public static void main(String[] args) {
         List<TransactionChannel> list = init();
-        List<TransactionLog> part = new ArrayList<>();
-        Integer limit = 20;
-        for (TransactionChannel transactionChannel : list) {
-            for (TransactionLog transactionLog : transactionChannel.getLogs()) {
-                if (part.size() < limit) {
-                    part.add(transactionLog);
-                }
-            }
-        }
-        System.out.println(JSON.toJSONString(part));
+        Integer income = list.stream().flatMap(it -> it.getLogs().stream()).filter(it -> it.getType() == TransactionEnums.TYPE.INCOME.getCode()).mapToInt(it -> it.getAmount().intValue()).sum();
+        Integer expense = list.stream().flatMap(it -> it.getLogs().stream()).filter(it -> it.getType() == TransactionEnums.TYPE.EXPENSE.getCode()).mapToInt(it -> it.getAmount().intValue()).sum();
+
+        log.info("收入：{}", income);
+        log.info("支出：{}", expense);
     }
 
 

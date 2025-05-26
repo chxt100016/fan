@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,12 +44,12 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
 
     @Override
     public String getType(String[] data) {
-        return data[1];
+        return new BigDecimal(data[2]).compareTo(BigDecimal.ZERO) > 0 ? TransactionEnums.TYPE.EXPENSE.getCode() : TransactionEnums.TYPE.INCOME.getCode();
     }
     
     @Override
     public BigDecimal getAmount(String[] data) {
-        return new BigDecimal(data[2]);
+        return new BigDecimal(data[2]).abs();
     }
     
     @Override
@@ -63,13 +64,13 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     
     @Override
     public String getDescription(String[] data) {
-        return data[5];
+        return String.format("类型:%s;备注:%s;", data[4], data[5]);
     }
     
     @Override
     @SneakyThrows
     public Date getDate(String[] data) {
-        return DateUtils.parseDate(data[0], "yyyy-MM-dd HH:mm:ss");
+        return DateUtils.parseDate(data[0], "yyyy/MM/dd HH:mm:ss");
     }
     
     @Override

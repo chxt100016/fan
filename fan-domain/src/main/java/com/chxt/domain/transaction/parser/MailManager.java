@@ -5,20 +5,20 @@ import java.util.Date;
 
 import java.util.List;
 
-
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
+import com.chxt.domain.transaction.exception.ParseException;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -150,6 +150,9 @@ public class MailManager {
             try {
                 process(strategy, mail);
                 this.success = true;
+            } catch (ParseException e) {
+                this.success = false;
+                log.error("{}, subject:{}, from:{}, date:{}", e.getMessage(), mail.getSubject(), mail.getFrom(), mail.getDate(), e);
             } catch (Exception e) {
                 this.success = false;
                 log.error("transaction mail parse error, subject:{}, from:{}, date:{}, strategy: {}", mail.getSubject(), mail.getFrom(), mail.getDate(), JSON.toJSONString(strategy), e);

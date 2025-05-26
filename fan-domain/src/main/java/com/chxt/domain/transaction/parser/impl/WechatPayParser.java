@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
+import com.chxt.domain.transaction.exception.ParseException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
 import com.chxt.domain.utils.Excel;
 import com.chxt.domain.utils.HttpOperator;
@@ -44,7 +45,12 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         Document doc = Jsoup.parse(mail.getBody());
         Elements aElements = doc.getElementsByTag("a");
         String url = aElements.get(0).attr("href");
-        byte[] byteArray = new HttpOperator().uri(url).doGet().byteArray();
+        HttpOperator http = new HttpOperator().uri(url).doGet();
+        if (http.result().contains("当前文件已过期")) {
+            throw new ParseException("当前文件已过期，请在微信中重新申请导出");
+        }
+
+        byte[] byteArray = http.byteArray();
         Zip zip = new Zip(byteArray, "192869");
         byte[] bytes = zip.getOne("csv");
         Excel excel = new Excel(bytes, EXCEL_MARKER);
@@ -125,8 +131,8 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
 
     @Override
     public String getDescription(Map<String, String> data) {
-        String format = "交易类型 %s;交易对方 %s;商品 %s;交易状态 %s;备注 %s;当前状态 %s;";
-        return String.format(format, data.get("交易类型"), data.get("交易对方"), data.get("商品"), data.get("交易状态"), data.get("备注"), data.get("当前状态"));
+        String format = "收/支:%s;交易类型:%s;交易对方:%s;商品:%s;交易状态:%s;备注:%s;当前状态:%s;";
+        return String.format(format, data.get("收/支"), data.get("交易类型"), data.get("交易对方"), data.get("商品"), data.get("交易状态"), data.get("备注"), data.get("当前状态"));
     }
 
 

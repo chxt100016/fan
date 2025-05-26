@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
@@ -41,12 +42,12 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
     @Override
     public String getChannel() {
-        return TransactionEnums.CHANNEL.CMB_CREDIT.getCode();
+        return TransactionEnums.CHANNEL.ALI_PAY.getCode();
     }
 
     @Override
     public String getType(Map<String,String> data) {
-        return data.get("收/支");
+        return StringUtils.endsWith(data.get("收/支"), "支出") ? TransactionEnums.TYPE.EXPENSE.getCode() : TransactionEnums.TYPE.INCOME.getCode();
     }
     
     @Override
@@ -66,8 +67,8 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     
     @Override
     public String getDescription(Map<String,String> data) {
-        String format = "交易分类 %s;交易对方 %s;对方账号 %s;商品说明 %s;交易状态 %s;备注 %s;";
-        return String.format(format, data.get("交易分类"), data.get("交易对方"), data.get("对方账号"), data.get("商品说明"), data.get("交易状态"), data.get("备注"));
+        String format = "收/支:%s;交易分类:%s;交易对方:%s;对方账号:%s;商品说明:%s;交易状态:%s;备注:%s;";
+        return String.format(format, data.get("收/支"), data.get("交易分类"), data.get("交易对方"), data.get("对方账号"), data.get("商品说明"), data.get("交易状态"), data.get("备注"));
     }
     
     @Override
