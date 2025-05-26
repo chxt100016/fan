@@ -11,6 +11,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -28,6 +30,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+
 
 @Slf4j
 public class Http {
@@ -53,6 +58,10 @@ public class Http {
     private Object entity;
 
     private HashMap<String, String> entityMap;
+
+    private String fileName;
+
+    private byte[] fileData;
 
     private String uri;
 
@@ -89,6 +98,12 @@ public class Http {
         return this;
     }
 
+    public Http file(String name, byte[] data) {
+        this.fileName = name;
+        this.fileData = data;
+        return this;
+    }
+
     public Http entity(Object entity) {
         this.entity = entity;
         return this;
@@ -109,6 +124,11 @@ public class Http {
             }
         }
         this.header.put(name, value);
+        return this;
+    }
+
+    public Http multiPartHeader(){
+        this.header("Content-Type", "multipart/form-data");
         return this;
     }
 
@@ -248,8 +268,13 @@ public class Http {
     }
 
     private void setEntity(){
+        
         if (!(this.request instanceof HttpGet)) {
-            if (this.entity == null && this.entityMap != null) {
+            if (this.fileName != null && this.fileData != null) {
+                MultipartEntityBuilder builder = MultipartEntityBuilder.create()
+                    .addBinaryBody("media", this.fileData, ContentType.MULTIPART_FORM_DATA, this.fileName);
+                ((HttpEntityEnclosingRequestBase) this.request).setEntity(builder.build());
+            } else if (this.entity == null && this.entityMap != null) {
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entityMap), "UTF-8"));
             } else {
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entity), "UTF-8"));

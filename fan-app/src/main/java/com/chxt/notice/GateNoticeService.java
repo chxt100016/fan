@@ -15,9 +15,11 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 
 import com.chxt.cache.stream.PictureStreamCache;
-
+import com.chxt.cache.token.TokenEnum;
+import com.chxt.cache.token.TokenFactory;
 import com.chxt.client.ezviz.EzvizClient;
-
+import com.chxt.client.wechatWork.WechatWorkClient;
+import com.chxt.domain.pic.ThumbnailPicture;
 import com.chxt.domain.stream.PictureStream;
 
 import jakarta.annotation.Resource;
@@ -33,7 +35,7 @@ public class GateNoticeService {
     private PictureStreamCache pictureStreamCache;
 
     @Resource
-    private EzvizClient ezvizClient;
+    private WechatWorkClient wechatWorkClient;
 
     @SneakyThrows
     public void touch() {
@@ -48,7 +50,7 @@ public class GateNoticeService {
 
         Java2DFrameConverter converter = new Java2DFrameConverter();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i > 0) {
                 // 重新连接流，确保获取最新的帧
                 grabber.stop();
@@ -62,7 +64,7 @@ public class GateNoticeService {
                 ImageIO.write(bufferedImage, "jpeg", baos);
                 images.add(baos.toByteArray());
             }
-            Thread.sleep(1000); // 间隔1秒
+            Thread.sleep(2000); // 间隔1秒
         }
 
         grabber.stop();
@@ -70,8 +72,18 @@ public class GateNoticeService {
         // 生成唯一ID，使用时间戳作为标识
         String uniqueId = DigestUtils.md5Hex(DEVICE_SERIAL + System.currentTimeMillis());
 
+        ThumbnailPicture thumbnailPicture = new ThumbnailPicture(images.get(0), images.get(1), images.get(2), images.get(3));
+        byte[] cover = thumbnailPicture.generateThumbnail();
+
         // 更新图片流
-        pictureStreamCache.getPictureStream(GATE_STREAM).update(uniqueId, images);
+        pictureStreamCache.getPictureStream(GATE_STREAM).update(uniqueId, cover, images);
+
+        // 微信通知
+        String imageId = this.wechatWorkClient.uploadImg(uniqueId, cover, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
+
+        this.wechatWorkClient.appImage(imageId, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
+        
+
     }
 
     public byte[] getStilImage() {

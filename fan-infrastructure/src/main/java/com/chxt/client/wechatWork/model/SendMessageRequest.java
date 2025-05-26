@@ -17,6 +17,7 @@ public class SendMessageRequest{
     private String msgtype;
     private String agentid;
     private SendMessageNews news;
+    private SendMessageImage image;
     private Text text;
 
     @Data
@@ -25,6 +26,14 @@ public class SendMessageRequest{
     @AllArgsConstructor
     public static class Text {
         private String content;
+    }
+
+    @Data 
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SendMessageImage {
+        private String media_id;
     }
 
     @Data
