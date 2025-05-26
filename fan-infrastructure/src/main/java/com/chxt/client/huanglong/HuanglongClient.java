@@ -11,7 +11,7 @@ import com.chxt.client.huanglong.model.BookInfoRequest;
 import com.chxt.client.huanglong.model.BookInfoResponse;
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.tennis.TennisCourt;
-import com.chxt.domain.utils.HttpOperator;
+import com.chxt.domain.utils.Http;
 
 
 @Component
@@ -48,9 +48,9 @@ public class HuanglongClient {
                 .showPassTime(true)
                 ._org("59cb5c718e1e92a702eca340")
                 .build();
-        BookInfoResponse response = new HttpOperator()
-                .jsonHeader()
+        BookInfoResponse response = Http
                 .uri(uri)
+                .jsonHeader()
                 .entity(entity)
                 .doPost()
                 .result(BookInfoResponse.class);
@@ -67,9 +67,9 @@ public class HuanglongClient {
                 .showPassTime(true)
                 ._org("59cb5c718e1e92a702eca340")
                 .build();
-        BookInfoResponse response = new HttpOperator()
-                .jsonHeader()
+        BookInfoResponse response = Http
                 .uri(uri)
+                .jsonHeader()
                 .entity(entity)
                 .doPost()
                 .result(BookInfoResponse.class);

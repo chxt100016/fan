@@ -10,21 +10,17 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Calendar;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
-import org.apache.commons.lang3.time.DateUtils;
 
 import com.chxt.domain.utils.DateStandardUtils;
 

@@ -56,6 +56,10 @@ public class TennisNoticeService {
             .build();
         List<TennisCourt> available = selector.getAvailable(all);
 
+        if (available.isEmpty()) {
+            return;
+        }
+
         // 获取唯一标识 
         String uniqueStr = TennisCourt.getUniqueString(available);
         String uniqueId = DigestUtils.md5Hex(uniqueStr);
@@ -78,7 +82,7 @@ public class TennisNoticeService {
 
     public byte[] getStilImage() {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(TEENIS_STREAM);
-        return pictureStream.getStillImage();
+        return pictureStream.getCover();
     }
 
 

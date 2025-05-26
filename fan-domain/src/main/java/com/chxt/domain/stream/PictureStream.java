@@ -35,6 +35,11 @@ public class PictureStream {
     private volatile boolean hasChange = false;
 
     /**
+     * 封面
+     */
+    private volatile byte[] cover;
+    
+    /**
      * 图片列表
      */
     private volatile List<byte[]> pictureList;
@@ -65,7 +70,7 @@ public class PictureStream {
         return StringUtils.equals(this.uniqueId, uniqueId);
     }
 
-    public synchronized void update(String uniqueId, List<byte[]> pictureList) {
+    public synchronized void update(String uniqueId, byte[] cover, List<byte[]> pictureList) {
         if (CollectionUtils.isEmpty(pictureList) || StringUtils.isBlank(uniqueId)) {
             return;
         }
@@ -75,22 +80,30 @@ public class PictureStream {
         }
 
         this.pictureList = pictureList;
+        this.cover = cover;
         this.hasChange = true;
         this.uniqueId = uniqueId;
     }
 
-    public synchronized byte[] getStillImage() {
+    public void update(String uniqueId, List<byte[]> pictureList) {
+        if (CollectionUtils.isEmpty(pictureList) || StringUtils.isBlank(uniqueId)) {
+            return;
+        }
+        this.update(uniqueId, pictureList.get(0), pictureList);
+    }
+
+    public synchronized byte[] getCover() {
         if (CollectionUtils.isEmpty(this.pictureList)) {
-            log.error("image pictureList is empty");
+            log.error("{}: image cover is empty", this.name);
             return new byte[0];
         }
-        return this.pictureList.get(0);
+        return this.cover;
     }
 
     @SneakyThrows
     public void stream(OutputStream outputStream, int interval, int fps) {
         if (CollectionUtils.isEmpty(this.pictureList)) {
-            log.error("stream pictureList is empty");
+            log.error("{}: stream pictureList is empty", this.name);
             return;
         }
 

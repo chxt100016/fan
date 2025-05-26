@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class HttpOperator {
+public class Http {
 
     private static final CloseableHttpClient httpClient;
 
@@ -67,20 +67,17 @@ public class HttpOperator {
     private byte[] contentByteArray;
 
 
-    private String message;
-
-
-    public HttpOperator uri(String uri) {
-        this.uri = uri;
-        return this;
+    private Http() {
     }
 
-    public HttpOperator message(String message) {
-        this.message = message;
-        return this;
+
+    public static Http uri(String uri) {
+        Http http = new Http();
+        http.uri = uri;
+        return http;
     }
 
-    public HttpOperator param(String name, String value){
+    public Http param(String name, String value){
         if (this.param == null) {
             synchronized (this) {
                 if (this.param == null) {
@@ -92,18 +89,18 @@ public class HttpOperator {
         return this;
     }
 
-    public HttpOperator entity(Object entity) {
+    public Http entity(Object entity) {
         this.entity = entity;
         return this;
     }
 
-    public HttpOperator entity(String key, String value) {
+    public Http entity(String key, String value) {
         if (this.entityMap == null) this.entityMap = new HashMap<>();
         entityMap.put(key, value);
         return this;
     }
 
-    public HttpOperator header(String name, String value) {
+    public Http header(String name, String value) {
         if (this.header == null) {
             synchronized (this) {
                 if (this.header == null) {
@@ -115,12 +112,12 @@ public class HttpOperator {
         return this;
     }
 
-    public HttpOperator jsonHeader(){
+    public Http jsonHeader(){
         this.header("Content-Type", "application/json");
         return this;
     }
 
-    public HttpOperator header(Map<String, String> header) {
+    public Http header(Map<String, String> header) {
         for (Map.Entry<String, String> entry : header.entrySet()) {
             this.header(entry.getKey(), entry.getValue());
         }
@@ -158,43 +155,43 @@ public class HttpOperator {
     }
 
     @SneakyThrows
-    public HttpOperator doPost() {
+    public Http doPost() {
         return this.doPost(null);
     }
 
     @SneakyThrows
-    public HttpOperator doPost(PostProcessor postProcessor) {
+    public Http doPost(PostProcessor postProcessor) {
         this.request = new HttpPost();
         this.execute(postProcessor);
         return this;
     }
 
     @SneakyThrows
-    public HttpOperator doPut() {
+    public Http doPut() {
         return this.doPut(null);
     }
 
     @SneakyThrows
-    public HttpOperator doPut(PostProcessor postProcessor) {
+    public Http doPut(PostProcessor postProcessor) {
         this.request = new HttpPut();
         this.execute(postProcessor);
         return this;
     }
 
     @SneakyThrows
-    public HttpOperator doGet(){
+    public Http doGet(){
         return this.doGet(null);
     }
 
     @SneakyThrows
-    public HttpOperator doGet(PostProcessor postProcessor){
+    public Http doGet(PostProcessor postProcessor){
         this.request = new HttpGet();
         this.execute(postProcessor);
         return this;
     }
 
     @SneakyThrows
-    public HttpOperator doDelete() {
+    public Http doDelete() {
         this.request = new HttpDelete();
         this.execute(null);
         return this;
@@ -207,10 +204,10 @@ public class HttpOperator {
         this.setEntity();
 
         try {
-            CloseableHttpResponse response = HttpOperator.httpClient.execute(this.request);
+            CloseableHttpResponse response = Http.httpClient.execute(this.request);
 
             if(postProcessor != null) {
-                CloseableHttpResponse responseTmp = postProcessor.process(HttpOperator.httpClient, this.request, response);
+                CloseableHttpResponse responseTmp = postProcessor.process(Http.httpClient, this.request, response);
                 if (response != responseTmp) {
                     response.close();
                     response = responseTmp;

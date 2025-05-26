@@ -2,7 +2,7 @@ package com.chxt.client.aqara;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.chxt.domain.utils.HttpOperator;
+import com.chxt.domain.utils.Http;
 import com.chxt.client.aqara.model.AuthCodeResult;
 import com.chxt.client.aqara.model.TokenResponse;
 import com.chxt.client.aqara.model.GetTokenParam;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class AqaraTokenClient {
 
     
-    private final static String uri = "https://open-cn.aqara.com/v3.0/open/api";
+    private final static String URI = "https://open-cn.aqara.com/v3.0/open/api";
 
     public AuthCodeResult getAuthCode(AuthCodeParam param, TokenHandlerParam tokenHandlerParam) {
         return this.handler("config.auth.getAuthCode", param, tokenHandlerParam, AuthCodeResult.class);
@@ -44,8 +44,8 @@ public class AqaraTokenClient {
     private <T> T handler(String intent, Object param, TokenHandlerParam tokenHandlerParam, String token, Class<T> clazz){
         AqaraParam entity = AqaraParam.builder().intent(intent).data(param).build();
         Map<String, String> header = AqaraUtil.getHeader(token, tokenHandlerParam.getAppId(), tokenHandlerParam.getKeyId(), tokenHandlerParam.getAppKey());
-        AqaraResponse response = new HttpOperator()
-                .uri(this.uri)
+        AqaraResponse response = Http
+                .uri(URI)
                 .header(header)
                 .jsonHeader()
                 .entity(entity)

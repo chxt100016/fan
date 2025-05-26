@@ -1,8 +1,7 @@
 package com.chxt.notice;
 
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +15,9 @@ import java.io.ByteArrayOutputStream;
 import javax.imageio.ImageIO;
 
 import com.chxt.cache.stream.PictureStreamCache;
-import com.chxt.cache.token.TokenEnum;
-import com.chxt.cache.token.TokenFactory;
+
 import com.chxt.client.ezviz.EzvizClient;
-import com.chxt.client.ezviz.model.CaptureResponse;
+
 import com.chxt.domain.stream.PictureStream;
 
 import jakarta.annotation.Resource;
@@ -42,11 +40,21 @@ public class GateNoticeService {
         List<byte[]> images = new ArrayList<>();
         String rtspUrl = "rtsp://admin:IZOGRT@192.168.1.239:554/h264/ch1/main/av_stream";
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(rtspUrl);
+        // 设置缓冲区大小
+        grabber.setOption("buffer_size", "0");
+        // 设置超时时间
+        grabber.setOption("stimeout", "2000000");
         grabber.start();
 
         Java2DFrameConverter converter = new Java2DFrameConverter();
 
         for (int i = 0; i < 3; i++) {
+            if (i > 0) {
+                // 重新连接流，确保获取最新的帧
+                grabber.stop();
+                grabber.start();
+            }
+            
             Frame frame = grabber.grabImage();
             if (frame != null) {
                 BufferedImage bufferedImage = converter.convert(frame);
@@ -68,7 +76,7 @@ public class GateNoticeService {
 
     public byte[] getStilImage() {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(GATE_STREAM);
-        return pictureStream.getStillImage();
+        return pictureStream.getCover();
     }
 
     public boolean check() {

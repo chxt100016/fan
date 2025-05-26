@@ -6,7 +6,7 @@ import com.chxt.cache.token.model.TokenHandlerParam;
 import com.chxt.cache.token.model.TokenItem;
 import com.chxt.client.wechatWork.model.SendMessageRequest;
 import com.chxt.client.wechatWork.model.WechatWorkToken;
-import com.chxt.domain.utils.HttpOperator;
+import com.chxt.domain.utils.Http;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class WechatWorkClient{
                 .news(SendMessageRequest.SendMessageNews.builder().articles(articles).build())
                 .build();
 
-        new HttpOperator()
+        Http
                 .uri("https://qyapi.weixin.qq.com/cgi-bin/message/send")
                 .param("access_token", token.getAccessToken())
                 .entity(entity)
@@ -42,7 +42,7 @@ public class WechatWorkClient{
                 .text(SendMessageRequest.Text.builder().content(content).build())
                 .build();
 
-        new HttpOperator()
+        Http
                 .uri("https://qyapi.weixin.qq.com/cgi-bin/message/send")
                 .param("access_token", token.getAccessToken())
                 .entity(entity)
@@ -50,7 +50,7 @@ public class WechatWorkClient{
     }
 
     public TokenItem getToken(TokenHandlerParam param) {
-        WechatWorkToken wechatWorkToken = new HttpOperator()
+        WechatWorkToken wechatWorkToken = Http
                 .uri("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
                 .param("corpid", param.getAppId())
                 .param("corpsecret", param.getAppSecret())

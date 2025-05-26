@@ -1,16 +1,15 @@
 package com.chxt.domain.transaction;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.commons.compress.archivers.tar.TarConstants;
+
+
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.entity.TransactionChannel;
-import com.chxt.domain.transaction.entity.TransactionLog;
+
 import com.chxt.domain.transaction.parser.MailManager;
-import com.chxt.domain.transaction.parser.impl.AliPayParser;
-import com.chxt.domain.transaction.parser.impl.CmbCreditParser;
+
 import com.chxt.domain.transaction.parser.impl.WechatPayParser;
 
 import lombok.SneakyThrows;
@@ -45,12 +44,6 @@ public class TransactionService {
         // 使用策略管理器处理邮件
         List<TransactionChannel> list = manager.parse(startDateStr, true);
 
-
-        List<List<TransactionLog>> allLogs = list.stream().map(TransactionChannel::getLogs).collect(Collectors.toList());
-
-
-
-        
 
 
 

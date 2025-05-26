@@ -16,7 +16,7 @@ import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.exception.ParseException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
 import com.chxt.domain.utils.Excel;
-import com.chxt.domain.utils.HttpOperator;
+import com.chxt.domain.utils.Http;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.Zip;
 
@@ -45,7 +45,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         Document doc = Jsoup.parse(mail.getBody());
         Elements aElements = doc.getElementsByTag("a");
         String url = aElements.get(0).attr("href");
-        HttpOperator http = new HttpOperator().uri(url).doGet();
+        Http http = Http.uri(url).doGet();
         if (http.result().contains("当前文件已过期")) {
             throw new ParseException("当前文件已过期，请在微信中重新申请导出");
         }
