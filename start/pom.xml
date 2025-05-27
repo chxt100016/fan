@@ -89,8 +89,8 @@
                                     <arg value="root@2202.com:/root/fantastic/run.sh" />
                                 </exec>
                                 <exec executable="scp">
-                                    <arg value="dockerfile" />
-                                    <arg value="root@2202.com:/root/fantastic/dockerfile" />
+                                    <arg value="Dockerfile" />
+                                    <arg value="root@2202.com:/root/fantastic/Dockerfile" />
                                 
                                 </exec>
                                 <exec executable="ssh">

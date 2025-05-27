@@ -4,6 +4,7 @@ import java.io.OutputStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
@@ -44,19 +45,12 @@ public class GateNoticeService {
         FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(rtspUrl);
         // 设置缓冲区大小
         grabber.setOption("buffer_size", "0");
-        // 设置超时时间
-        grabber.setOption("stimeout", "2000000");
         grabber.start();
 
         Java2DFrameConverter converter = new Java2DFrameConverter();
+        TimeUnit.MILLISECONDS.sleep(100);
 
         for (int i = 0; i < 4; i++) {
-            if (i > 0) {
-                // 重新连接流，确保获取最新的帧
-                grabber.stop();
-                grabber.start();
-            }
-            
             Frame frame = grabber.grabImage();
             if (frame != null) {
                 BufferedImage bufferedImage = converter.convert(frame);
@@ -64,7 +58,7 @@ public class GateNoticeService {
                 ImageIO.write(bufferedImage, "jpeg", baos);
                 images.add(baos.toByteArray());
             }
-            Thread.sleep(2000); // 间隔1秒
+            Thread.sleep(2000); // 间隔
         }
 
         grabber.stop();
