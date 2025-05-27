@@ -1,6 +1,6 @@
 package com.chxt.domain.transaction.entity;
 
-import java.text.DateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,7 +15,6 @@ import java.util.Set;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.chxt.domain.transaction.constants.TransactionEnums;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
