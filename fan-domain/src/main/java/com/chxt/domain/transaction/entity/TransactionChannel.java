@@ -176,12 +176,6 @@ public class TransactionChannel {
 
     @SneakyThrows
     public void printLogs() {
-        this.logs.forEach(log -> {
-            String dateStr = DateFormatUtils.format(log.getDate(), "yyyy-MM-dd");
-            System.out.println(dateStr + " " + TransactionEnums.TYPE.getByCode(log.getType()).getName());
-            System.out.println(log.getAmount() + " " + log.getCurrency());
-            System.out.println(log.getDescription());
-            System.out.println("--------------------------------");
-        });
+        this.logs.forEach(TransactionLog::printLog);
     }
 }

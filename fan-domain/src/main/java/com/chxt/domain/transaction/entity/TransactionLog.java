@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import com.chxt.domain.transaction.constants.TransactionEnums;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,6 +60,33 @@ public class TransactionLog {
      * 交易日志id
      */
     private String logId;
+
+    public boolean canMerge(TransactionLog other) {
+        if (this.channel.equals(other.getChannel())) {
+            return false;
+        }
+        if (this.getAmount().compareTo(other.getAmount()) != 0) {
+            return false;
+        }
+        if (this.getCurrency().equals(other.getCurrency())) {
+            return false;
+        }
+        if (this.getType().equals(other.getType())) {
+            return false;
+        }
+        if (Math.abs(this.getDate().getTime() - other.getDate().getTime()) > 1000 * 30) {
+            return false;
+        }
+        return true;
+    }
+
+    public void printLog() {
+        String dateStr = DateFormatUtils.format(this.date, "yyyy-MM-dd");
+        System.out.println(dateStr + " " + TransactionEnums.TYPE.getByCode(this.type).getName());
+        System.out.println(this.amount + " " + this.currency);
+        System.out.println(this.description);
+        System.out.println("--------------------------------");
+    }
 
     @Override
     public boolean equals(Object o) {

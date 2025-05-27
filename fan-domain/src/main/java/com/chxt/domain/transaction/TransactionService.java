@@ -5,7 +5,7 @@ import java.util.List;
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.parser.MailManager;
-import com.chxt.domain.transaction.parser.impl.CgbcCreditParser;
+
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
