@@ -2,15 +2,10 @@ package com.chxt.domain.transaction;
 
 import java.util.List;
 
-
-
-
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.entity.TransactionChannel;
-
 import com.chxt.domain.transaction.parser.MailManager;
-
-import com.chxt.domain.transaction.parser.impl.WechatPayParser;
+import com.chxt.domain.transaction.parser.impl.CgbcCreditParser;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +28,8 @@ public class TransactionService {
             .setHost(host)
             .setUsername(username)
             .setPassword(password)
-            .addStrategy(new WechatPayParser())
+            // .addStrategy(new WechatPayParser())
+            // .addStrategy(new CgbcCreditParser())
             // .addStrategy(new AliPayParser())
             // .addStrategy(new CmbCreditParser())
             .build();
@@ -59,6 +55,8 @@ public class TransactionService {
         List<TransactionChannel> list = init();
         Integer income = list.stream().flatMap(it -> it.getLogs().stream()).filter(it -> it.getType() == TransactionEnums.TYPE.INCOME.getCode()).mapToInt(it -> it.getAmount().intValue()).sum();
         Integer expense = list.stream().flatMap(it -> it.getLogs().stream()).filter(it -> it.getType() == TransactionEnums.TYPE.EXPENSE.getCode()).mapToInt(it -> it.getAmount().intValue()).sum();
+
+        list.forEach(TransactionChannel::printLogs);
 
         log.info("收入：{}", income);
         log.info("支出：{}", expense);

@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import com.chxt.domain.transaction.constants.TransactionEnums;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -172,19 +173,15 @@ public class TransactionChannel {
         }
     }
 
+
     @SneakyThrows
-    public static void main(String[] args) {
-        TransactionChannel channel = new TransactionChannel("aliPay");
-        channel.addDateRange(DateUtils.parseDate("2025-05-07", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-08", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-09", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-10", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-12", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-13", "yyyy-MM-dd"));
-
-        channel.addDateRange(DateUtils.parseDate("2025-05-15", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-15", "yyyy-MM-dd"));
-        channel.addDateRange(DateUtils.parseDate("2025-05-11", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-11", "yyyy-MM-dd"));
-
-        channel.addDateRange(DateUtils.parseDate("2025-05-01", "yyyy-MM-dd"), DateUtils.parseDate("2025-05-01", "yyyy-MM-dd"));
-        channel.getDateRanges().forEach(range -> {
-            System.out.println(DateFormat.getDateInstance().format(range.getStartDate()) + " - " + DateFormat.getDateInstance().format(range.getEndDate()));
+    public void printLogs() {
+        this.logs.forEach(log -> {
+            String dateStr = DateFormatUtils.format(log.getDate(), "yyyy-MM-dd");
+            System.out.println(dateStr + " " + TransactionEnums.TYPE.getByCode(log.getType()).getName());
+            System.out.println(log.getAmount() + " " + log.getCurrency());
+            System.out.println(log.getDescription());
+            System.out.println("--------------------------------");
         });
     }
 }
