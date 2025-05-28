@@ -5,7 +5,7 @@ import java.util.List;
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.parser.MailManager;
-
+import com.chxt.domain.transaction.parser.impl.CmbCreditParser;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class TransactionService {
             // .addStrategy(new WechatPayParser())
             // .addStrategy(new CgbcCreditParser())
             // .addStrategy(new AliPayParser())
-            // .addStrategy(new CmbCreditParser())
+            .addStrategy(new CmbCreditParser())
             .build();
         // strategyManager.addStrategy(new CmbCreditStrategy());
         // manager.addStrategy(new AliPayParser());

@@ -4,6 +4,7 @@ package com.chxt.domain.transaction.entity;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -175,6 +176,6 @@ public class TransactionChannel {
 
     @SneakyThrows
     public void printLogs() {
-        this.logs.forEach(TransactionLog::printLog);
+        this.logs.stream().sorted(Comparator.comparing(TransactionLog::getDate)).forEach(TransactionLog::printLog);
     }
 }
