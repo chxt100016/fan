@@ -34,6 +34,8 @@ public class GateNoticeService {
     
     private static final String RTSP_URL = "rtsp://admin:IZOGRT@192.168.1.239:554/h264/ch1/main/av_stream";
 
+    private static final long[] INTERVAL = {2000, 5000, 10000, 0};
+
     @Resource
     private PictureStreamCache pictureStreamCache;
 
@@ -46,16 +48,24 @@ public class GateNoticeService {
         FFmpegFrameGrabber grabber = FFmpegFrameGrabber.createDefault(RTSP_URL);
         grabber.setOption("rtsp_transport", "tcp");
         Java2DFrameConverter converter = new Java2DFrameConverter();
+        Long timeStamp = 0L;
 
         for (int i = 0; i < 4; i++) {
             Frame frame = grabber.grabImage();
-            if (frame != null) {
-                BufferedImage bufferedImage = converter.convert(frame);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(bufferedImage, "jpeg", baos);
-                images.add(baos.toByteArray());
-            }
-            TimeUnit.SECONDS.sleep(2); // 间隔
+            // 丢弃老的帧
+            do {
+                frame = grabber.grabImage();
+                if (frame == null) {
+                    throw new RuntimeException("获取图片失败");
+                }
+            } while (frame.timestamp < timeStamp);
+
+            BufferedImage bufferedImage = converter.convert(frame);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpeg", baos);
+            images.add(baos.toByteArray());
+            timeStamp = frame.timestamp + INTERVAL[i]; // 间隔
+            TimeUnit.MILLISECONDS.sleep(INTERVAL[i]); // 间隔
         }
 
         converter.close();

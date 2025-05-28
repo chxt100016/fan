@@ -1,4 +1,4 @@
-set -euo pipefail
+set -eu pipefail
 
 cd /root/fantastic
 docker build --no-cache -f Dockerfile -t fantastic .
