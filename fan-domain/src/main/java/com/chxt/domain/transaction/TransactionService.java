@@ -20,7 +20,7 @@ public class TransactionService {
         String host = "imap.qq.com";  // QQ邮箱的IMAP服务器
         String username = "546555918@qq.com";  // 你的QQ邮箱地址
         String password = "nnfjkmehqypgbbhc";  // 你的QQ邮箱授权码（不是登录密码）
-        String startDateStr = "2025-05-01";  // 开始日期，格式为yyyy-MM-dd
+        String startDateStr = "2025-05-25";  // 开始日期，格式为yyyy-MM-dd
         
 
         // 注册策略

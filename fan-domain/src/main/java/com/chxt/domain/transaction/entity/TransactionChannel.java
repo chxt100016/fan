@@ -13,6 +13,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -118,11 +119,11 @@ public class TransactionChannel {
      * 防止被修改
      * @return
      */
-    public List<DateRange> getDateRanges() {
+    public List<String[]> getDateRanges() {
         if (this.dateRanges == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(this.dateRanges);
+        return this.dateRanges.stream().map(item -> new String[] {item.getStartDateStr(), item.getEndDateStr()}).toList();
     }
 
     @Data

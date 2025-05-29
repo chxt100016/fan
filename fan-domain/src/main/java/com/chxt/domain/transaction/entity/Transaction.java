@@ -41,9 +41,14 @@ public class Transaction {
     private String type;
 
     /**
-     * 
+     * 交易记录
      */
     private List<TransactionLog> logs;
+
+    /**
+     * 交易标签
+     */
+    private List<String> tags;
   
     // public Transactopn(List<TransactionLog> logs) {
     //     this.date = logs.stream().map(TransactionLog::getDate).min(Date::compareTo).orElse(null);

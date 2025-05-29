@@ -1,5 +1,7 @@
 package com.chxt.db.transaction.entity;
 
+import java.sql.Date;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -8,19 +10,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName("mission")
+@TableName("task")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MissionPO {
+public class TaskPO {
 
     @TableId(type = IdType.AUTO)
     private String id;
 
-    private String missionId;
+    private String taskId;
 
-    private String missionStatus;
+    private String status;
 
-    private String data;
+    private Date data;
 
 }

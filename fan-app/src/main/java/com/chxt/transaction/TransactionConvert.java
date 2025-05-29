@@ -1,12 +1,15 @@
 package com.chxt.transaction;
 
 import java.util.List;
+import java.util.Map;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.entity.TransactionLogPO;
+import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 
 @Mapper
@@ -19,4 +22,12 @@ public interface TransactionConvert {
 
     List<TransactionLogPO> toTransactionLogPOList(List<TransactionLog> transactionLogs);
 
+ 
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "operationDate", source = "transactionChannel.operationDate")
+    @Mapping(target = "channel", source = "transactionChannel.channel")
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "date", source = "date", dateFormat = "yyyy-MM-dd")
+    TransactionChannelLogPO toPO(String date, Integer count, TransactionChannel transactionChannel);
 }

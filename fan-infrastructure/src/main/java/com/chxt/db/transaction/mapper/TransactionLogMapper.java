@@ -1,4 +1,4 @@
-package com.chxt.db.transaction;
+package com.chxt.db.transaction.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
