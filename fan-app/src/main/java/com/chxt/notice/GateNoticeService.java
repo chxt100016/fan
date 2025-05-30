@@ -55,19 +55,15 @@ public class GateNoticeService {
 
         
         for (int i = 0; i < 4; i++) {
-            Frame frame = grabber.grabImage();
+            Frame frame = null;
             // 丢弃老的帧
             do {
-                frame = grabber.grabImage();
-                if (frame == null) {
-                    for (int j = 0; j < 10; j++) {
-                        TimeUnit.MILLISECONDS.sleep(100);
-                        frame = grabber.grabImage();
-                        if (frame != null) {
-                            break;
-                        }
+                for (int j = 0; j < 10; j++) {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                    frame = grabber.grabImage();
+                    if (frame != null) {
+                        break;
                     }
-
                 }
                 if (frame == null) {
                     throw new RuntimeException("获取图片失败");
