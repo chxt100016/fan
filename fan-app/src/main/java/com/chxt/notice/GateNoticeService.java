@@ -26,6 +26,7 @@ import com.chxt.domain.utils.ThumbnailUtils;
 
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
+import org.bytedeco.ffmpeg.global.avutil;
 
 @Service
 public class GateNoticeService {
@@ -45,16 +46,29 @@ public class GateNoticeService {
     @SneakyThrows
     public void touch() {
         List<byte[]> images = new ArrayList<>();
+        avutil.av_log_set_level(avutil.AV_LOG_QUIET);
         FFmpegFrameGrabber grabber = FFmpegFrameGrabber.createDefault(RTSP_URL);
         grabber.setOption("rtsp_transport", "tcp");
         Java2DFrameConverter converter = new Java2DFrameConverter();
         Long timeStamp = 0L;
+        grabber.start();
 
+        
         for (int i = 0; i < 4; i++) {
             Frame frame = grabber.grabImage();
             // 丢弃老的帧
             do {
                 frame = grabber.grabImage();
+                if (frame == null) {
+                    for (int j = 0; j < 10; j++) {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                        frame = grabber.grabImage();
+                        if (frame != null) {
+                            break;
+                        }
+                    }
+
+                }
                 if (frame == null) {
                     throw new RuntimeException("获取图片失败");
                 }
@@ -64,7 +78,7 @@ public class GateNoticeService {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bufferedImage, "jpeg", baos);
             images.add(baos.toByteArray());
-            timeStamp = frame.timestamp + INTERVAL[i]; // 间隔
+            timeStamp = frame.timestamp + (INTERVAL[i] * 1000); // 将毫秒转换为微秒
             TimeUnit.MILLISECONDS.sleep(INTERVAL[i]); // 间隔
         }
 
