@@ -38,19 +38,7 @@
 
 
     <build>
-       
-
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -66,6 +54,14 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <forceCreation>true</forceCreation>
+                </configuration>
+            </plugin>
             
 
             <plugin>
@@ -79,7 +75,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <target>
+                            <!-- <target>
                                 <exec executable="scp">
                                     <arg value="target/start-1.0.0-SNAPSHOT.jar" />
                                     <arg value="root@2202.com:/root/fantastic/start.jar" />
@@ -98,7 +94,7 @@
                                     <arg value="sh /root/fantastic/run.sh" />
                                     
                                 </exec>
-                            </target>
+                            </target> -->
                         </configuration>
                     </execution>
                 </executions>
