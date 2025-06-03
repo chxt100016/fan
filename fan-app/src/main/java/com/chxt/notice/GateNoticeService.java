@@ -24,18 +24,23 @@ import com.chxt.client.wechatWork.WechatWorkClient;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.utils.ThumbnailUtils;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.io.FilenameUtils;
 import org.bytedeco.ffmpeg.global.avutil;
 
 @Service
+@Slf4j
 public class GateNoticeService {
 
     private static final String GATE_STREAM = "gate";
     
     private static final String RTSP_URL = "rtsp://admin:IZOGRT@192.168.1.239:554/h264/ch1/main/av_stream";
 
-    private static final long[] INTERVAL = {2000, 5000, 10000, 0};
+    private static final long INTERVAL = TimeUnit.SECONDS.toMicros(3);
 
     @Resource
     private PictureStreamCache pictureStreamCache;
@@ -43,44 +48,39 @@ public class GateNoticeService {
     @Resource
     private WechatWorkClient wechatWorkClient;
 
+    @PostConstruct
+    public void init() {
+        new Thread(() -> {
+            avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+        }).start();
+    }
+
     @SneakyThrows
     public void touch() {
-        List<byte[]> images = new ArrayList<>();
-        avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+        
+        
         FFmpegFrameGrabber grabber = FFmpegFrameGrabber.createDefault(RTSP_URL);
         grabber.setOption("rtsp_transport", "tcp");
+        grabber.setOption("fflags", "nobuffer");
         Java2DFrameConverter converter = new Java2DFrameConverter();
-        Long timeStamp = 0L;
         grabber.start();
-
-        
-        for (int i = 0; i < 4; i++) {
-            Frame frame = null;
-            // 丢弃老的帧
-            do {
-                for (int j = 0; j < 10; j++) {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                    frame = grabber.grabImage();
-                    if (frame != null) {
-                        break;
-                    }
-                }
-                if (frame == null) {
-                    throw new RuntimeException("获取图片失败");
-                }
-            } while (frame.timestamp < timeStamp);
-
-            BufferedImage bufferedImage = converter.convert(frame);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "jpeg", baos);
-            images.add(baos.toByteArray());
-            timeStamp = frame.timestamp + (INTERVAL[i] * 1000); // 将毫秒转换为微秒
-            TimeUnit.MILLISECONDS.sleep(INTERVAL[i]); // 间隔
+       
+        List<byte[]> images = new ArrayList<>();
+        try {
+            images = capture(grabber, converter, images);
+        } catch (Exception e) {
+            log.error("capture error", e);
+            throw e;
+        } finally {
+            grabber.close();
+            converter.close();
+        }
+        if (images.size() < 4) {
+            for (int i = images.size(); i < 4; i++) {
+                images.add(new byte[0]);
+            }
         }
 
-        converter.close();
-        grabber.stop();
-        grabber.release();
 
         // 生成唯一ID，使用时间戳作为标识
         String uniqueId = String.valueOf(System.currentTimeMillis());
@@ -93,6 +93,30 @@ public class GateNoticeService {
         // 微信通知
         String imageId = this.wechatWorkClient.uploadImg(uniqueId, cover, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
         this.wechatWorkClient.appImage(imageId, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
+    }
+
+    @SneakyThrows
+    public List<byte[]> capture(FFmpegFrameGrabber grabber, Java2DFrameConverter converter, List<byte[]> images) {
+        
+        // 记录下一次允许拍照的时间戳
+        long nextCaptureTime = 0;
+        for (int i = 0; i < 4; i++) {
+            log.debug("picture {}, nextCaptureTime: {}", i, nextCaptureTime);
+            Frame frame = grabber.grabImage();
+            // 持续获取帧直到找到符合时间要求的帧
+            while (frame.timestamp < nextCaptureTime) {
+                frame = grabber.grabImage();
+            }
+
+
+            BufferedImage bufferedImage = converter.convert(frame);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "jpeg", baos);
+            images.add(baos.toByteArray());
+            // 更新下一次允许拍照的时间戳
+            nextCaptureTime = frame.timestamp + INTERVAL;
+        }
+        return images;
     }
 
     public byte[] getStilImage() {
@@ -108,5 +132,11 @@ public class GateNoticeService {
     public void streamMjpeg(OutputStream outputStream) {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(GATE_STREAM);
         pictureStream.stream(outputStream, 2000, 15);
+    }
+
+    public static void main(String[] args) {
+        String url = "https://public-image.pxb7.com/pxb7-upload/product/api/20250527/larker_332274a7-1aff-4415-9414-36b602952c44.jpg";
+        String fileName = FilenameUtils.getName(url);
+        System.out.println(fileName);
     }
 } 

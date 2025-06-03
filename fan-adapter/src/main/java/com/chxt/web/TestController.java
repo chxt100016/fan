@@ -16,6 +16,9 @@ import com.chxt.client.ezviz.model.CaptureResponse;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+
 
 
 @RestController
@@ -26,6 +29,12 @@ public class TestController {
     private EzvizClient ezvizClient;
 
     private String flag = "1";
+
+    @RequestMapping(value = "/version", method=RequestMethod.GET)
+    public String version() {
+        return "1.0.21";
+    }
+    
 
     @GetMapping("/hello")
     public String hello() {
