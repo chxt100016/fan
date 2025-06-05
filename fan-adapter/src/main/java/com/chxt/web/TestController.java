@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chxt.cache.token.TokenEnum;
@@ -16,7 +18,6 @@ import com.chxt.client.ezviz.model.CaptureResponse;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 
 
@@ -58,7 +59,7 @@ public class TestController {
     @GetMapping(value = "/stream", produces = "multipart/x-mixed-replace;boundary=frame")
     public void streamMjpeg(HttpServletResponse response) throws IOException {
         response.setContentType("multipart/x-mixed-replace;boundary=frame");
-         
+
         while (true) {
             try {
                 byte[] imageBytes = getLatestImageFrame();
@@ -96,6 +97,5 @@ public class TestController {
             e.printStackTrace();
             return new byte[0];
         }
-
     }
 }
