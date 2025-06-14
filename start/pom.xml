@@ -75,7 +75,7 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <!-- <target>
+                            <target>
                                 <exec executable="scp">
                                     <arg value="target/start-1.0.0-SNAPSHOT.jar" />
                                     <arg value="root@2202.com:/root/fantastic/start.jar" />
@@ -94,7 +94,7 @@
                                     <arg value="sh /root/fantastic/run.sh" />
                                     
                                 </exec>
-                            </target> -->
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
