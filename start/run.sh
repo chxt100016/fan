@@ -1,10 +1,10 @@
 set -eu pipefail
 
-cd /root/fantastic
-docker build --no-cache -f Dockerfile -t fantastic .
+cd /Users/chenxintong/space/docker/fan
+# docker build --no-cache -f Dockerfile -t fantastic .
+docker build  -f Dockerfile -t fan .
 
-docker rm -f fantastic || true
-docker run -itd -p 5005:5005 -p 8888:8888 --name=fantastic -v /etc/download/xunlei/downloads:/etc/download/xunlei/downloads fantastic 
+docker rm -f fan || true
+docker run -itd -p 5005:5005 -p 8080:8888 --name=fan -v /etc/download/xunlei/downloads:/etc/download/xunlei/downloads fan 
 docker image prune -f
 
- 

@@ -38,7 +38,7 @@ public class GateNoticeService {
 
     private static final String GATE_STREAM = "gate";
     
-    private static final String RTSP_URL = "rtsp://admin:IZOGRT@192.168.1.239:554/h264/ch1/main/av_stream";
+    private static final String RTSP_URL = "rtsp://admin:IZOGRT@192.168.1.250:554/h264/ch1/main/av_stream";
 
     private static final long INTERVAL = TimeUnit.SECONDS.toMicros(3);
 
@@ -51,7 +51,7 @@ public class GateNoticeService {
     @PostConstruct
     public void init() {
         new Thread(() -> {
-            avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+            // avutil.av_log_set_level(avutil.AV_LOG_QUIET);
         }).start();
     }
 

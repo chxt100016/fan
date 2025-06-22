@@ -76,7 +76,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <exec executable="scp">
+                                <!-- <exec executable="scp">
                                     <arg value="target/start-1.0.0-SNAPSHOT.jar" />
                                     <arg value="root@2202.com:/root/fantastic/start.jar" />
                                 </exec>
@@ -93,6 +93,22 @@
                                     <arg value="root@2202.com" />
                                     <arg value="sh /root/fantastic/run.sh" />
                                     
+                                </exec> -->
+                                 <exec executable="cp">
+                                    <arg value="target/start-1.0.0-SNAPSHOT.jar" />
+                                    <arg value="/Users/chenxintong/space/docker/fan/start.jar" />
+                                </exec>
+                                <exec executable="scp">
+                                    <arg value="run.sh" />
+                                    <arg value="/Users/chenxintong/space/docker/fan/run.sh" />
+                                </exec>
+                                <exec executable="cp">
+                                    <arg value="Dockerfile" />
+                                    <arg value="/Users/chenxintong/space/docker/fan/Dockerfile" />
+                                
+                                </exec>
+                                <exec executable="sh">
+                                    <arg value="/Users/chenxintong/space/docker/fan/run.sh" />
                                 </exec>
                             </target>
                         </configuration>
