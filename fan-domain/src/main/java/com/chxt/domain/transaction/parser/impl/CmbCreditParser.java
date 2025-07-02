@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
+import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Mail;
 
 import lombok.SneakyThrows;
@@ -88,7 +89,7 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     
     @Override
     @SneakyThrows
-    public List<String[]> parse(Mail mail) {
+    public List<String[]> parse(Mail mail, PasswordHelper helper) {
         
         Document doc = Jsoup.parse(mail.getBody());
         Element detail = doc.getElementById("fixBand3");

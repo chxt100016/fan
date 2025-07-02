@@ -17,6 +17,7 @@ import org.jsoup.select.Elements;
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
+import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Mail;
 
 import lombok.SneakyThrows;
@@ -46,7 +47,7 @@ public class CgbcCreditParser implements MailParserStrategy<List<String>> {
      * 20xx/xx/xx   20xx/xx/xx  (还款)银联跨行自动转账还款  -1,000.00  人民币      -1,000.00  人民币
      */
     @Override
-    public List<List<String>> parse(Mail mail) {
+    public List<List<String>> parse(Mail mail, PasswordHelper helper) {
         String content = mail.getBody();
 
         Document doc = Jsoup.parse(content);

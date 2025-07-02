@@ -16,6 +16,7 @@ import org.jsoup.select.Elements;
 import com.chxt.domain.transaction.constants.TransactionEnums;
 import com.chxt.domain.transaction.exception.ParseException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
+import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Excel;
 import com.chxt.domain.utils.Http;
 import com.chxt.domain.utils.Mail;
@@ -42,7 +43,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     }
 
     @Override
-    public List<Map<String, String>> parse(Mail mail) {
+    public List<Map<String, String>> parse(Mail mail, PasswordHelper helper) {
         Document doc = Jsoup.parse(mail.getBody());
         Elements aElements = doc.getElementsByTag("a");
         String url = aElements.get(0).attr("href");

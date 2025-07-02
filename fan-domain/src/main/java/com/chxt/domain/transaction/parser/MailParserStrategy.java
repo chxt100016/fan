@@ -31,7 +31,7 @@ public interface MailParserStrategy<T> {
      * @param messages 符合条件的邮件列表
      * @return 解析后的交易记录列表
      */
-    List<T> parse(Mail mail);
+    List<T> parse(Mail mail, PasswordHelper helper);
 
     /**
      * 获取策略支持的渠道

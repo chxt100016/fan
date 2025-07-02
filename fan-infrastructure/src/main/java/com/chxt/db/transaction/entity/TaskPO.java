@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TaskPO {
 
     @TableId(type = IdType.AUTO)
@@ -23,6 +25,9 @@ public class TaskPO {
 
     private String status;
 
-    private Date data;
+	private String remark;
+
+    private String data;
+
 
 }

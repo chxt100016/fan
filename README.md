@@ -1,10 +1,11 @@
 
 ``` sql
 -- MissionPO 对应表 mission
-CREATE TABLE `mission` (
+CREATE TABLE `task` (
   `id` VARCHAR(255) NOT NULL PRIMARY KEY,
-  `mission_id` VARCHAR(255),
-  `mission_status` VARCHAR(255),
+  `task_id` VARCHAR(255),
+  `status` VARCHAR(255),
+  `remark` VARCHAR(255),
   `data` VARCHAR(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

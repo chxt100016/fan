@@ -1,7 +1,6 @@
 package com.chxt.domain.transaction.parser.impl;
 
 import java.math.BigDecimal;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import com.chxt.domain.transaction.constants.TransactionEnums;
+import com.chxt.domain.transaction.exception.NeedPasswordException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
+import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Excel;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.Zip;
@@ -29,7 +30,7 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     private final static String ALI_PAY_SUBJECT = "支付宝交易流水明细";
     
     private final static String ALIPAY_HEADER_MARKER = "------------------------支付宝（中国）网络技术有限公司  电子客户回单------------------------";
-
+	
 
 
     @Override
@@ -109,13 +110,13 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
     @Override
     @SneakyThrows
-    public List<Map<String,String>> parse(Mail mail) {
+    public List<Map<String,String>> parse(Mail mail, PasswordHelper helper) {
 
-        // 要求用户输入解压密码
-        // Scanner scanner = new Scanner(System.in);
-        // System.out.print("请输入支付宝交易流水明细ZIP文件的解压密码: ");
-        // String password = scanner.nextLine();
-        String password = "142268";
+        String password = helper.getPassword(TransactionEnums.CHANNEL.ALI_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
+		if (password == null) {
+			throw new NeedPasswordException(TransactionEnums.CHANNEL.ALI_PAY);
+		}
+		
         // 解压ZIP文件
         Zip zip = new Zip(mail.getAttachment(), password);
         Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);

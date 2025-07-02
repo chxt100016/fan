@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.chxt.domain.transaction.entity.TransactionChannel;
 import com.chxt.domain.transaction.entity.TransactionLog;
 import com.chxt.domain.transaction.exception.ParseException;
+import com.chxt.domain.transaction.helper.PasswordHelper;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 
@@ -32,8 +33,8 @@ public class MailManager {
     
     private final List<MailParserStrategy<?>> strategies = new ArrayList<>();
 
-    public MailManager(String host, String username, String password, List<MailParserStrategy<?>> strategies) {
-        this.mailConfig = new MailConfig(host, username, password);
+    public MailManager(String host, String username, String password, List<MailParserStrategy<?>> strategies, PasswordHelper passwordHelper) {
+        this.mailConfig = new MailConfig(host, username, password, passwordHelper);
         this.strategies.addAll(strategies);
     }
 
@@ -200,6 +201,8 @@ public class MailManager {
         private String username;
 
         private String password;
+
+		private PasswordHelper passwordHelper;
     }
 
     public static class Builder {
@@ -214,6 +217,8 @@ public class MailManager {
         private String password;
 
         private List<MailParserStrategy<?>> strategies;
+
+		private PasswordHelper passwordHelper;
 
         public Builder setHost(String host) {
             this.host = host;
@@ -237,10 +242,18 @@ public class MailManager {
             this.strategies.add(strategy);
             return this;
         }
+
+		public Builder setPasswordHelper(PasswordHelper passwordHelper) {
+            if (this.strategies == null) {
+                this.strategies = new ArrayList<>();
+            }
+            this.passwordHelper = passwordHelper;
+            return this;
+        }
         
 
         public MailManager build() {
-            return new MailManager(host, username, password, strategies);
+            return new MailManager(host, username, password, strategies, passwordHelper);
         }
     }
     
