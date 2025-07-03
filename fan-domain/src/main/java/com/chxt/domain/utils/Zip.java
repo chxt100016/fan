@@ -2,13 +2,13 @@ package com.chxt.domain.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.LocalFileHeader;
 
@@ -18,6 +18,8 @@ import net.lingala.zip4j.model.LocalFileHeader;
 public class Zip {
 
     private Map<String, byte[]> fileMap;
+
+	private boolean isWrongPassword;
 
     @SneakyThrows
     public Zip(byte[] data, String password) {
@@ -30,16 +32,21 @@ public class Zip {
         try (ZipInputStream zipInputStream = new ZipInputStream(bais, password.toCharArray())) {
             LocalFileHeader localFileHeader;
             while ((localFileHeader = zipInputStream.getNextEntry()) != null) {
-                baos.reset();
+				baos.reset();
                 String fileName = localFileHeader.getFileName();
                 while ((readLen = zipInputStream.read(readBuffer)) != -1) {
                     baos.write(readBuffer, 0, readLen);
                 }
                 fileMap.put(fileName, baos.toByteArray());
-              }
-        } catch (IOException e) {
-            log.error("解压失败", e);
-        }
+			}
+	
+        } catch(ZipException e) {
+			if (e.getMessage().contains("Wrong password!")) {
+				this.isWrongPassword = true;
+			} else {
+				throw e;
+			}
+		} 
     }
 
 

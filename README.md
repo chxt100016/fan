@@ -2,7 +2,7 @@
 ``` sql
 -- MissionPO 对应表 mission
 CREATE TABLE `task` (
-  `id` VARCHAR(255) NOT NULL PRIMARY KEY,
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `task_id` VARCHAR(255),
   `status` VARCHAR(255),
   `remark` VARCHAR(255),

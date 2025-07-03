@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.entity;
+package com.chxt.domain.transaction.model.entity;
 
 
 import java.util.ArrayList;
@@ -51,6 +51,8 @@ public class TransactionChannel {
 
     private Set<TransactionLog> logs;
 
+	private List<String> errorMessageList;
+
     public TransactionChannel(String channel) {
         this.channel = channel;
         this.operationDate = new Date();
@@ -76,6 +78,17 @@ public class TransactionChannel {
             this.dayCountMap.compute(day, (k, v) -> v == null ? 1 : v + 1);
         }
     }
+
+	public void addErrorMessage(String message) {
+		if (this.errorMessageList == null) {
+			this.errorMessageList = new ArrayList<>();
+		}
+		this.errorMessageList.add(message);
+	}
+
+	public void printError() {
+		this.errorMessageList.forEach(System.out::println);
+	}
 
     public void addDateRange(Date startDate, Date endDate) {
         startDate = DateUtils.truncate(startDate, Calendar.DATE);

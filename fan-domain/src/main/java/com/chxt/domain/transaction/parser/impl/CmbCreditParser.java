@@ -12,7 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.chxt.domain.transaction.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
 import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Mail;

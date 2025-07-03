@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.entity;
+package com.chxt.domain.transaction.model.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-import com.chxt.domain.transaction.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

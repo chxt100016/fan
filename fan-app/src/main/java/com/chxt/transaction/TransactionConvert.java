@@ -9,8 +9,8 @@ import org.mapstruct.factory.Mappers;
 
 import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.entity.TransactionLogPO;
-import com.chxt.domain.transaction.entity.TransactionChannel;
-import com.chxt.domain.transaction.entity.TransactionLog;
+import com.chxt.domain.transaction.model.entity.TransactionChannel;
+import com.chxt.domain.transaction.model.entity.TransactionLog;
 
 @Mapper
 public interface TransactionConvert {

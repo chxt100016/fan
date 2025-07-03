@@ -1,26 +1,26 @@
 package com.chxt.domain.transaction.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 import org.apache.commons.collections4.CollectionUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.chxt.domain.transaction.entity.TransactionChannel;
-import com.chxt.domain.transaction.entity.TransactionLog;
-import com.chxt.domain.transaction.exception.ParseException;
-import com.chxt.domain.transaction.helper.PasswordHelper;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.entity.TransactionChannel;
+import com.chxt.domain.transaction.model.entity.TransactionLog;
+import com.chxt.domain.transaction.model.exception.TransactionParseException;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import lombok.NoArgsConstructor;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MailManager {
+
+	private static final Map<String, MailParserStrategy<?>> ALL_STRATEGIES = TransactionEnums.CHANNEL.getAllParser();
 
     private final MailConfig mailConfig;
     
@@ -54,42 +56,26 @@ public class MailManager {
      * @param startDateStr 开始`日期
      * @return 所有交易记录列表
      */
-    @SneakyThrows
     public List<TransactionChannel> parse(String startDateStr, boolean printInfo) {
-
-
         try (MailClient mailClient = new MailClient(this.mailConfig.getHost(), this.mailConfig.getUsername(), this.mailConfig.getPassword(), printInfo)) {
-         
-         
             List<TransactionChannel> res = new ArrayList<>();
-        
             // 一次性获取所有策略的邮件
             List<List<Mail>> allStrategyMails = searchAll(mailClient, startDateStr);
-            
-           
             // 处理邮件
             for (int i = 0; i < strategies.size(); i++) {
                 MailParserStrategy<?> strategy = strategies.get(i);
                 List<Mail> mails = allStrategyMails.get(i);
     
                 TransactionChannel handleMails = this.handleMails(mails, strategy);
-                if (handleMails != null && !CollectionUtils.isEmpty(handleMails.getLogs())) {
-                    res.add(handleMails);
-                }
+				res.add(handleMails);
+          
             }
-            
             return res;
-       
-            
         } catch (Exception e) {
-            System.err.println("处理邮件时发生错误: " + e.getMessage());
+            log.error("处理邮件时发生错误: " + e.getMessage());
             e.printStackTrace();
         }
-
-        return new ArrayList<>();
-
-
-      
+        return Collections.emptyList();
     }
 
     /**
@@ -104,20 +90,42 @@ public class MailManager {
         }
 
         TransactionChannel channel = new TransactionChannel(strategy.getChannel());
-
         for (Mail mail : mails) {
-            MailParser<T> parser = new MailParser<>(strategy, mail);
-            if (!parser.canGetData()) {
-                continue;
-            }
-            Date startDate = parser.getStartDate();
-            Date endDate = parser.getEndDate();
-            channel.addDateRange(startDate, endDate);
-            channel.addLogs(parser.getLogs());
+            try {
+				List<T> data = strategy.parse(mail, this.mailConfig.getPasswordHelper());
+				Date startDate = strategy.getTransactionStartDate(mail, data);
+				Date endDate = strategy.getTransactionEndDate(mail, data);
+				List<TransactionLog> logs = parseMailData(data, strategy);
+				channel.addDateRange(startDate, endDate);
+				channel.addLogs(logs);
+			} catch (TransactionParseException e) {
+				channel.addErrorMessage(e.getMessage());
+			} catch (Exception e) {
+				log.error("{}", e.getMessage());
+			}
         }
         
         return channel;
     }
+
+	private <T> List<TransactionLog> parseMailData(List<T> data, MailParserStrategy<T> strategy) {
+		List<TransactionLog> logs = new ArrayList<>();
+		for (T item : data) {
+			TransactionLog log = TransactionLog.builder()
+				.date(strategy.getDate(item))
+				.amount(strategy.getAmount(item))
+				.currency(strategy.getCurrency(item))
+				.type(strategy.getType(item))
+				.method(strategy.getMethod(item))
+				.channel(strategy.getChannel())
+				.description(strategy.getDescription(item))
+				.logId(strategy.getLogId(item))
+				.build();
+			logs.add(log);
+		}
+
+		return logs;
+	}
 
     /**
      * 获取所有策略需要得邮件
@@ -133,60 +141,6 @@ public class MailManager {
         }
         return allStrategyMails;
     }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private class MailParser<T> {
-
-        private List<TransactionLog> logs;
-
-        private Date startDate;
-
-        private Date endDate;
-
-        private boolean success;
-
-        public MailParser(MailParserStrategy<T> strategy, Mail mail) {
-            try {
-                process(strategy, mail);
-                this.success = true;
-            } catch (ParseException e) {
-                this.success = false;
-                log.error("{}, subject:{}, from:{}, date:{}", e.getMessage(), mail.getSubject(), mail.getFrom(), mail.getDate(), e);
-            } catch (Exception e) {
-                this.success = false;
-                log.error("transaction mail parse error, subject:{}, from:{}, date:{}, strategy: {}", mail.getSubject(), mail.getFrom(), mail.getDate(), JSON.toJSONString(strategy), e);
-            }
-        }
-
-        public void process(MailParserStrategy<T> strategy, Mail mail) {
-            List<T> data = strategy.parse(mail);
-            this.startDate = strategy.getTransactionStartDate(mail, data);
-            this.endDate = strategy.getTransactionEndDate(mail, data);
-
-            List<TransactionLog> logs = new ArrayList<>();
-            for (T item : data) {
-                TransactionLog log = TransactionLog.builder()
-                    .date(strategy.getDate(item))
-                    .amount(strategy.getAmount(item))
-                    .currency(strategy.getCurrency(item))
-                    .type(strategy.getType(item))
-                    .method(strategy.getMethod(item))
-                    .channel(strategy.getChannel())
-                    .description(strategy.getDescription(item))
-                    .logId(strategy.getLogId(item))
-                    .build();
-                logs.add(log);
-            }
-            this.logs = logs;
-        }
-
-        public boolean canGetData() {
-            return success && !CollectionUtils.isEmpty(logs) && startDate != null && endDate != null;
-        }
-    }
-
   
     /**
      * 邮件配置
@@ -235,11 +189,21 @@ public class MailManager {
             return this;
         }
 
-        public Builder addStrategy(MailParserStrategy<?> strategy) {
+        public Builder addStrategy(String code) {
             if (this.strategies == null) {
                 this.strategies = new ArrayList<>();
             }
-            this.strategies.add(strategy);
+			MailParserStrategy<?> parser = ALL_STRATEGIES.get(code);
+			if (parser == null) {
+				log.warn("no this parser, code:{}", code);
+				return this;
+			}
+            this.strategies.add(parser);
+            return this;
+        }
+
+		public Builder addStrategy(List<String> codeList) {
+			codeList.forEach(this::addStrategy);
             return this;
         }
 

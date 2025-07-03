@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.entity;
+package com.chxt.domain.transaction.model.entity;
 
 
 import java.util.Date;

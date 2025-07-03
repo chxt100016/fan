@@ -11,8 +11,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.chxt.domain.transaction.constants.TransactionEnums;
-import com.chxt.domain.transaction.exception.NeedPasswordException;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.exception.ParseException;
+import com.chxt.domain.transaction.model.exception.PasswordRequiredException;
+import com.chxt.domain.transaction.model.exception.WrongPasswordException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
 import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Excel;
@@ -114,11 +116,15 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
         String password = helper.getPassword(TransactionEnums.CHANNEL.ALI_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
 		if (password == null) {
-			throw new NeedPasswordException(TransactionEnums.CHANNEL.ALI_PAY);
+			throw new PasswordRequiredException(TransactionEnums.CHANNEL.ALI_PAY, mail);
 		}
 		
         // 解压ZIP文件
         Zip zip = new Zip(mail.getAttachment(), password);
+		if (zip.isWrongPassword()) {
+			throw new WrongPasswordException(TransactionEnums.CHANNEL.ALI_PAY, mail);
+		}
+		
         Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);
         return excel.getDataMap();
     } 

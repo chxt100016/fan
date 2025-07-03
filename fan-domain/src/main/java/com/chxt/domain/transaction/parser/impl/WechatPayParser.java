@@ -13,8 +13,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import com.chxt.domain.transaction.constants.TransactionEnums;
-import com.chxt.domain.transaction.exception.ParseException;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.exception.FileOutOfTimeException;
+import com.chxt.domain.transaction.model.exception.PasswordRequiredException;
+import com.chxt.domain.transaction.model.exception.WrongPasswordException;
 import com.chxt.domain.transaction.parser.MailParserStrategy;
 import com.chxt.domain.transaction.parser.PasswordHelper;
 import com.chxt.domain.utils.Excel;
@@ -49,11 +51,18 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         String url = aElements.get(0).attr("href");
         Http http = Http.uri(url).doGet();
         if (http.result().contains("当前文件已过期")) {
-            throw new ParseException("当前文件已过期，请在微信中重新申请导出");
+            throw new FileOutOfTimeException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
         }
+		String password = helper.getPassword(url, null, url);
+		if (password == null) {
+			throw new PasswordRequiredException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
+		}
 
         byte[] byteArray = http.byteArray();
-        Zip zip = new Zip(byteArray, "192869");
+        Zip zip = new Zip(byteArray, password);
+		if (zip.isWrongPassword()) {
+			throw new WrongPasswordException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
+		}
         byte[] bytes = zip.getOne("csv");
         Excel excel = new Excel(bytes, EXCEL_MARKER);
         
