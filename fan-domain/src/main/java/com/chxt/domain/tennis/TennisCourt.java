@@ -3,6 +3,7 @@ package com.chxt.domain.tennis;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.chxt.domain.pic.TimetableEnum;
@@ -36,5 +37,23 @@ public class TennisCourt {
         )
         .collect(Collectors.joining(";"));
     }
+
+    public static Map<String, List<String>> getDayOfWeekAndTime(List<TennisCourt> tennisCourts) {
+        if (tennisCourts == null || tennisCourts.isEmpty()) {
+            return Map.of();
+        }
+        // 按照日期分组, 聚合时间
+        return tennisCourts.stream()
+            .collect(Collectors.groupingBy(
+                item -> DateStandardUtils.getDayOfWeekStrShort(item.getDate()),
+                Collectors.collectingAndThen(
+                    Collectors.mapping(
+                        item -> DateStandardUtils.getHourPartStr(item.getDate()),
+                        Collectors.toList()
+                    ),
+                    list -> list.stream().distinct().collect(Collectors.toList())
+                )
+            ));
+            }
 
 }

@@ -3,6 +3,7 @@ package com.chxt.notice;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
+import com.chxt.domain.pic.ScheduleImage;
 import com.chxt.domain.pic.TimeCell;
 import com.chxt.domain.pic.TimeTable;
 import com.chxt.domain.stream.PictureStream;
@@ -27,10 +29,10 @@ public class TennisNoticeService {
     private static final Integer DAY_RANGE = 4;
 
     // 室外场地 工作日
-    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
+    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList( 7, 8, 9, 10,20, 21, 22);
 
     // 室外场地 周末
-    private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(18, 19, 20, 21, 22);
+    private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(17, 18, 19, 20, 21, 22);
 
     // 室内场地 工作日
     private static final List<Integer> IN_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
@@ -76,7 +78,10 @@ public class TennisNoticeService {
         // byte[] bytes = new DayTable().getByte(timeTables);
         byte[] a = new TimeTable().getByte(timeTables);
 
-        pictureStream.update(uniqueId, Arrays.asList(a));
+        Map<String,List<String>> dayOfWeekAndTimeMap = TennisCourt.getDayOfWeekAndTime(available);
+        byte[] cover = new ScheduleImage(dayOfWeekAndTimeMap).generate();
+        
+        pictureStream.update(uniqueId, cover, Arrays.asList(a));
 
     }
 
