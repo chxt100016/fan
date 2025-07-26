@@ -110,6 +110,10 @@
                                     <arg value="${project.basedir}/docker/Dockerfile" />
                                 
                                 </exec>
+                                <exec executable="cp">
+                                    <arg value="/Users/chenxintong/Library/Fonts/阿里巴巴普惠体/Alibaba-PuHuiTi-Regular.ttf" />
+                                    <arg value="${project.basedir}/docker/Alibaba-PuHuiTi-Regular.ttf" />
+                                </exec>
                                 <exec executable="bash">
                                     <arg value="${project.basedir}/docker/run.sh" />
                                     <arg value="${project.basedir}/docker" />

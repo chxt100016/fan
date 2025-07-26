@@ -34,6 +34,12 @@ public class DateStandardUtils {
     }
 
     @SneakyThrows
+    public static String getDayOfWeekStrCN(Date date){
+        int i = getDayOfWeek(date);
+        return DAY_CN[i];
+    }
+
+    @SneakyThrows
     public static String getDayOfWeekStrShort(Date date){
         int i = getDayOfWeek(date);
         return DAY_EN_SHORT[i];

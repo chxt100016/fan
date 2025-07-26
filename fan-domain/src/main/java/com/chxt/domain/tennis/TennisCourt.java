@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.utils.DateStandardUtils;
 
@@ -31,11 +33,12 @@ public class TennisCourt {
 
 
     public static String getUniqueString(List<TennisCourt> tennisCourts) {
-        return tennisCourts.stream()
+        String uniqueStr = tennisCourts.stream()
         .map(
             item -> item.getTimetableEnum().getCode() + ":" + DateStandardUtils.getDayHour(item.getDate()) + ":" + item.getFieldName()
         )
         .collect(Collectors.joining(";"));
+        return DigestUtils.md5Hex(uniqueStr);
     }
 
     public static Map<String, List<String>> getDayOfWeekAndTime(List<TennisCourt> tennisCourts) {
@@ -45,7 +48,7 @@ public class TennisCourt {
         // 按照日期分组, 聚合时间
         return tennisCourts.stream()
             .collect(Collectors.groupingBy(
-                item -> DateStandardUtils.getDayOfWeekStrShort(item.getDate()),
+                item -> DateStandardUtils.getDayOfWeekStrCN(item.getDate()),
                 Collectors.collectingAndThen(
                     Collectors.mapping(
                         item -> DateStandardUtils.getHourPartStr(item.getDate()),

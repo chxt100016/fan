@@ -1,5 +1,6 @@
 package com.chxt.domain.tennis;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,47 +8,50 @@ import java.util.stream.Collectors;
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.utils.DateStandardUtils;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Builder
 public class TennisCourtSelector {
 
 
-    private List<Integer> outDoorWeekdayHours;
+    // 室外场地 工作日
+    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
 
-    private List<Integer> outDoorWeekendHours;
+    // 室外场地 周末
+    private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(17, 18, 19, 20, 21, 22);
 
-    private List<Integer> inDoorWeekdayHours;
+    // 室内场地 工作日
+    private static final List<Integer> IN_DOOR_WEEKDAY_HOURS = Arrays.asList( 20, 21, 22);
 
-    private List<Integer> intDoorWeekendHours;
+    // 室内场地 周末
+    private static final List<Integer> IN_DOOR_WEEKEND_HOURS = Arrays.asList(10,11,12,13,14,15,16, 17, 18, 19, 20, 21, 22);
 
 
-    public boolean checkLimit(Date date, boolean isIndoor) {
+    private static boolean checkLimit(Date date, boolean isIndoor) {
         boolean isWeekend = DateStandardUtils.isWeekend(date);
         Integer hour = DateStandardUtils.getHourOfDay(date);
 
         if (isWeekend) {
-            return isIndoor ? this.intDoorWeekendHours.contains(hour) : this.outDoorWeekendHours.contains(hour);
+            return isIndoor ? IN_DOOR_WEEKEND_HOURS.contains(hour) : OUT_DOOR_WEEKEND_HOURS.contains(hour);
         } else {
-            return isIndoor ? this.inDoorWeekdayHours.contains(hour) : this.outDoorWeekdayHours.contains(hour);
+            return isIndoor ? IN_DOOR_WEEKDAY_HOURS.contains(hour) : OUT_DOOR_WEEKDAY_HOURS.contains(hour);
         }
     }
 
-    public boolean checkLimit(TennisCourt tennisCourt) {
+    private static boolean checkLimit(TennisCourt tennisCourt) {
         if (!tennisCourt.getBookable()) {
             return false;
         }
-        return this.checkLimit(tennisCourt.getDate(), tennisCourt.getTimetableEnum().equals(TimetableEnum.HL_INDOOR));
+        return checkLimit(tennisCourt.getDate(), tennisCourt.getTimetableEnum().equals(TimetableEnum.HL_INDOOR));
     }
 
-    public List<TennisCourt> getAvailable(List<TennisCourt> tennisCourts) {
-        return tennisCourts.stream().filter(this::checkLimit).collect(Collectors.toList());
+    public static List<TennisCourt> getAvailable(List<TennisCourt> tennisCourts) {
+        return tennisCourts.stream().filter(TennisCourtSelector::checkLimit).collect(Collectors.toList());
     }
 
 
