@@ -22,7 +22,7 @@ public class ScheduleImage {
     private static final int DAY_WIDTH = 100; // 星期区域宽度
     private static final int TIME_COL_WIDTH = 50; // 时间列宽度
     private static final int imageWidth = 800; // 图片宽度
-    private static final int cardWidth = 500; // 卡片宽度
+    private static final int cardWidth = 600; // 卡片宽度
     private static final int groupHeight = 100; // 每组高度
     private static final int topMargin = 20; // 顶部边距
 
