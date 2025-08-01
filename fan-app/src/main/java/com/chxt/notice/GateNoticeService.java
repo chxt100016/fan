@@ -52,7 +52,7 @@ public class GateNoticeService {
     @PostConstruct
     public void init() {
         new Thread(() -> {
-            avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+            // avutil.av_log_set_level(avutil.AV_LOG_QUIET);
         }).start();
     }
 
