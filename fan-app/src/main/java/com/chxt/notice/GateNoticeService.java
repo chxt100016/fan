@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 
 import org.springframework.stereotype.Service;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -51,7 +52,7 @@ public class GateNoticeService {
     @PostConstruct
     public void init() {
         new Thread(() -> {
-            // avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+            avutil.av_log_set_level(avutil.AV_LOG_QUIET);
         }).start();
     }
 
