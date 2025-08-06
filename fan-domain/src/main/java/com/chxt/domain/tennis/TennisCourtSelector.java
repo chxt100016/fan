@@ -20,7 +20,7 @@ public class TennisCourtSelector {
 
 
     // 室外场地 工作日
-    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList( 10,11, 20, 21, 22);
+    private static final List<Integer> OUT_DOOR_WEEKDAY_HOURS = Arrays.asList(  20, 21, 22);
 
     // 室外场地 周末
     private static final List<Integer> OUT_DOOR_WEEKEND_HOURS = Arrays.asList(17, 18, 19, 20, 21, 22);
