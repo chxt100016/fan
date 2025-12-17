@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.parser.impl;
+package com.chxt.domain.transaction.component.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
-import com.chxt.domain.transaction.parser.MailParserStrategy;
-import com.chxt.domain.transaction.parser.PasswordHelper;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.component.PasswordHelper;
 import com.chxt.domain.utils.Mail;
 
 import lombok.SneakyThrows;

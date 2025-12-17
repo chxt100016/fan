@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.parser.impl;
+package com.chxt.domain.transaction.component.impl;
 
 import java.math.BigDecimal;
 
@@ -17,8 +17,8 @@ import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.exception.FileOutOfTimeException;
 import com.chxt.domain.transaction.model.exception.PasswordRequiredException;
 import com.chxt.domain.transaction.model.exception.WrongPasswordException;
-import com.chxt.domain.transaction.parser.MailParserStrategy;
-import com.chxt.domain.transaction.parser.PasswordHelper;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.component.PasswordHelper;
 import com.chxt.domain.utils.Excel;
 import com.chxt.domain.utils.Http;
 import com.chxt.domain.utils.Mail;

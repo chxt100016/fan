@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.parser;
+package com.chxt.domain.transaction.component;
 
 import java.math.BigDecimal;
 import java.util.Date;

@@ -1,26 +1,24 @@
 package com.chxt.transaction;
 
 
-
-import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-
 import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.entity.TransactionLogPO;
 import com.chxt.db.transaction.repository.TransactionChannelLogRepository;
 import com.chxt.db.transaction.repository.TransactionLogRepository;
-import com.chxt.domain.transaction.TransactionService;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.vo.MailParseParamVO;
-import com.chxt.domain.transaction.parser.PasswordHelper;
-
+import com.chxt.domain.transaction.service.TransactionLogService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class InitService {
- 
+
+    @Resource
+    private TransactionLogService transactionLogService;
 
     @Resource
     private TransactionLogRepository transactionLogRepository;
@@ -28,12 +26,11 @@ public class InitService {
     @Resource
     private TransactionChannelLogRepository transactionChannelLogRepository;
 
-	@Resource
-	private PasswordHelper passwordHelper;
+
 
     public void init(MailParseParamVO param) {
 
-        List<TransactionChannel> init = TransactionService.init(param, passwordHelper);
+        List<TransactionChannel> init = transactionLogService.init(param);
 		
 
         for (TransactionChannel item : init) {

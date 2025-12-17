@@ -45,7 +45,7 @@ public class TransactionChannel {
      * 日期统计
      */
     @Getter
-    private Map<String, Integer> dayCountMap;
+    private Map<String, Integer> dayCountMap = new HashMap<>();
 
     private List<DateRange> dateRanges;
 
@@ -59,7 +59,7 @@ public class TransactionChannel {
     }
 
     public List<TransactionLog> getLogs() {
-        return this.logs == null ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(this.logs));
+        return this.logs == null ? Collections.emptyList() : List.copyOf(this.logs);
     }
 
 
@@ -68,10 +68,6 @@ public class TransactionChannel {
             this.logs = new HashSet<>();
         }
         this.logs.addAll(transactionLogs);
-
-        if (this.dayCountMap == null) {
-            this.dayCountMap = new HashMap<>();
-        }
 
         for (TransactionLog log : transactionLogs) {
             String day = DateFormatUtils.format(log.getDate(), "yyyy-MM-dd");
@@ -130,7 +126,6 @@ public class TransactionChannel {
 
     /**
      * 防止被修改
-     * @return
      */
     public List<String[]> getDateRanges() {
         if (this.dateRanges == null) {

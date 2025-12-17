@@ -38,10 +38,6 @@ public class MailClient implements AutoCloseable{
     private final Folder defaultInbox;
     private boolean printInfo;
 
-    public MailClient(String host, String username, String password) {
-        this(host, username, password, false);
-    }
-    
     /**
      * 构造方法
      * @param host 邮件服务器

@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.parser.impl;
+package com.chxt.domain.transaction.component.impl;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,11 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
-import com.chxt.domain.transaction.model.exception.ParseException;
 import com.chxt.domain.transaction.model.exception.PasswordRequiredException;
 import com.chxt.domain.transaction.model.exception.WrongPasswordException;
-import com.chxt.domain.transaction.parser.MailParserStrategy;
-import com.chxt.domain.transaction.parser.PasswordHelper;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.component.PasswordHelper;
 import com.chxt.domain.utils.Excel;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.Zip;

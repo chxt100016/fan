@@ -15,10 +15,8 @@ import lombok.NoArgsConstructor;
 public class MailParseParamVO {
 
 
-	private String host = "imap.qq.com";  // QQ邮箱的IMAP服务器
-    private String username = "546555918@qq.com";  // 你的QQ邮箱地址
-    private String password = "nnfjkmehqypgbbhc";  // 你的QQ邮箱授权码（不是登录密码）
-    private String startDateStr = "2025-05-25";  // 开始日期，格式为yyyy-MM-dd
-	private List<String> parserCode;
+    private String userId;
+    private String startDateStr;  // 开始日期，格式为yyyy-MM-dd
+	private List<String> channel;
 
 }

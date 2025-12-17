@@ -1,11 +1,11 @@
 package com.chxt.db.transaction.mapper;
 
+import com.chxt.db.transaction.entity.MessageBoxPO;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.chxt.db.transaction.entity.TaskPO;
 
 @Mapper
-public interface TaskMapper extends BaseMapper<TaskPO> {
+public interface MessageBoxMapper extends BaseMapper<MessageBoxPO> {
 
 } 

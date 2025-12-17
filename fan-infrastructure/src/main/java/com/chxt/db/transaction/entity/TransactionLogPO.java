@@ -20,6 +20,8 @@ public class TransactionLogPO {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    private String userId;
+
     /**
      * 交易日期时间
      */

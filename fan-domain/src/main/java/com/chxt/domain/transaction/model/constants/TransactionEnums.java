@@ -1,17 +1,14 @@
 package com.chxt.domain.transaction.model.constants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.chxt.domain.transaction.model.constants.TransactionEnums.CHANNEL;
-import com.chxt.domain.transaction.parser.MailParserStrategy;
-import com.chxt.domain.transaction.parser.impl.AliPayParser;
-import com.chxt.domain.transaction.parser.impl.CgbcCreditParser;
-import com.chxt.domain.transaction.parser.impl.CmbCreditParser;
-import com.chxt.domain.transaction.parser.impl.WechatPayParser;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.component.impl.AliPayParser;
+import com.chxt.domain.transaction.component.impl.CgbcCreditParser;
+import com.chxt.domain.transaction.component.impl.CmbCreditParser;
+import com.chxt.domain.transaction.component.impl.WechatPayParser;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,10 +20,10 @@ public class TransactionEnums {
     @Getter
     public enum CHANNEL {
         
-        CMB_CREDIT("cmb_credit", "招商信用卡", CmbCreditParser.class),
-        ALI_PAY("ali_pay", "支付宝", AliPayParser.class),
-        WECHAT_PAY("wechat_pay", "微信支付", WechatPayParser.class),
-        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
+        CMB_CREDIT("CMB_CREDIT", "招商信用卡", CmbCreditParser.class),
+        ALI_PAY("ALI_PAY", "支付宝", AliPayParser.class),
+        WECHAT_PAY("WECHAT_PAY", "微信支付", WechatPayParser.class),
+        CGBC_CREDIT("CGBC_CREDIT", "广发信用卡", CgbcCreditParser.class),
         ;
 
         private final String code;
@@ -45,13 +42,22 @@ public class TransactionEnums {
 			return res;
 		}
 
+        public static String getNameByCode(String code) {
+            for (CHANNEL values : CHANNEL.values()) {
+                if (values.getCode().equals(code)) {
+                    return values.getName();
+                }
+            }
+            return null;
+        }
+
     }
 
     @AllArgsConstructor
     @Getter
     public enum TYPE {
-        INCOME("income", "收入"),
-        EXPENSE("expense", "支出"),
+        INCOME("INCOME", "收入"),
+        EXPENSE("EXPENSE", "支出"),
         ;
 
         private final String code;
