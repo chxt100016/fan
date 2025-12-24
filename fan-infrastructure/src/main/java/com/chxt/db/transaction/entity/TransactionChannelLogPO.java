@@ -23,10 +23,12 @@ public class TransactionChannelLogPO {
 
     private String channel;
 
-    private String operationDate;
-
     private Date date;
 
     private Integer count;
+
+    private Date createTime;
+
+    private Date updateTime;
 
 }

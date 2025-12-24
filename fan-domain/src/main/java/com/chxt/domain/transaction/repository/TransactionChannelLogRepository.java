@@ -7,7 +7,5 @@ import java.util.List;
 public interface TransactionChannelLogRepository {
 
 
-    void delByDayChannel(String channel, List<String[]> dateStrList);
-
-    void add(TransactionChannel item);
+    void batchAdd(TransactionChannel item);
 }

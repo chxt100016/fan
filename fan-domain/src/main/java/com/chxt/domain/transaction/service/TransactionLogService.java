@@ -46,11 +46,8 @@ public class TransactionLogService {
         if (CollectionUtils.isEmpty(item.getLogs())) {
             return;
         }
-        transactionChannelLogRepository.delByDayChannel(item.getChannel(), item.getDateRanges());
-        transactionLogRepository.delByDayChannel(item.getChannel(), item.getDateRanges());
-        this.transactionLogRepository.add(item.getLogs());
-        this.transactionChannelLogRepository.add(item);
-
+        this.transactionChannelLogRepository.batchAdd(item);
+        this.transactionLogRepository.batchAdd(item);
     }
 
 

@@ -23,9 +23,9 @@ public interface TransactionConvert {
  
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "operationDate", source = "transactionChannel.operationDate")
     @Mapping(target = "channel", source = "transactionChannel.channel")
-    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "userId", source = "transactionChannel.userId")
     @Mapping(target = "date", source = "date", dateFormat = "yyyy-MM-dd")
-    TransactionChannelLogPO toPO(String date, Integer count, TransactionChannel transactionChannel);
+    @Mapping(target = "count", source = "count", dateFormat = "yyyy-MM-dd")
+    TransactionChannelLogPO toChannelLogPO(String date, Integer count, TransactionChannel transactionChannel);
 }

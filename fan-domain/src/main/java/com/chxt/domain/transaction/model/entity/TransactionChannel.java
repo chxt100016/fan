@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -33,13 +35,13 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionChannel {
 
     @Getter
-    private String channel;
-    
-    /**
-     * 操作时间
-     */
+    private String userId;
+
     @Getter
-    private Date operationDate;
+    private String date;
+
+    @Getter
+    private String channel;
 
     /**
      * 日期统计
@@ -53,9 +55,9 @@ public class TransactionChannel {
 
 	private List<String> errorMessageList;
 
-    public TransactionChannel(String channel) {
+    public TransactionChannel(String channel, String userId) {
         this.channel = channel;
-        this.operationDate = new Date();
+        this.userId = userId;
     }
 
     public List<TransactionLog> getLogs() {
@@ -132,6 +134,13 @@ public class TransactionChannel {
             return Collections.emptyList();
         }
         return this.dateRanges.stream().map(item -> new String[] {item.getStartDateStr(), item.getEndDateStr()}).toList();
+    }
+
+    public List<String> getDateStrList() {
+        if (MapUtils.isEmpty(dayCountMap)) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(dayCountMap.keySet());
     }
 
     @Data

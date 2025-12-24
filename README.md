@@ -38,14 +38,14 @@ CREATE TABLE `message_box` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消息箱表';
 
--- TransactionChannelLogPO 对应表 transaction_channel_log
 CREATE TABLE `transaction_channel_log` (
   `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID',
-  `channel` VARCHAR(255),
-  `operation_date` VARCHAR(255),
-  `date` DATETIME,
-  `count` INT
+  `channel` VARCHAR(255) DEFAULT NULL COMMENT '渠道',
+  `date` DATETIME NOT NULL COMMENT '记录时间',
+  `count` INT DEFAULT NULL COMMENT '交易数量',
+  `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT NULL COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- TransactionChannelPO 对应表 transaction_channel
