@@ -51,6 +51,7 @@ public class UserMailFactoryImpl implements UserMailFactory {
     @Override
     public MailParser getParser(String userId, List<String> channels) {
         MailParser mailParser = new MailParser();
+        mailParser.setUserId(userId);
         channels.stream().map(ALL_STRATEGIES::get).forEach(mailParser::addParser);
 
         // 获取密码

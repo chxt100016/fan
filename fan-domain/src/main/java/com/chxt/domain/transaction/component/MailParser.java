@@ -18,6 +18,9 @@ import java.util.*;
 public class MailParser {
 
     @Setter
+    private String userId;
+
+    @Setter
     private PasswordHelper passwordHelper;
 
     private final Map<String, MailParserStrategy<?>> parserMap = new HashMap<>();
@@ -52,7 +55,7 @@ public class MailParser {
      * @return 所有交易记录列表
      */
     private <T> TransactionChannel handleMails(List<Mail> mails, MailParserStrategy<T> strategy) {
-        TransactionChannel channel = new TransactionChannel(strategy.getChannel());
+        TransactionChannel channel = new TransactionChannel(strategy.getChannel(), userId);
         for (Mail mail : mails) {
             try {
 				List<T> data = strategy.parse(mail, this.passwordHelper);
