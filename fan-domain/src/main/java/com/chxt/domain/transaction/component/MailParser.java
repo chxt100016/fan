@@ -34,9 +34,8 @@ public class MailParser {
         List<TransactionChannel> res = new ArrayList<>();
         for (ChannelMail channelMail : channelMails) {
             try {
-                List<Mail> mailList = channelMail.getMails();
                 MailParserStrategy<?> strategy = parserMap.get(channelMail.getChannel());
-                TransactionChannel transactionChannel = this.handleMails(mailList, strategy);
+                TransactionChannel transactionChannel = this.handleMails(channelMail, strategy);
                 res.add(transactionChannel);
             } catch (Exception e) {
                 log.error("parse mail error", e);
@@ -47,12 +46,14 @@ public class MailParser {
 
     /**
      * 处理邮件
-     * @param mails 邮件列表
+     * @param channelMail 邮件列表
      * @param strategy 策略
      * @return 所有交易记录列表
      */
-    private <T> TransactionChannel handleMails(List<Mail> mails, MailParserStrategy<T> strategy) {
-        TransactionChannel channel = new TransactionChannel(strategy.getChannel());
+    private <T> TransactionChannel handleMails(ChannelMail channelMail, MailParserStrategy<T> strategy) {
+        String userId = channelMail.getUserId();
+        List<Mail> mails = channelMail.getMails();
+        TransactionChannel channel = new TransactionChannel(userId, strategy.getChannel());
         for (Mail mail : mails) {
             try {
 				List<T> data = strategy.parse(mail, this.passwordHelper);

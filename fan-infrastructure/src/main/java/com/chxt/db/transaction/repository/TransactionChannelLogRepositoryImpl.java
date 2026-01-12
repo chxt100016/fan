@@ -6,7 +6,10 @@ import com.chxt.db.transaction.convert.TransactionConvert;
 import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.mapper.TransactionChannelLogMapper;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
+import com.chxt.domain.transaction.model.entity.TransactionChannelLog;
 import com.chxt.domain.transaction.repository.TransactionChannelLogRepository;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,20 @@ public class TransactionChannelLogRepositoryImpl extends ServiceImpl<Transaction
 
         List<TransactionChannelLogPO> list = channel.getDayCountMap().entrySet().stream().map(item -> TransactionConvert.INSTANCE.toChannelLogPO(item.getKey(), item.getValue(), channel)).toList();
         this.saveBatch(list);
+    }
+
+    @Override
+    public List<TransactionChannelLog> listByChannel(String userId, String startDateStr, List<String> channel) {
+        List<TransactionChannelLogPO> list = this.lambdaQuery()
+                .eq(StringUtils.isNotBlank(userId), TransactionChannelLogPO::getUserId, userId)
+                .ge(StringUtils.isNotBlank(startDateStr), TransactionChannelLogPO::getDate, startDateStr)
+                .in(CollectionUtils.isNotEmpty(channel), TransactionChannelLogPO::getChannel, channel)
+                .list();
+        if (CollectionUtils.isEmpty(list)) {
+            return List.of();
+        }
+        return TransactionConvert.INSTANCE.toChannelLog(list);
+
     }
 
 } 

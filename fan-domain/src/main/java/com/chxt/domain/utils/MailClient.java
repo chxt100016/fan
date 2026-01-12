@@ -20,6 +20,7 @@ import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
 
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -77,9 +78,9 @@ public class MailClient implements AutoCloseable{
      * @return 符合条件的邮件数组
      */
     @SneakyThrows
-    public List<Mail> search(String startDateStr, String from, String subject) {
+    public List<Mail> search(String startDateStr, String endDateStr, String from, String subject) {
         // 只用date和from条件向服务器请求
-        SearchTerm searchTerm = this.getServerSearchTerm(startDateStr, from);
+        SearchTerm searchTerm = this.getServerSearchTerm(startDateStr, endDateStr, from);
         Message[] messages = defaultInbox.search(searchTerm);
         List<Mail> res = postFilter(messages, subject);
         if (this.printInfo) {
@@ -108,13 +109,20 @@ public class MailClient implements AutoCloseable{
      * 获取服务器搜索条件（只包含date和from）
      */
     @SneakyThrows
-    private SearchTerm getServerSearchTerm(String startDateStr, String from) {
+    private SearchTerm getServerSearchTerm(String startDateStr, String endDateStr, String from) {
         List<SearchTerm> list = new ArrayList<>();
         
         // 开始时间
         if (StringUtils.isNotBlank(startDateStr)) {
             Date startDate = DateUtils.parseDate(startDateStr, "yyyy-MM-dd");
             SearchTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GE, startDate);
+            list.add(dateTerm);
+        }
+
+        // 结束时间
+        if(StringUtils.isNotBlank(endDateStr)) {
+            Date endDate = DateUtils.parseDate(endDateStr, "yyyy-MM-dd");
+            SearchTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GE, endDate);
             list.add(dateTerm);
         }
         
@@ -124,7 +132,7 @@ public class MailClient implements AutoCloseable{
             list.add(fromTerm);
         }
 
-        if (list.size() == 0) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         } else if (list.size() == 1) {
             return list.get(0);

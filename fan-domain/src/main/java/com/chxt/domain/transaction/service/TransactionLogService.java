@@ -11,7 +11,6 @@ import com.chxt.domain.transaction.repository.TransactionLogRepository;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,14 +37,10 @@ public class TransactionLogService {
 
         List<ChannelMail> mailList = picker.search();
         List<TransactionChannel> channelDataList = parser.parse(mailList);
-        channelDataList.forEach(this::save);
-
+        channelDataList.stream().filter(TransactionChannel::isSuccess).forEach(this::save);
     }
 
     private void save(TransactionChannel item) {
-        if (CollectionUtils.isEmpty(item.getLogs())) {
-            return;
-        }
         this.transactionChannelLogRepository.batchAdd(item);
         this.transactionLogRepository.batchAdd(item);
     }

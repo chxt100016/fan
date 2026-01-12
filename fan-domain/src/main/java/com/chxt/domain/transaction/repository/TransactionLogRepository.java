@@ -4,5 +4,7 @@ import com.chxt.domain.transaction.model.entity.TransactionChannel;
 
 public interface TransactionLogRepository {
 
-    void batchAdd(TransactionChannel  transactionChannel);
+    void batchAdd(TransactionChannel transactionChannel);
+
+
 }

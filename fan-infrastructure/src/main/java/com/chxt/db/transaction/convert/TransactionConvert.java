@@ -3,6 +3,7 @@ package com.chxt.db.transaction.convert;
 import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.entity.TransactionLogPO;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
+import com.chxt.domain.transaction.model.entity.TransactionChannelLog;
 import com.chxt.domain.transaction.model.entity.TransactionLog;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,4 +29,8 @@ public interface TransactionConvert {
     @Mapping(target = "date", source = "date", dateFormat = "yyyy-MM-dd")
     @Mapping(target = "count", source = "count", dateFormat = "yyyy-MM-dd")
     TransactionChannelLogPO toChannelLogPO(String date, Integer count, TransactionChannel transactionChannel);
+
+
+    TransactionChannelLog toChannelLog(TransactionChannelLogPO po);
+    List<TransactionChannelLog> toChannelLog(List<TransactionChannelLogPO> po);
 }

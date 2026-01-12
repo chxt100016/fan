@@ -27,17 +27,6 @@ public class TransactionServiceTest {
     @Test
 	@Rollback(false)
     public void testTransactionService(){
-		System.out.println(123);
-		log.info("1233333");
-		MailParseParamVO param = MailParseParamVO.builder()
-			.host("imap.qq.com")
-			.username("546555918@qq.com")
-			.password("nnfjkmehqypgbbhc")
-			.startDateStr("2025-05-25")
-			.parserCode(Arrays.asList(
-				TransactionEnums.CHANNEL.ALI_PAY.getCode()
-			))
-			.build();
-        this.initService.init(param);
+
     }
 }

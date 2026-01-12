@@ -10,6 +10,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class ChannelMail {
 
+    private String userId;
+
     private String channel;
 
     private List<Mail> mails;

@@ -1,32 +1,14 @@
 package com.chxt.domain.transaction.model.entity;
 
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 @Slf4j
 @Builder
@@ -62,6 +44,10 @@ public class TransactionChannel {
 
     public List<TransactionLog> getLogs() {
         return this.logs == null ? Collections.emptyList() : List.copyOf(this.logs);
+    }
+
+    public boolean isSuccess() {
+        return CollectionUtils.isNotEmpty(logs);
     }
 
 

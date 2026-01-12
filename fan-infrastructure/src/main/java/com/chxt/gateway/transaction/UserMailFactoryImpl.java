@@ -9,6 +9,8 @@ import com.chxt.domain.transaction.component.MailParserStrategy;
 import com.chxt.domain.transaction.component.MailPicker;
 import com.chxt.domain.transaction.component.UserMailFactory;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.entity.TransactionChannelLog;
+import com.chxt.domain.transaction.repository.TransactionChannelLogRepository;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -29,20 +31,28 @@ public class UserMailFactoryImpl implements UserMailFactory {
     @Resource
     private MessageBoxRepository messageBoxRepository;
 
+    @Resource
+    private TransactionChannelLogRepository transactionChannelLogRepository;
+
 
 
     @Override
-    public MailPicker getPicker(String userId, String StartDate, List<String> channel) {
+    public MailPicker getPicker(String userId, String startDate, List<String> channel) {
         UserMailPO userMail = this.userMailRepository.getByUserId(userId);
         if (userMail == null) {
             return  null;
         }
 
+        List<TransactionChannelLog> transactionChannelLogs = this.transactionChannelLogRepository.listByChannel(userId, startDate, channel);
+
+
+
         MailPicker picker = new MailPicker()
+                .setUserId(userId)
                 .setHost(userMail.getHost())
-                .setStartDateStr(StartDate)
                 .setUsername(userMail.getUsername())
                 .setPassword(userMail.getPassword());
+
         channel.stream().map(ALL_STRATEGIES::get).forEach(picker::addMailCoordinate);
         return picker;
 
