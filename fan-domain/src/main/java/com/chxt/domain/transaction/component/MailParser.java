@@ -18,6 +18,9 @@ import java.util.*;
 public class MailParser {
 
     @Setter
+    private String userId;
+
+    @Setter
     private PasswordHelper passwordHelper;
 
     private final Map<String, MailParserStrategy<?>> parserMap = new HashMap<>();
