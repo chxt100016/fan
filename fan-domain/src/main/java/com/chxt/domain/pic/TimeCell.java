@@ -1,22 +1,14 @@
 package com.chxt.domain.pic;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
-
 import com.chxt.domain.utils.DateStandardUtils;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -37,12 +29,7 @@ public class TimeCell {
     }
 
 
-    @SneakyThrows
-    public TimeCell(String dateStr, String key, String iconBase64) {
-        this.key = key;
-        this.iconBase64 = iconBase64;
-        this.date = DateUtils.parseDate(dateStr, "yyyy-MM-dd HH:mm");
-    }
+
 
     @SneakyThrows
     public TimeCell(String dateStr, TimetableEnum timetableEnum) {
@@ -58,6 +45,10 @@ public class TimeCell {
         this.name = timetableEnum.getName();
         this.iconBase64 = timetableEnum.getIconBase64();
         this.date = date;
+    }
+
+    public String getUniqueNo() {
+        return key + DateStandardUtils.getDayOfWeekStr(date) + DateStandardUtils.getHourOfDay(date);
     }
 
     public String getDesc() {
@@ -109,4 +100,70 @@ public class TimeCell {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         return String.format("%02d:00", hour);
     }
+
+    public static TimeCellIndex index() {
+        return new TimeCellIndex();
+    }
+
+
+    public static class TimeCellIndex {
+
+        private String key;
+
+        private String dayOfWeek;
+
+        private Integer hourOfDay;
+
+        public String getUniqueNo() {
+            return this.key + this.dayOfWeek + this.hourOfDay;
+        }
+
+
+        public TimeCellIndex key(TimetableEnum key) {
+            this.key = key.getCode();
+            return this;
+        }
+
+        public TimeCellIndex hourOfDay(Integer hourOfDay) {
+            this.hourOfDay = hourOfDay;
+            return this;
+        }
+
+        public TimeCellIndex monday() {
+            this.dayOfWeek = "Monday";
+            return this;
+        }
+        public TimeCellIndex tuesday() {
+            this.dayOfWeek = "Tuesday";
+            return this;
+        }
+
+        public TimeCellIndex wednesday() {
+            this.dayOfWeek = "Wednesday";
+            return this;
+        }
+
+        public TimeCellIndex thursday() {
+            this.dayOfWeek = "Thursday";
+            return this;
+        }
+
+        public TimeCellIndex friday() {
+            this.dayOfWeek = "Friday";
+            return this;
+        }
+
+        public TimeCellIndex saturday() {
+            this.dayOfWeek = "Saturday";
+            return this;
+        }
+
+        public TimeCellIndex sunday() {
+            this.dayOfWeek = "Sunday";
+            return this;
+        }
+    }
+
+
+
 }

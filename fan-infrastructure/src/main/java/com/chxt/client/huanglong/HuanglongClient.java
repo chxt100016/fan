@@ -54,7 +54,7 @@ public class HuanglongClient {
                 .entity(entity)
                 .doPost()
                 .result(BookInfoResponse.class);
-        return response.toTennisCourt(date, TimetableEnum.HL_OUTDOOR);
+        return response.toTennisCourt(date, TimetableEnum.HL_OUT);
     }
 
     public List<TennisCourt> getInnerBookInfo(Date date) {
@@ -74,7 +74,7 @@ public class HuanglongClient {
                 .doPost()
                 .result(BookInfoResponse.class);
 
-        return response.toTennisCourt(date, TimetableEnum.HL_INDOOR);
+        return response.toTennisCourt(date, TimetableEnum.HL_IN);
     }
 
 }

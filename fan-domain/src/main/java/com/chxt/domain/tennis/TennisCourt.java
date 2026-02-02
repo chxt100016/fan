@@ -32,14 +32,7 @@ public class TennisCourt {
     private TimetableEnum timetableEnum;
 
 
-    public static String getUniqueString(List<TennisCourt> tennisCourts) {
-        String uniqueStr = tennisCourts.stream()
-        .map(
-            item -> item.getTimetableEnum().getCode() + ":" + DateStandardUtils.getDayHour(item.getDate()) + ":" + item.getFieldName()
-        )
-        .collect(Collectors.joining(";"));
-        return DigestUtils.md5Hex(uniqueStr);
-    }
+
 
     public static Map<String, List<String>> getDayOfWeekAndTime(List<TennisCourt> tennisCourts) {
         if (tennisCourts == null || tennisCourts.isEmpty()) {

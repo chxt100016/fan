@@ -1,36 +1,28 @@
 package com.chxt.notice;
 
-import java.io.OutputStream;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-
-import org.springframework.stereotype.Service;
-import org.bytedeco.ffmpeg.global.avutil;
-import org.bytedeco.javacv.FFmpegFrameGrabber;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import javax.imageio.ImageIO;
-
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.cache.token.TokenEnum;
 import com.chxt.cache.token.TokenFactory;
-
 import com.chxt.client.wechatWork.WechatWorkClient;
-
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.utils.ThumbnailUtils;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.io.FilenameUtils;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.springframework.stereotype.Service;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -89,7 +81,7 @@ public class GateNoticeService {
         byte[] cover = ThumbnailUtils.generate(images, 1);
 
         // 更新图片流
-        pictureStreamCache.getPictureStream(GATE_STREAM).update(uniqueId, cover, images);
+        pictureStreamCache.getPictureStream(GATE_STREAM).update(cover, images);
 
         // 微信通知
         String imageId = this.wechatWorkClient.uploadImg(uniqueId, cover, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));

@@ -2,9 +2,17 @@ package com.chxt.domain.stream;
 
 import java.io.OutputStream;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.chxt.domain.notice.NoticeListener;
+import com.chxt.domain.pic.ScheduleImage;
+import com.chxt.domain.pic.TimeCell;
+import com.chxt.domain.pic.TimeTable;
+import com.chxt.domain.tennis.TennisCourt;
+import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,7 +20,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class PictureStream {
+public class PictureStream implements NoticeListener {
     
     /**
      * 标准MJPEG格式头， 一个空格都改不得
@@ -28,6 +36,7 @@ public class PictureStream {
     /**
      * 名称
      */
+    @Getter
     private final String name;
 
     /**
@@ -45,17 +54,8 @@ public class PictureStream {
      */
     private volatile List<byte[]> pictureList;
 
-    /**
-     * 唯一标识
-     */
-    private volatile String uniqueId;
-
     public PictureStream(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public synchronized boolean check() {
@@ -67,30 +67,22 @@ public class PictureStream {
         }
     }
 
-    public boolean isSame(String uniqueId) {
-        return StringUtils.equals(this.uniqueId, uniqueId);
-    }
 
-    public synchronized void update(String uniqueId, byte[] cover, List<byte[]> pictureList) {
-        if (CollectionUtils.isEmpty(pictureList) || StringUtils.isBlank(uniqueId)) {
+
+    public synchronized void update(byte[] cover, List<byte[]> pictureList) {
+        if (CollectionUtils.isEmpty(pictureList)) {
             return;
         }
-
-        if (this.isSame(uniqueId)) {
-            return;
-        }
-
         this.pictureList = pictureList;
         this.cover = cover;
         this.hasChange = true;
-        this.uniqueId = uniqueId;
     }
 
-    public void update(String uniqueId, List<byte[]> pictureList) {
-        if (CollectionUtils.isEmpty(pictureList) || StringUtils.isBlank(uniqueId)) {
+    public void update(List<byte[]> pictureList) {
+        if (CollectionUtils.isEmpty(pictureList)) {
             return;
         }
-        this.update(uniqueId, pictureList.get(0), pictureList);
+        this.update(pictureList.get(0), pictureList);
     }
 
     public synchronized byte[] getCover() {
@@ -125,4 +117,8 @@ public class PictureStream {
         }
     }
 
+    @Override
+    public void doNotice(byte[] cover, List<byte[]> pictureList) {
+        this.update(cover, pictureList);
+    }
 }

@@ -45,28 +45,28 @@ public class PicExample {
         List<TimeCell> dataList = new ArrayList<>();
         
         // 周一 9时 会议
-        dataList.add(new TimeCell("2024-11-10 09:00", TimetableEnum.HL_INDOOR));
-        dataList.add(new TimeCell("2024-11-10 11:00", TimetableEnum.HL_INDOOR));
-        dataList.add(new TimeCell("2024-11-10 14:00", TimetableEnum.HL_INDOOR));
+        dataList.add(new TimeCell("2024-11-10 09:00", TimetableEnum.HL_IN));
+        dataList.add(new TimeCell("2024-11-10 11:00", TimetableEnum.HL_IN));
+        dataList.add(new TimeCell("2024-11-10 14:00", TimetableEnum.HL_IN));
         
         // 周二 14时 培训
-        dataList.add(new TimeCell("2024-11-11 14:00", TimetableEnum.HL_INDOOR));
+        dataList.add(new TimeCell("2024-11-11 14:00", TimetableEnum.HL_IN));
         
         // 周三 10时 开发
-        dataList.add(new TimeCell("2024-11-12 10:00", TimetableEnum.HL_OUTDOOR));
-        dataList.add(new TimeCell("2024-11-12 16:00", TimetableEnum.HL_OUTDOOR));
+        dataList.add(new TimeCell("2024-11-12 10:00", TimetableEnum.HL_OUT));
+        dataList.add(new TimeCell("2024-11-12 16:00", TimetableEnum.HL_OUT));
         
         // 周四 15时 测试
-        dataList.add(new TimeCell("2024-11-13 15:00", TimetableEnum.HL_OUTDOOR));
+        dataList.add(new TimeCell("2024-11-13 15:00", TimetableEnum.HL_OUT));
         
         // 周五 11时 部署
-        dataList.add(new TimeCell("2024-11-14 11:00", TimetableEnum.HL_INDOOR));
+        dataList.add(new TimeCell("2024-11-14 11:00", TimetableEnum.HL_IN));
         
         // 周六 9时 休息
-        dataList.add(new TimeCell("2024-11-15 09:00", TimetableEnum.HL_OUTDOOR));
+        dataList.add(new TimeCell("2024-11-15 09:00", TimetableEnum.HL_OUT));
         
         // 周日 16时 复盘
-        dataList.add(new TimeCell("2024-11-16 16:00", TimetableEnum.HL_INDOOR));
+        dataList.add(new TimeCell("2024-11-16 16:00", TimetableEnum.HL_IN));
         
         return dataList;
     }

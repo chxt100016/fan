@@ -36,7 +36,7 @@ public class TennisNoticeController {
     @GetMapping("/image")
     @SneakyThrows
     public void image(HttpServletResponse response) {
-        byte[] image = this.tennisService.getStilImage();
+        byte[] image = this.tennisService.getStillImage();
         response.getOutputStream().write(image);
     } 
 
