@@ -7,7 +7,7 @@ import com.chxt.db.transaction.entity.TransactionChannelLogPO;
 import com.chxt.db.transaction.mapper.TransactionChannelLogMapper;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.entity.TransactionChannelLog;
-import com.chxt.domain.transaction.repository.TransactionChannelLogRepository;
+import com.chxt.domain.gateway.TransactionChannelLogRepository;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;

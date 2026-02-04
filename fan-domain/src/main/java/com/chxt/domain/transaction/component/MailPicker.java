@@ -1,7 +1,8 @@
 package com.chxt.domain.transaction.component;
 
-import com.alibaba.fastjson.JSON;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.vo.ChannelMail;
+import com.chxt.domain.utils.DateRange;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 import lombok.AllArgsConstructor;
@@ -11,10 +12,13 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 邮件解析策略管理器
@@ -24,6 +28,12 @@ import java.util.List;
 @Accessors(chain = true)
 public class MailPicker {
 
+    private static final Map<String, MailParserStrategy<?>> ALL_STRATEGIES = TransactionEnums.CHANNEL.getAllParser();
+
+    private static final Integer DEFAULT_BATCH_SIZE = 5;
+
+    private static ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_BATCH_SIZE);
+
     private String userId;
 
     private String host;
@@ -32,11 +42,108 @@ public class MailPicker {
 
     private String password;
 
-    private List<DateRange> dateRanges;
+    private String startDateStr;
 
-    private List<MailCoordinate>  mailCoordinates;
+    private String endDateStr;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private List<MailCoordinate> mailCoordinates;
+
+
+
+    public List<ChannelMail> concurrentSearch() {
+        return this.concurrentSearch(false);
+    }
+
+    public List<ChannelMail> concurrentSearch(boolean printInfo) {
+        if (CollectionUtils.isEmpty(mailCoordinates)) {
+            return List.of();
+        }
+
+        try {
+            // 计算时间区间
+            List<DateRange> dateRanges = DateRange.split(this.startDateStr, this.endDateStr, DEFAULT_BATCH_SIZE);
+
+            if (CollectionUtils.isEmpty(dateRanges)) {
+                log.warn("split date range failed, use normal search");
+                return search(printInfo);
+            }
+
+            List<ChannelMail> allChannelMails = new ArrayList<>();
+
+            // 对每个 channel 进行搜索
+            for (MailCoordinate coordinate : mailCoordinates) {
+                List<Mail> channelAllMails = searchByDateRanges(coordinate, dateRanges, printInfo);
+
+                if (CollectionUtils.isNotEmpty(channelAllMails)) {
+                    ChannelMail channelMail = new ChannelMail()
+                            .setUserId(userId)
+                            .setChannel(coordinate.getChannel())
+                            .setMails(channelAllMails);
+                    allChannelMails.add(channelMail);
+                }
+            }
+
+            return allChannelMails;
+
+        } catch (Exception e) {
+            log.error("concurrent search mail error: host:{}, username:{}, mailCoordinates:{}, startDate:{}, endDate:{}",
+                    this.host, this.username, this.mailCoordinates, this.startDateStr, this.endDateStr, e);
+            return List.of();
+        }
+    }
+
+    /**
+     * 按时间区间并发搜索单个渠道的邮件
+     */
+    private List<Mail> searchByDateRanges(MailCoordinate coordinate, List<DateRange> dateRanges, boolean printInfo) {
+        try {
+            List<Future<List<Mail>>> futures = new ArrayList<>();
+            // 为每个时间区间提交搜索任务
+            for (DateRange dateRange : dateRanges) {
+                futures.add(executorService.submit(() -> {
+                    try (MailClient mailClient = new MailClient(this.host, this.username, this.password, printInfo)) {
+                        return mailClient.search(
+                                dateRange.getStartDateStr(),
+                                dateRange.getEndDateStr(),
+                                coordinate.getFrom(),
+                                coordinate.getSubject()
+                        );
+                    } catch (Exception e) {
+                        log.error("search mail error for channel:{}, dateRange:[{} - {}]",
+                                coordinate.getChannel(), dateRange.getStartDateStr(), dateRange.getEndDateStr(), e);
+                        return List.of();
+                    }
+                }));
+            }
+
+            // 收集所有时间区间的搜索结果
+            List<Mail> allMails = new ArrayList<>();
+            for (Future<List<Mail>> future : futures) {
+                try {
+                    List<Mail> mails = future.get();
+                    if (CollectionUtils.isNotEmpty(mails)) {
+                        allMails.addAll(mails);
+                    }
+                } catch (Exception e) {
+                    log.error("get future result error for channel:{}", coordinate.getChannel(), e);
+                }
+            }
+
+            return allMails;
+
+        } finally {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
 
     public List<ChannelMail> search() {
         return search(false);
@@ -49,70 +156,21 @@ public class MailPicker {
         try (MailClient mailClient = new MailClient(this.host, this.username, this.password, printInfo)) {
             List<ChannelMail> channelMails = new ArrayList<>();
             for (MailCoordinate coordinate : mailCoordinates) {
-                for (DateRange item : dateRanges) {
-                    List<Mail> mails = mailClient.search(item.getStartDateStr(), item.getEndDateStr(),  coordinate.getFrom(), coordinate.getSubject());
-                    if (CollectionUtils.isNotEmpty(mails)) {
-                        ChannelMail channelMail = new ChannelMail().setUserId(userId).setChannel(coordinate.getChannel()).setMails(mails);
-                        channelMails.add(channelMail);
-                    }
+                List<Mail> mails = mailClient.search(this.getStartDateStr(), this.getEndDateStr(),  coordinate.getFrom(), coordinate.getSubject());
+                if (CollectionUtils.isNotEmpty(mails)) {
+                    ChannelMail channelMail = new ChannelMail().setUserId(userId).setChannel(coordinate.getChannel()).setMails(mails);
+                    channelMails.add(channelMail);
                 }
             }
             return channelMails;
         } catch (Exception e) {
-            log.error("search mail error: host:{}, username:{}, dateRanges:{}, mailCoordinates:{}", this.host, this.username, JSON.toJSONString(this.dateRanges), this.mailCoordinates, e);
+            log.error("search mail error: host:{}, username:{}, mailCoordinates:{}, startDate:{}, endDate:{}", this.host, this.username, this.mailCoordinates, this.startDateStr, this.endDateStr, e);
             return List.of();
         }
 
     }
 
-    /**
-     * startDate 到now， 并且排出掉excludeDateStr变为多个时间短
-     * @param startDateStr 开始时间
-     * @param excludeDateStr 排出的日期
-     */
-    public void initDateRange(String startDateStr, List<String> excludeDateStr) {
-        this.dateRanges = new ArrayList<>();
-        LocalDate startLocalDate = LocalDate.parse(startDateStr, DATE_FORMATTER);
-        LocalDate now = LocalDate.now();
 
-        if (startLocalDate.isAfter(now)) {
-            log.warn("startDate {} is after now, no date range will be generated.", startDateStr);
-            return;
-        }
-
-        if (CollectionUtils.isEmpty(excludeDateStr)) {
-            this.dateRanges.add(new DateRange().setStartDateStr(startDateStr).setEndDateStr(now.format(DATE_FORMATTER)));
-            return;
-        }
-
-        List<LocalDate> sortedExcludeDates = excludeDateStr.stream()
-                .map(date -> LocalDate.parse(date, DATE_FORMATTER))
-                .sorted()
-                .distinct()
-                .toList();
-
-        LocalDate currentStartDate = startLocalDate;
-
-        for (LocalDate excludeDate : sortedExcludeDates) {
-            if (excludeDate.isBefore(currentStartDate)) {
-                continue;
-            }
-
-            if (excludeDate.isAfter(currentStartDate)) {
-                LocalDate endDate = excludeDate.minusDays(1);
-                this.dateRanges.add(new DateRange()
-                        .setStartDateStr(currentStartDate.format(DATE_FORMATTER))
-                        .setEndDateStr(endDate.format(DATE_FORMATTER)));
-            }
-            currentStartDate = excludeDate.plusDays(1);
-        }
-
-        if (!currentStartDate.isAfter(now)) {
-            this.dateRanges.add(new DateRange()
-                    .setStartDateStr(currentStartDate.format(DATE_FORMATTER))
-                    .setEndDateStr(now.format(DATE_FORMATTER)));
-        }
-    }
 
     public void addMailCoordinate(MailParserStrategy<?>  mailParserStrategy) {
         if (CollectionUtils.isEmpty(this.mailCoordinates)) {
@@ -137,13 +195,7 @@ public class MailPicker {
 
     }
 
-    @Data
-    @Accessors(chain = true)
-    public static class DateRange {
 
-        private String startDateStr;
 
-        private String endDateStr;
-    }
 
 } 

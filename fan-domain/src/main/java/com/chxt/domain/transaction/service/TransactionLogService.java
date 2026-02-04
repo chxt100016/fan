@@ -6,8 +6,8 @@ import com.chxt.domain.transaction.component.UserMailFactory;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.vo.ChannelMail;
 import com.chxt.domain.transaction.model.vo.MailParseParamVO;
-import com.chxt.domain.transaction.repository.TransactionChannelLogRepository;
-import com.chxt.domain.transaction.repository.TransactionLogRepository;
+import com.chxt.domain.gateway.TransactionChannelLogRepository;
+import com.chxt.domain.gateway.TransactionLogRepository;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +33,11 @@ public class TransactionLogService {
         log.info("开始解析交易记录");
 
         MailPicker picker = this.userMailFactory.getPicker(param.getUserId(), param.getStartDateStr(), param.getChannel());
-        MailParser parser = this.userMailFactory.getParser(param.getUserId(), param.getChannel());
-
         List<ChannelMail> mailList = picker.search();
+
+        MailParser parser = this.userMailFactory.getParser(param.getUserId(), param.getChannel());
         List<TransactionChannel> channelDataList = parser.parse(mailList);
+
         channelDataList.stream().filter(TransactionChannel::isSuccess).forEach(this::save);
     }
 

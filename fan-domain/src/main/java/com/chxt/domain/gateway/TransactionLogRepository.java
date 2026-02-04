@@ -1,4 +1,4 @@
-package com.chxt.domain.transaction.repository;
+package com.chxt.domain.gateway;
 
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 

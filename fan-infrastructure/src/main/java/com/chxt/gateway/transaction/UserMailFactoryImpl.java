@@ -4,13 +4,12 @@ import com.chxt.db.transaction.entity.MessageBoxPO;
 import com.chxt.db.transaction.entity.UserMailPO;
 import com.chxt.db.transaction.repository.MessageBoxRepository;
 import com.chxt.db.transaction.repository.UserMailRepository;
+import com.chxt.domain.gateway.TransactionChannelLogRepository;
 import com.chxt.domain.transaction.component.MailParser;
 import com.chxt.domain.transaction.component.MailParserStrategy;
 import com.chxt.domain.transaction.component.MailPicker;
 import com.chxt.domain.transaction.component.UserMailFactory;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
-import com.chxt.domain.transaction.model.entity.TransactionChannelLog;
-import com.chxt.domain.transaction.repository.TransactionChannelLogRepository;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -31,9 +30,6 @@ public class UserMailFactoryImpl implements UserMailFactory {
     @Resource
     private MessageBoxRepository messageBoxRepository;
 
-    @Resource
-    private TransactionChannelLogRepository transactionChannelLogRepository;
-
 
 
     @Override
@@ -42,10 +38,6 @@ public class UserMailFactoryImpl implements UserMailFactory {
         if (userMail == null) {
             return  null;
         }
-
-        List<TransactionChannelLog> transactionChannelLogs = this.transactionChannelLogRepository.listByChannel(userId, startDate, channel);
-
-
 
         MailPicker picker = new MailPicker()
                 .setUserId(userId)

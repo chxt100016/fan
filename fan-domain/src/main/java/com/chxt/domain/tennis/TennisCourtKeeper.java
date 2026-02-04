@@ -22,11 +22,10 @@ public class TennisCourtKeeper {
             // 周二
             TimeCell.index().key(TimetableEnum.HL_OUT).tuesday().hourOfDay(8).getUniqueNo(),
             // 周三
-            TimeCell.index().key(TimetableEnum.HL_OUT).thursday().hourOfDay(8).getUniqueNo(),
-            // 周四
             TimeCell.index().key(TimetableEnum.HL_OUT).wednesday().hourOfDay(8).getUniqueNo(),
+            // 周四
+            TimeCell.index().key(TimetableEnum.HL_OUT).thursday().hourOfDay(8).getUniqueNo(),
             // 周五
-            TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(7).getUniqueNo(),
             TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(8).getUniqueNo(),
             TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(19).getUniqueNo(),
             // 周六
