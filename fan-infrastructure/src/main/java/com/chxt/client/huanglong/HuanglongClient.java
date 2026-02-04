@@ -1,17 +1,16 @@
 package com.chxt.client.huanglong;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.stereotype.Component;
-
 import com.chxt.client.huanglong.model.BookInfoRequest;
 import com.chxt.client.huanglong.model.BookInfoResponse;
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.utils.Http;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 @Component
@@ -34,8 +33,10 @@ public class HuanglongClient {
             List<TennisCourt> indoor = this.getInnerBookInfo(date);
             res.addAll(indoor);
         }
-        return res;
 
+        return res.stream()
+                .filter(TennisCourt::getBookable)
+                .toList();
     }
 
     public List<TennisCourt> getOuterBookInfo(Date date) {

@@ -1,21 +1,18 @@
 package com.chxt.domain.tennis;
 
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
 import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.utils.DateStandardUtils;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -28,9 +25,11 @@ public class TennisCourt {
     private Boolean bookable;
     private Integer price;
     private String fieldName;
-
     private TimetableEnum timetableEnum;
 
+    public String getUniqueNo() {
+        return timetableEnum.getCode() + DateStandardUtils.getDayOfWeekStr(date) + DateStandardUtils.getHourOfDay(date);
+    }
 
 
 

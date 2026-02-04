@@ -110,10 +110,7 @@ public class PictureStream implements NoticeListener {
             outputStream.write("\r\n".getBytes());
             outputStream.flush();
             TimeUnit.MILLISECONDS.sleep(fpt);
-
             index += fpt;
-
-            
         }
     }
 
