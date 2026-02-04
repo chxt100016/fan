@@ -102,7 +102,6 @@ public class TennisCourtKeeper {
 
         Map<String,List<String>> dayOfWeekAndTimeMap = TennisCourt.getDayOfWeekAndTime(list);
         byte[] cover = new ScheduleImage(dayOfWeekAndTimeMap).generate();
-        java.nio.file.Files.write(java.nio.file.Paths.get("/Users/mac25/Downloads/123.png"), cover);
         listeners.forEach(item -> item.doNotice(cover, List.of(cover)));
     }
 
