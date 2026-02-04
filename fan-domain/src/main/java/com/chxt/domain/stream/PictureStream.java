@@ -93,8 +93,9 @@ public class PictureStream implements NoticeListener {
 
         int index = 0;
         int fpt = 1000 / fps;
-        
-        while(true) {
+
+        int total = 0;
+        while(total <= 120) {
             byte[] imageBytes = pictureList.get((index / interval) % pictureList.size());
             outputStream.write(String.format(HEADER, imageBytes.length).getBytes());
             outputStream.write(imageBytes);
@@ -102,6 +103,7 @@ public class PictureStream implements NoticeListener {
             outputStream.flush();
             TimeUnit.MILLISECONDS.sleep(fpt);
             index += fpt;
+            total ++;
         }
     }
 
