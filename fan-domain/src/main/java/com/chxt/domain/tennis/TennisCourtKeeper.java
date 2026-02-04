@@ -25,7 +25,6 @@ public class TennisCourtKeeper {
             TimeCell.index().key(TimetableEnum.HL_OUT).wednesday().hourOfDay(8).getUniqueNo(),
             // 周四
             TimeCell.index().key(TimetableEnum.HL_OUT).thursday().hourOfDay(8).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).thursday().hourOfDay(9).getUniqueNo(),
             // 周五
             TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(8).getUniqueNo(),
             TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(19).getUniqueNo(),
