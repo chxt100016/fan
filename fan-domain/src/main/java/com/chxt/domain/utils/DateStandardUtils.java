@@ -1,23 +1,19 @@
 package com.chxt.domain.utils;
 
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-import lombok.SneakyThrows;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DateStandardUtils {
 
     
     public static final String[] DAY_EN = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
-    public static final String[] DAY_EN_SHORT = { "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat.", "Sun." };
-
     public static final String[] DAY_CN = { "一", "二", "三", "四", "五", "六", "日" };
-
 
     @SneakyThrows
     public static Integer getDayOfWeek(Date date){
@@ -40,12 +36,6 @@ public class DateStandardUtils {
     }
 
     @SneakyThrows
-    public static String getDayOfWeekStrShort(Date date){
-        int i = getDayOfWeek(date);
-        return DAY_EN_SHORT[i];
-    }
-
-    @SneakyThrows
     public static Integer getHourOfDay(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -57,20 +47,19 @@ public class DateStandardUtils {
         return DateFormatUtils.format(date, "HH:mm");
     }
 
-    @SneakyThrows
-    public static String getDayHour(Date date){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.DAY_OF_MONTH) + ":" + cal.get(Calendar.HOUR_OF_DAY);
+
+    public static Date buidDate(DayEnum dayOfWeek, Integer hourOfDay) {
+        Calendar calendar = Calendar.getInstance();
+
+        // 设置到本周的指定星期几
+        calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek.getCalendarIndex());
+
+        // 设置小时
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
     }
-
-    public static boolean isWeekend(Date date){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
-    }
-
-    
-
-
 }

@@ -2,7 +2,6 @@ package com.chxt.domain.tennis;
 
 import com.chxt.domain.notice.NoticeListener;
 import com.chxt.domain.pic.ScheduleImage;
-import com.chxt.domain.pic.TimeCell;
 import com.chxt.domain.pic.TimetableEnum;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -16,53 +15,22 @@ import java.util.Map;
 @Data
 public class TennisCourtKeeper {
 
-    private static final List<String> likelist = List.of(
-            // 周一
-            TimeCell.index().key(TimetableEnum.HL_OUT).monday().hourOfDay(8).getUniqueNo(),
-            // 周二
-            TimeCell.index().key(TimetableEnum.HL_OUT).tuesday().hourOfDay(8).getUniqueNo(),
-            // 周三
-            TimeCell.index().key(TimetableEnum.HL_OUT).wednesday().hourOfDay(8).getUniqueNo(),
-            // 周四
-            TimeCell.index().key(TimetableEnum.HL_OUT).thursday().hourOfDay(8).getUniqueNo(),
-            // 周五
-            TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(8).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).friday().hourOfDay(19).getUniqueNo(),
-            // 周六
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(11).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(12).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(13).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(14).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(15).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(16).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).saturday().hourOfDay(17).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(11).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(12).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(13).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(14).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(15).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(16).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(17).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(18).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).saturday().hourOfDay(19).getUniqueNo(),
-            // 周日
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(11).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(12).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(13).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(14).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(15).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(16).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_OUT).sunday().hourOfDay(17).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(11).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(12).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(13).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(14).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(15).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(16).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(17).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(18).getUniqueNo(),
-            TimeCell.index().key(TimetableEnum.HL_IN).sunday().hourOfDay(19).getUniqueNo()
-    );
+    private static final List<String> likelist = TennisCourt.buildUniqueNo()
+            // 一
+            .monday().key(TimetableEnum.HL_OUT).hour(8)
+            // 二
+            .tuesday().key(TimetableEnum.HL_OUT).hour(8)
+            // 三
+            .wednesday().key(TimetableEnum.HL_OUT).hour(8)
+            // 四
+            .thursday().key(TimetableEnum.HL_OUT).hour(8)
+            // 五
+            .friday().key(TimetableEnum.HL_OUT).hour(8, 19)
+            // 六
+            .saturday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17)
+            // 日
+            .sunday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+            .getUniqueNo();
 
     private Map<String, TennisCourt> historyMap = new HashMap<>();
 
