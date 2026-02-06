@@ -5,6 +5,7 @@ import com.chxt.domain.pic.TimetableEnum;
 import com.chxt.domain.utils.DateStandardUtils;
 import com.chxt.domain.utils.DayEnum;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 @Accessors(chain = true)
+@Builder
 public class TennisCourt {
 
     private Date date;
@@ -48,7 +50,7 @@ public class TennisCourt {
                 item -> DateStandardUtils.getDayOfWeekStrCN(item.getDate()),
                 Collectors.collectingAndThen(
                     Collectors.mapping(
-                        item -> DateStandardUtils.getHourPartStr(item.getDate()),
+                        item -> DateStandardUtils.getHourPartStr(item.getDate()) + item.getTimetableEnum().getDesc(),
                         Collectors.toList()
                     ),
                     list -> list.stream().distinct().collect(Collectors.toList())

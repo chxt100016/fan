@@ -20,7 +20,7 @@ public class ScheduleImage {
     private static final Font TIME_FONT = new Font("阿里巴巴普惠体", Font.PLAIN, 15);
     private static final Font DAY_FONT = new Font("阿里巴巴普惠体", Font.BOLD, 60);
     private static final int DAY_WIDTH = 100; // 星期区域宽度
-    private static final int TIME_COL_WIDTH = 50; // 时间列宽度
+    private static final int TIME_COL_WIDTH = 80; // 时间列宽度
     private static final int imageWidth = 800; // 图片宽度
     private static final int cardWidth = 600; // 卡片宽度
     private static final int groupHeight = 100; // 每组高度
