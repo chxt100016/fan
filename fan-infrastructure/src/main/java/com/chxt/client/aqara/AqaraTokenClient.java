@@ -1,7 +1,8 @@
 package com.chxt.client.aqara;
 
 
-import com.alibaba.fastjson.JSONObject;
+
+import com.alibaba.fastjson2.JSONObject;
 import com.chxt.domain.utils.Http;
 import com.chxt.client.aqara.model.AuthCodeResult;
 import com.chxt.client.aqara.model.TokenResponse;

@@ -25,7 +25,8 @@ public class TennisCourtKeeper {
             // 四
             .thursday().key(TimetableEnum.HL_OUT).hour(8)
             // 五
-            .friday().key(TimetableEnum.HL_OUT).hour(8, 19)
+            .friday().key(TimetableEnum.HL_OUT).hour(8, 9, 19)
+            .friday().key(TimetableEnum.HL_IN).hour(19)
             // 六
             .saturday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17)
             // 日
@@ -50,7 +51,7 @@ public class TennisCourtKeeper {
         if (CollectionUtils.isEmpty(likeIt)) {
             return;
         }
-        boolean shouldNotice = likeIt.stream().anyMatch(item -> historyMap.containsKey(item.getUniqueNo()));
+        boolean shouldNotice = likeIt.stream().anyMatch(item -> !historyMap.containsKey(item.getUniqueNo()));
 
         historyMap.clear();
         tennisCourts.forEach(item -> historyMap.put(item.getUniqueNo(), item));

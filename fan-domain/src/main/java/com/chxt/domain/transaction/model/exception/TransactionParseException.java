@@ -14,18 +14,18 @@ public class TransactionParseException extends RuntimeException {
 
 
 	@Getter
-	private TransactionEnums.CHANNEL channel;
+	private TransactionEnums.Channel channel;
 
 	@Getter
 	private Mail mail;
 
-	public TransactionParseException(String message, TransactionEnums.CHANNEL channel, Mail mail) {
+	public TransactionParseException(String message, TransactionEnums.Channel channel, Mail mail) {
 		super(String.format(FORMAT, mail.getSubject(), DateFormatUtils.format(mail.getDate(), "yyyy-MM-dd HH:mm:ss"), message));
 		this.channel = channel;
 		this.mail = mail;
 	}
 
-	public TransactionParseException(String message, TransactionEnums.CHANNEL channel, Mail mail, Throwable cause) {
+	public TransactionParseException(String message, TransactionEnums.Channel channel, Mail mail, Throwable cause) {
 		super(message, cause);
 		this.channel = channel;
 		this.mail = mail;

@@ -1,11 +1,7 @@
 package com.chxt.domain.transaction.component.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
@@ -40,12 +36,12 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     
     @Override
     public String getChannel() {
-        return TransactionEnums.CHANNEL.CMB_CREDIT.getCode();
+        return TransactionEnums.Channel.CMB_CREDIT.getCode();
     }
 
     @Override
     public String getType(String[] data) {
-        return new BigDecimal(data[2]).compareTo(BigDecimal.ZERO) > 0 ? TransactionEnums.TYPE.EXPENSE.getCode() : TransactionEnums.TYPE.INCOME.getCode();
+        return new BigDecimal(data[2]).compareTo(BigDecimal.ZERO) > 0 ? TransactionEnums.Type.EXPENSE.getCode() : TransactionEnums.Type.INCOME.getCode();
     }
     
     @Override
@@ -55,7 +51,7 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     
     @Override
     public String getCurrency(String[] data) {
-        return TransactionEnums.CURRENCY.CNY.getCode();
+        return TransactionEnums.Currency.CNY.getCode();
     }
     
     @Override
@@ -65,7 +61,15 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     
     @Override
     public String getDescription(String[] data) {
-        return String.format("类型:%s;备注:%s;", data[4], data[5]);
+        StringBuilder sb = new StringBuilder();
+
+        if (data.length >= 5) {
+            sb.append("类型:").append(data[4]).append(";");
+        }
+        if (data.length >= 6) {
+            sb.append("备注:").append(data[5]).append(";");
+        }
+        return sb.toString();
     }
     
     @Override
@@ -93,7 +97,13 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
         
         Document doc = Jsoup.parse(mail.getBody());
         Element detail = doc.getElementById("fixBand3");
+        if (Objects.isNull(detail)) {
+            return List.of();
+        }
         Element title = detail.getElementById("loopHeader1");
+        if (Objects.isNull(title)) {
+            return List.of();
+        }
         String dateStr = title.text().split(" ")[0];
         List<Element> items = detail.getElementsByAttributeValueMatching("id", "fixBand4");
 

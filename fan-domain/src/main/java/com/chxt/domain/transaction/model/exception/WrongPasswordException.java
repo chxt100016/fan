@@ -6,7 +6,7 @@ import com.chxt.domain.utils.Mail;
 public class WrongPasswordException extends TransactionParseException {
 
 
-	public WrongPasswordException(TransactionEnums.CHANNEL channel, Mail mail) {
+	public WrongPasswordException(TransactionEnums.Channel channel, Mail mail) {
 		super(channel.getName() + "密码错误", channel, mail);
 	}
 }

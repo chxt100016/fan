@@ -30,7 +30,7 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
     private final static String ALI_PAY_SUBJECT = "支付宝交易流水明细";
     
-    private final static String ALIPAY_HEADER_MARKER = "------------------------支付宝（中国）网络技术有限公司  电子客户回单------------------------";
+    private final static String ALIPAY_HEADER_MARKER = "------------------------支付宝支付科技有限公司  电子客户回单------------------------";
 	
 
 
@@ -46,12 +46,12 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
     @Override
     public String getChannel() {
-        return TransactionEnums.CHANNEL.ALI_PAY.getCode();
+        return TransactionEnums.Channel.ALI_PAY.getCode();
     }
 
     @Override
     public String getType(Map<String,String> data) {
-        return StringUtils.endsWith(data.get("收/支"), "支出") ? TransactionEnums.TYPE.EXPENSE.getCode() : TransactionEnums.TYPE.INCOME.getCode();
+        return StringUtils.endsWith(data.get("收/支"), "支出") ? TransactionEnums.Type.EXPENSE.getCode() : TransactionEnums.Type.INCOME.getCode();
     }
     
     @Override
@@ -61,7 +61,7 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     
     @Override
     public String getCurrency(Map<String,String> data) {
-        return TransactionEnums.CURRENCY.CNY.getCode();
+        return TransactionEnums.Currency.CNY.getCode();
     }
     
     @Override
@@ -113,19 +113,19 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     @SneakyThrows
     public List<Map<String,String>> parse(Mail mail, PasswordHelper helper) {
 
-        String password = helper.getPassword(TransactionEnums.CHANNEL.ALI_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
+        String password = helper.getPassword(TransactionEnums.Channel.ALI_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
 		if (password == null) {
-			throw new PasswordRequiredException(TransactionEnums.CHANNEL.ALI_PAY, mail);
+			throw new PasswordRequiredException(TransactionEnums.Channel.ALI_PAY, mail);
 		}
 		
         // 解压ZIP文件
         Zip zip = new Zip(mail.getAttachment(), password);
 		if (zip.isWrongPassword()) {
-			throw new WrongPasswordException(TransactionEnums.CHANNEL.ALI_PAY, mail);
+			throw new WrongPasswordException(TransactionEnums.Channel.ALI_PAY, mail);
 		}
 		
         Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);
-        return excel.getDataMap();
+        return excel.parseBytes();
     } 
 
 }

@@ -6,7 +6,7 @@ import com.chxt.domain.utils.Mail;
 public class PasswordRequiredException extends TransactionParseException {
 
 
-	public PasswordRequiredException(TransactionEnums.CHANNEL channel, Mail mail) {
+	public PasswordRequiredException(TransactionEnums.Channel channel, Mail mail) {
 		super(channel.getName() + "需要密码", channel, mail);
 	}
 }

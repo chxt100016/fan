@@ -1,5 +1,12 @@
 package com.chxt.domain.utils;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -10,57 +17,58 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.support.ExcelTypeEnum;
-
-import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
-@Data
 @Slf4j
 public class Excel {
 
-    private byte[] data;
+    private final byte[] data;
+
+    private ExcelTypeEnum excelType;
+
+    private final String marker;
 
     private List<Map<String, String>> dataMap;
 
+
     public Excel(byte[] data, String marker) {
         this.data = data;
-        this.dataMap = parseBytes(data, marker);
+        this.marker = marker;
+    }
+
+    public Excel xlsx() {
+        this.excelType = ExcelTypeEnum.XLSX;
+        return this;
     }
 
     /**
      * 解析CSV字节数组
      * 从包含marker的行开始解析，其后第一行为表头，再往后为数据
-     * 
-     * @param bytes CSV文件的字节数组
-     * @param marker 标记字符串
      * @return 解析后的数据列表
      */
-    public static List<Map<String, String>> parseBytes(byte[] bytes, String marker) {
-        List<Map<String, String>> result = new ArrayList<>();
+    public List<Map<String, String>> parseBytes() {
+        if (dataMap != null) {
+            return dataMap;
+        }
+        dataMap = new ArrayList<>();
+
         
         try {
             // 检测字节数组的编码
             String encoding = "UTF-8";
-            if (isValidUTF8(bytes)) {
+            if (isValidUTF8(data)) {
                 encoding = "UTF-8";
             } else {
                 encoding = "GBK";
             }
      
             // 使用EasyExcel解析CSV内容
-            EasyExcel.read(new ByteArrayInputStream(bytes))
-                .excelType(ExcelTypeEnum.CSV)
+            EasyExcel.read(new ByteArrayInputStream(data))
+                .excelType(this.excelType != null ? this.excelType : ExcelTypeEnum.CSV)
                 .charset(Charset.forName(encoding))
                 .sheet()
                 .registerReadListener(new AnalysisEventListener<Map<Integer, String>>() {
                     private boolean foundMarker = false;
                     private boolean headerRow = false;
-                    private Map<Integer, String> headers = new HashMap<>();
+                    private final Map<Integer, String> headers = new HashMap<>();
                     
                     @Override
                     public void invoke(Map<Integer, String> data, AnalysisContext context) {
@@ -89,18 +97,18 @@ public class Excel {
                                     row.put(headerName, entry.getValue());
                                 }
                             }
-                            result.add(row);
+                            dataMap.add(row);
                         }
                     }
                     
                     @Override
                     public void doAfterAllAnalysed(AnalysisContext context) {
-                        log.info("CSV字节数组解析完成，共解析到{}条记录", result.size());
+                        log.debug("CSV字节数组解析完成，共解析到{}条记录", dataMap.size());
                     }
                 })
                 .doRead();
             
-            return result;
+            return dataMap;
         } catch (Exception e) {
             log.error("解析CSV字节数组失败", e);
             return new ArrayList<>();

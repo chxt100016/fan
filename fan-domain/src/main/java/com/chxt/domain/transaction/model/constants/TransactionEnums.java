@@ -18,12 +18,12 @@ public class TransactionEnums {
 
     @AllArgsConstructor
     @Getter
-    public enum CHANNEL {
+    public enum Channel {
         
-        CMB_CREDIT("CMB_CREDIT", "招商信用卡", CmbCreditParser.class),
-        ALI_PAY("ALI_PAY", "支付宝", AliPayParser.class),
-        WECHAT_PAY("WECHAT_PAY", "微信支付", WechatPayParser.class),
-        CGBC_CREDIT("CGBC_CREDIT", "广发信用卡", CgbcCreditParser.class),
+        CMB_CREDIT("cmb_credit", "招商信用卡", CmbCreditParser.class),
+        ALI_PAY("ali_pay", "支付宝", AliPayParser.class),
+        WECHAT_PAY("wechat_pay", "微信支付", WechatPayParser.class),
+        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
         ;
 
         private final String code;
@@ -35,7 +35,7 @@ public class TransactionEnums {
 		@SneakyThrows
 		public static Map<String, MailParserStrategy<?>> getAllParser() {
 			Map<String, MailParserStrategy<?>> res = new HashMap<>();
-			for (CHANNEL values : CHANNEL.values()) {
+			for (Channel values : Channel.values()) {
 				MailParserStrategy<?> newInstance = values.getClazz().getDeclaredConstructor().newInstance();
 				res.put(values.getCode(), newInstance);
 			}
@@ -43,7 +43,7 @@ public class TransactionEnums {
 		}
 
         public static String getNameByCode(String code) {
-            for (CHANNEL values : CHANNEL.values()) {
+            for (Channel values : Channel.values()) {
                 if (values.getCode().equals(code)) {
                     return values.getName();
                 }
@@ -55,7 +55,7 @@ public class TransactionEnums {
 
     @AllArgsConstructor
     @Getter
-    public enum TYPE {
+    public enum Type {
         INCOME("INCOME", "收入"),
         EXPENSE("EXPENSE", "支出"),
         ;
@@ -64,8 +64,8 @@ public class TransactionEnums {
 
         private final String name;
 
-        public static TYPE getByCode(String code) {
-            return Arrays.stream(TYPE.values())
+        public static Type getByCode(String code) {
+            return Arrays.stream(Type.values())
                 .filter(type -> type.getCode().equals(code))
                 .findFirst()
                 .orElse(null);
@@ -74,13 +74,24 @@ public class TransactionEnums {
 
     @AllArgsConstructor
     @Getter
-    public enum CURRENCY {
+    public enum Currency {
         CNY("CNY", "人民币"),
 
         ;
 
         private final String code;
 
+        private final String name;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public enum Relation {
+        ORIGINAL("original", "正向"),
+        REFUND("refund", "退款")
+
+        ;
+        private final String code;
         private final String name;
     }
 

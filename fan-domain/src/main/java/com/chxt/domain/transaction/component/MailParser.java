@@ -68,10 +68,10 @@ public class MailParser {
 			} catch (TransactionParseException e) {
 				channel.addErrorMessage(e.getMessage());
 			} catch (Exception e) {
-				log.error("{}", e.getMessage());
+				log.error("handleMails error, strategy: {}", strategy.getChannel(), e);
 			}
         }
-
+        log.info("transaction mail parse, channel:{}, userId:{}, size:{}", channelMail.getChannel(), channelMail.getUserId(), channel.getLogs().size());
         return channel;
     }
 
@@ -87,6 +87,7 @@ public class MailParser {
 				.channel(strategy.getChannel())
 				.description(strategy.getDescription(item))
 				.logId(strategy.getLogId(item))
+                .userId(this.userId)
 				.build();
 			logs.add(log);
 		}

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.alibaba.fastjson2.JSON;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.chxt.domain.utils.Mail;
@@ -28,7 +29,6 @@ public interface MailParserStrategy<T> {
 
      /**
      * 处理邮件并解析数据
-     * @param messages 符合条件的邮件列表
      * @return 解析后的交易记录列表
      */
     List<T> parse(Mail mail, PasswordHelper helper);
@@ -56,7 +56,7 @@ public interface MailParserStrategy<T> {
     String getDescription(T data);
 
     default String getLogId(T data) {
-        return this.getChannel() + ":" + DigestUtils.md5Hex(data.toString());
+        return this.getChannel() + ":" + this.getDate(data).getTime() + ":" + DigestUtils.md5Hex(JSON.toJSONString(data));
     }
 
 } 

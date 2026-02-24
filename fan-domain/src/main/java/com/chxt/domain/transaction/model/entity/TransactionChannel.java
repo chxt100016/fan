@@ -20,9 +20,6 @@ public class TransactionChannel {
     private String userId;
 
     @Getter
-    private String date;
-
-    @Getter
     private String channel;
 
     /**
@@ -37,7 +34,7 @@ public class TransactionChannel {
 
 	private List<String> errorMessageList;
 
-    public TransactionChannel(String channel, String userId) {
+    public TransactionChannel(String userId, String channel) {
         this.channel = channel;
         this.userId = userId;
     }
@@ -53,7 +50,7 @@ public class TransactionChannel {
 
     public void addLogs(List<TransactionLog> transactionLogs) {
         if (this.logs == null) {
-            this.logs = new HashSet<>();
+            this.logs = new LinkedHashSet<>();
         }
         this.logs.addAll(transactionLogs);
 
@@ -132,7 +129,7 @@ public class TransactionChannel {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    private class DateRange {
+    private static class DateRange {
         private Date startDate;
         private String startDateStr;
         private Date endDate;
@@ -160,8 +157,8 @@ public class TransactionChannel {
         }
 
         private boolean isOverlap(DateRange other) {
-            Long fixedStart = DateUtils.addDays(this.getStartDate(), -1).getTime();
-            Long fixedEnd = DateUtils.addDays(this.getEndDate(), 1).getTime();
+            long fixedStart = DateUtils.addDays(this.getStartDate(), -1).getTime();
+            long fixedEnd = DateUtils.addDays(this.getEndDate(), 1).getTime();
             return other.getStartDate().getTime() >= fixedStart && other.getStartDate().getTime() <= fixedEnd
                 || other.getEndDate().getTime() >= fixedStart && other.getEndDate().getTime() <= fixedEnd
                 || other.getStartDate().getTime() < fixedStart && other.getEndDate().getTime() > fixedEnd

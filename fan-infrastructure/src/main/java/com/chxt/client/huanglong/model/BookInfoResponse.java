@@ -39,6 +39,9 @@ public class BookInfoResponse {
         private String showLine;
 
         public List<TennisCourt> toTennisCourt(String dateStr, TimetableEnum timetableEnum) {
+            if (bookingArray == null) {
+                return List.of();
+            }
             return bookingArray.stream()
                 .flatMap(bookRow -> bookRow.toTennisCourt(dateStr, timetableEnum).stream())
                 .collect(Collectors.toList());

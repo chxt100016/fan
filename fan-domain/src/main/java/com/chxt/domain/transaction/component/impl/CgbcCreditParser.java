@@ -91,7 +91,7 @@ public class CgbcCreditParser implements MailParserStrategy<List<String>> {
 
     @Override
     public String getChannel() {
-        return TransactionEnums.CHANNEL.CGBC_CREDIT.getCode();
+        return TransactionEnums.Channel.CGBC_CREDIT.getCode();
     }
 
 
@@ -162,7 +162,7 @@ public class CgbcCreditParser implements MailParserStrategy<List<String>> {
         String currency = data.get(4);
         switch (currency) {
             case "人民币":
-                return TransactionEnums.CURRENCY.CNY.getCode();
+                return TransactionEnums.Currency.CNY.getCode();
             default:
                 return null;
         }
@@ -170,7 +170,7 @@ public class CgbcCreditParser implements MailParserStrategy<List<String>> {
 
     @Override
     public String getType(List<String> data) {
-        return data.get(3).startsWith("-") ? TransactionEnums.TYPE.INCOME.getCode() : TransactionEnums.TYPE.EXPENSE.getCode();
+        return data.get(3).startsWith("-") ? TransactionEnums.Type.INCOME.getCode() : TransactionEnums.Type.EXPENSE.getCode();
     }
 
     @Override

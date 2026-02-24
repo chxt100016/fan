@@ -42,49 +42,57 @@ CREATE TABLE `transaction_channel_log` (
   `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID',
   `channel` VARCHAR(255) DEFAULT NULL COMMENT '渠道',
-  `date` DATETIME NOT NULL COMMENT '记录时间',
+  `date` DATE NOT NULL COMMENT '记录时间',
   `count` INT DEFAULT NULL COMMENT '交易数量',
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- TransactionChannelPO 对应表 transaction_channel
-CREATE TABLE `transaction_channel` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `transaction_id` BIGINT,
-  `channel` VARCHAR(255),
-  `parent` VARCHAR(255)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- TransactionLogPO 对应表 transaction_log
 CREATE TABLE `transaction_log` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `log_id` VARCHAR(255) NOT NULL COMMENT '交易日志id',
   `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID',
-  `date` DATE,
+  `date` DATETIME NOT NULL COMMENT '交易时间',
+  `counterparty` VARCHAR(64) DEFAULT NULL COMMENT '交易对方',
   `amount` DECIMAL(19,2),
   `currency` VARCHAR(255),
-  `type` VARCHAR(255),
+  `type` VARCHAR(32),
   `method` VARCHAR(255),
   `channel` VARCHAR(255),
   `description` VARCHAR(255),
-  `log_id` VARCHAR(255)
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- TransationTagPO 对应表 transaction_tag
 CREATE TABLE `transaction_tag` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `transaction_id` BIGINT,
-  `type` VARCHAR(255),
+  `type` VARCHAR(32) COMMENT '交易类型',
   `tag` VARCHAR(255),
-  `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
-  `update_time` DATETIME DEFAULT NULL COMMENT '更新时间'
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- TransationPO 对应表 transaction
 CREATE TABLE `transaction` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `amount` VARCHAR(255),
+  `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID',
+  `transaction_id` VARCHAR(255) NOT NULL COMMENT '交易id',
+  `date` DATETIME NOT NULL COMMENT '交易时间',
+  `amount` DECIMAL(19,2),
   `currency` VARCHAR(255),
-  `type` VARCHAR(255)
+  `type` VARCHAR(32) COMMENT '交易类型',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `transaction_relation` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `transaction_id` VARCHAR(255) NOT NULL COMMENT '交易id',
+  `transaction_log_id` VARCHAR(255) NOT NULL COMMENT '交易日志id',
+  `type` VARCHAR(32) COMMENT '关系类型',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```

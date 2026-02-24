@@ -21,6 +21,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionLog {
+
+    /**
+     * 交易日志id
+     */
+    private String logId;
+
     /**
      * 交易日期时间
      */
@@ -56,33 +62,11 @@ public class TransactionLog {
      */
     private String description;
 
-    /**
-     * 交易日志id
-     */
-    private String logId;
-
-    public boolean canMerge(TransactionLog other) {
-        if (this.channel.equals(other.getChannel())) {
-            return false;
-        }
-        if (this.getAmount().compareTo(other.getAmount()) != 0) {
-            return false;
-        }
-        if (this.getCurrency().equals(other.getCurrency())) {
-            return false;
-        }
-        if (this.getType().equals(other.getType())) {
-            return false;
-        }
-        if (Math.abs(this.getDate().getTime() - other.getDate().getTime()) > 1000 * 30) {
-            return false;
-        }
-        return true;
-    }
+    private String userId;
 
     public void printLog() {
         String dateStr = DateFormatUtils.format(this.date, "yyyy-MM-dd");
-        System.out.println(dateStr + " " + TransactionEnums.TYPE.getByCode(this.type).getName());
+        System.out.println(dateStr + " " + TransactionEnums.Type.getByCode(this.type).getName());
         System.out.println(this.amount + " " + this.currency);
         System.out.println(this.description);
         System.out.println("--------------------------------");

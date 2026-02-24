@@ -5,7 +5,7 @@ import com.chxt.domain.utils.Mail;
 
 public class FileOutOfTimeException extends TransactionParseException{
 
-	public FileOutOfTimeException(TransactionEnums.CHANNEL channel, Mail mail) {
+	public FileOutOfTimeException(TransactionEnums.Channel channel, Mail mail) {
 		super(channel.getName() + "文件已过期, 请重新导出", channel, mail);
 	}
 }

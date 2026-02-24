@@ -8,21 +8,32 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+@TableName("transaction")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("transaction_channel")
-public class TransactionChannelPO {
+public class TransactionPO {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long transactionId;
+    private String userId;
 
-    private String channel;
+    private String transactionId;
 
-    private String parent;
+    /**
+     * 交易日期时间
+     */
+    private Date date;
 
+    private BigDecimal amount;
+
+    private String currency;
+
+    private String type;
 
 
 }

@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Accessors(chain = true)
 public class MailPicker {
 
-    private static final Map<String, MailParserStrategy<?>> ALL_STRATEGIES = TransactionEnums.CHANNEL.getAllParser();
+    private static final Map<String, MailParserStrategy<?>> ALL_STRATEGIES = TransactionEnums.Channel.getAllParser();
 
     private static final Integer DEFAULT_BATCH_SIZE = 5;
 

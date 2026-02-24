@@ -51,30 +51,30 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         String url = aElements.get(0).attr("href");
         Http http = Http.uri(url).doGet();
         if (http.result().contains("当前文件已过期")) {
-            throw new FileOutOfTimeException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
+            throw new FileOutOfTimeException(TransactionEnums.Channel.WECHAT_PAY, mail);
         }
-		String password = helper.getPassword(url, null, url);
+		String password = helper.getPassword(TransactionEnums.Channel.WECHAT_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
 		if (password == null) {
-			throw new PasswordRequiredException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
+			throw new PasswordRequiredException(TransactionEnums.Channel.WECHAT_PAY, mail);
 		}
 
         byte[] byteArray = http.byteArray();
         Zip zip = new Zip(byteArray, password);
 		if (zip.isWrongPassword()) {
-			throw new WrongPasswordException(TransactionEnums.CHANNEL.WECHAT_PAY, mail);
+			throw new WrongPasswordException(TransactionEnums.Channel.WECHAT_PAY, mail);
 		}
-        byte[] bytes = zip.getOne("csv");
-        Excel excel = new Excel(bytes, EXCEL_MARKER);
+        byte[] bytes = zip.getOne("xlsx");
+        Excel excel = new Excel(bytes, EXCEL_MARKER).xlsx();
         
-        mail.setAttachmentFileName(zip.getOneName("csv"));
-        return excel.getDataMap();
+        mail.setAttachmentFileName(zip.getOneName("xlsx"));
+        return excel.parseBytes();
         
         
     }
 
     @Override
     public String getChannel() {
-        return TransactionEnums.CHANNEL.WECHAT_PAY.getCode();
+        return TransactionEnums.Channel.WECHAT_PAY.getCode();
     }
 
 
@@ -83,7 +83,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     public Date getTransactionStartDate(Mail mail, List<Map<String, String>> data) {
         String name = mail.getAttachmentFileName();
         // start time of the day from name,  example: 微信支付账单(20250313-20250513)——【解压密码可在微信支付公众号查看】.csv
-        Pattern pattern = Pattern.compile("微信支付账单\\((\\d{8})-(\\d{8})\\)——【解压密码可在微信支付公众号查看】.csv");
+        Pattern pattern = Pattern.compile("微信支付账单流水文件\\((\\d{8})-(\\d{8})\\)——【解压密码可在微信支付公众号查看】.xlsx");
         Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {
             String startDateStr = matcher.group(1);
@@ -98,7 +98,8 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
     public Date getTransactionEndDate(Mail mail, List<Map<String, String>> data) {
         String name = mail.getAttachmentFileName();
         // end time of the day from name,  example: 微信支付账单(20250313-20250513)——【解压密码可在微信支付公众号查看】.csv
-        Pattern pattern = Pattern.compile("微信支付账单\\((\\d{8})-(\\d{8})\\)——【解压密码可在微信支付公众号查看】.csv");
+//        微信支付账单流水文件(20251201-20260223)——【解压密码可在微信支付公众号查看】.xlsx
+        Pattern pattern = Pattern.compile("微信支付账单流水文件\\((\\d{8})-(\\d{8})\\)——【解压密码可在微信支付公众号查看】.xlsx");
         Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {
             String endDateStr = matcher.group(2);
@@ -120,19 +121,16 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
 
     @Override
     public String getCurrency(Map<String, String> data) {
-        return TransactionEnums.CURRENCY.CNY.getCode();
+        return TransactionEnums.Currency.CNY.getCode();
     }
 
     @Override
     public String getType(Map<String, String> data) {
-        switch (data.get("收/支")) {
-            case "收入":
-                return TransactionEnums.TYPE.INCOME.getCode();
-            case "支出":
-                return TransactionEnums.TYPE.EXPENSE.getCode();
-            default:
-                return null;
-        }
+        return switch (data.get("收/支")) {
+            case "收入" -> TransactionEnums.Type.INCOME.getCode();
+            case "支出" -> TransactionEnums.Type.EXPENSE.getCode();
+            default -> null;
+        };
     }
 
     @Override

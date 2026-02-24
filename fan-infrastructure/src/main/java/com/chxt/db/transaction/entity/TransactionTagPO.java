@@ -24,8 +24,4 @@ public class TransactionTagPO {
     private String type;
 
     private String tag;
-
-    private Date createTime;
-
-    private Date updateTime;
 }
