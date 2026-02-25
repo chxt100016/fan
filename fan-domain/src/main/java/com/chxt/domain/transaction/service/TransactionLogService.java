@@ -1,11 +1,10 @@
 package com.chxt.domain.transaction.service;
 
-import com.chxt.domain.gateway.TransactionChannelLogRepository;
 import com.chxt.domain.gateway.TransactionLogRepository;
 import com.chxt.domain.gateway.TransactionRepository;
 import com.chxt.domain.transaction.component.MailParser;
 import com.chxt.domain.transaction.component.MailPicker;
-import com.chxt.domain.transaction.component.UserMailFactory;
+import com.chxt.domain.transaction.component.TransactionEntityRepository;
 import com.chxt.domain.transaction.model.entity.Transaction;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.entity.TransactionLog;
@@ -26,13 +25,10 @@ import java.util.List;
 public class TransactionLogService {
 
     @Resource
-    private UserMailFactory userMailFactory;
+    private TransactionEntityRepository userMailFactory;
 
     @Resource
     private TransactionLogRepository transactionLogRepository;
-
-    @Resource
-    private TransactionChannelLogRepository transactionChannelLogRepository;
 
     @Resource
     private TransactionRepository transactionRepository;
@@ -43,14 +39,12 @@ public class TransactionLogService {
         List<ChannelMail> mailList = picker.search();
 
         MailParser parser = this.userMailFactory.getParser(param.getUserId(), param.getChannel());
-        List<TransactionChannel> channelDataList = parser.parse(mailList);
-
-        channelDataList.stream().filter(TransactionChannel::isSuccess).forEach(this::save);
+        List<TransactionChannel> data = parser.parse(mailList).stream().filter(TransactionChannel::isSuccess).toList();
+        this.transactionLogRepository.batchAdd(data);
     }
 
     private void save(TransactionChannel item) {
-        this.transactionChannelLogRepository.batchAdd(item);
-        this.transactionLogRepository.batchAdd(item);
+
     }
 
 

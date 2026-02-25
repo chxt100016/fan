@@ -5,6 +5,7 @@ import com.chxt.db.transaction.convert.TransactionConvert;
 import com.chxt.db.transaction.entity.TransactionPO;
 import com.chxt.db.transaction.entity.TransactionRelationPO;
 import com.chxt.db.transaction.mapper.TransactionMapper;
+import com.chxt.db.transaction.service.TransactionRelationRepositoryService;
 import com.chxt.domain.gateway.TransactionLogRepository;
 import com.chxt.domain.gateway.TransactionRepository;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 public class TransactionRepositoryImpl extends ServiceImpl<TransactionMapper, TransactionPO> implements TransactionRepository {
 
     @Resource
-    private TransactionRelationRepository transactionRelationRepository;
+    private TransactionRelationRepositoryService transactionRelationRepositoryService;
 
     @Resource
     private TransactionLogRepository transactionLogRepository;
@@ -40,7 +41,7 @@ public class TransactionRepositoryImpl extends ServiceImpl<TransactionMapper, Tr
         if (CollectionUtils.isNotEmpty(exist)) {
             List<String> transactionIds = exist.stream().map(TransactionPO::getTransactionId).toList();
             this.lambdaUpdate().in(TransactionPO::getTransactionId, transactionIds).remove();
-            this.transactionRelationRepository.lambdaUpdate().in(TransactionRelationPO::getTransactionId, transactionIds).remove();
+            this.transactionRelationRepositoryService.lambdaUpdate().in(TransactionRelationPO::getTransactionId, transactionIds).remove();
         }
 
 
@@ -48,7 +49,7 @@ public class TransactionRepositoryImpl extends ServiceImpl<TransactionMapper, Tr
         this.saveBatch(transactionPOList);
 
         List<TransactionRelationPO> relationPOList = getTransactionRelationPOS(transactions);
-        this.transactionRelationRepository.saveBatch(relationPOList);
+        this.transactionRelationRepositoryService.saveBatch(relationPOList);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class TransactionRepositoryImpl extends ServiceImpl<TransactionMapper, Tr
         }
 
         List<String> transactionIds = transactionPOList.stream().map(TransactionPO::getTransactionId).toList();
-        List<TransactionRelationPO> relationPOList = this.transactionRelationRepository.lambdaQuery()
+        List<TransactionRelationPO> relationPOList = this.transactionRelationRepositoryService.lambdaQuery()
                 .in(TransactionRelationPO::getTransactionId, transactionIds)
                 .list();
 

@@ -1,17 +1,13 @@
 package com.chxt.domain.transaction.model.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Objects;
-
-import org.apache.commons.lang3.time.DateFormatUtils;
-
-import com.chxt.domain.transaction.model.constants.TransactionEnums;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * 交易记录类
@@ -64,13 +60,10 @@ public class TransactionLog {
 
     private String userId;
 
-    public void printLog() {
-        String dateStr = DateFormatUtils.format(this.date, "yyyy-MM-dd");
-        System.out.println(dateStr + " " + TransactionEnums.Type.getByCode(this.type).getName());
-        System.out.println(this.amount + " " + this.currency);
-        System.out.println(this.description);
-        System.out.println("--------------------------------");
-    }
+    /**
+     * 交易对方
+     */
+    private String counterparty;
 
     @Override
     public boolean equals(Object o) {

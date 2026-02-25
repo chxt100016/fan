@@ -71,7 +71,16 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
         }
         return sb.toString();
     }
-    
+
+    @Override
+    public String getCounterparty(String[] data) {
+        if (data.length >= 6) {
+            return data[5];
+        }
+        return "";
+
+    }
+
     @Override
     @SneakyThrows
     public Date getDate(String[] data) {

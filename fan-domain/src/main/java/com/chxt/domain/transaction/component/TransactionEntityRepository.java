@@ -2,7 +2,7 @@ package com.chxt.domain.transaction.component;
 
 import java.util.List;
 
-public interface UserMailFactory {
+public interface TransactionEntityRepository {
 
 
     MailPicker getPicker(String userId, String startDate, List<String> channel);

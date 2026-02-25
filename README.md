@@ -1,10 +1,4 @@
-
-	 host = "imap.qq.com";  // QQ邮箱的IMAP服务器
-    username = "546555918@qq.com";  // 你的QQ邮箱地址
-    password = "nnfjkmehqypgbbhc";  // 你的QQ邮箱授权码（不是登录密码）
-    private String startDateStr = "2025-05-25";  // 开始日期，格式为yyyy-MM-dd
-	private List<String> parserCode;
-
+INSERT INTO user_mail (user_id, host, alias, username, password) VALUES ('1', 'imap.qq.com', 'qq', '546555918@qq.com', 'nnfjkmehqypgbbhc');
 
 
 ``` sql
@@ -21,7 +15,6 @@ CREATE TABLE `user_mail` (
     INDEX `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户邮箱配置表';
 
--- message_box 站内信 mission
 CREATE TABLE `message_box` (
   `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `unique_no` VARCHAR(64) DEFAULT NULL COMMENT '唯一编号',
@@ -64,7 +57,6 @@ CREATE TABLE `transaction_log` (
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- TransationTagPO 对应表 transaction_tag
 CREATE TABLE `transaction_tag` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `transaction_id` BIGINT,
@@ -74,7 +66,6 @@ CREATE TABLE `transaction_tag` (
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- TransationPO 对应表 transaction
 CREATE TABLE `transaction` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `user_id` VARCHAR(64) DEFAULT NULL COMMENT '用户ID',

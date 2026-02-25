@@ -1,13 +1,13 @@
-package com.chxt.gateway.transaction;
+package com.chxt.db.transaction.repository;
 
 import com.chxt.db.transaction.entity.MessageBoxPO;
 import com.chxt.db.transaction.entity.UserMailPO;
-import com.chxt.db.transaction.repository.MessageBoxRepository;
-import com.chxt.db.transaction.repository.UserMailRepository;
+import com.chxt.db.transaction.service.MessageBoxRepositoryService;
+import com.chxt.db.transaction.service.UserMailRepositoryService;
 import com.chxt.domain.transaction.component.MailParser;
 import com.chxt.domain.transaction.component.MailParserStrategy;
 import com.chxt.domain.transaction.component.MailPicker;
-import com.chxt.domain.transaction.component.UserMailFactory;
+import com.chxt.domain.transaction.component.TransactionEntityRepository;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -19,21 +19,21 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class UserMailFactoryImpl implements UserMailFactory {
+public class TransactionEntityRepositoryImpl implements TransactionEntityRepository {
 
     private static final Map<String, MailParserStrategy<?>> ALL_STRATEGIES = TransactionEnums.Channel.getAllParser();
 
     @Resource
-    private UserMailRepository userMailRepository;
+    private UserMailRepositoryService userMailRepositoryService;
 
     @Resource
-    private MessageBoxRepository messageBoxRepository;
+    private MessageBoxRepositoryService messageBoxRepositoryService;
 
 
 
     @Override
     public MailPicker getPicker(String userId, String startDate, List<String> channel) {
-        UserMailPO userMail = this.userMailRepository.getByUserId(userId);
+        UserMailPO userMail = this.userMailRepositoryService.getByUserId(userId);
         if (userMail == null) {
             return  null;
         }
@@ -59,7 +59,7 @@ public class UserMailFactoryImpl implements UserMailFactory {
         // 获取密码
         mailParser.setPasswordHelper((channel, timeStamp, fileName) -> {
             String uniqueNo = userId + ":" + channel + ":" + timeStamp + ":" + fileName;
-            MessageBoxPO exist = this.messageBoxRepository.getByUniqueNo(uniqueNo);
+            MessageBoxPO exist = this.messageBoxRepositoryService.getByUniqueNo(uniqueNo);
             if (exist != null && StringUtils.isNotEmpty(exist.getAnswer())) {
                 return exist.getAnswer();
             }
@@ -71,7 +71,7 @@ public class UserMailFactoryImpl implements UserMailFactory {
                     .setUserId(userId)
                     .setTitle(TransactionEnums.Channel.getNameByCode(channel))
                     .setMessage(String.format("请输入密码, %s / %s", DateFormatUtils.format(new Date(timeStamp), "yyyy-MM-dd HH:mm:ss"), fileName));
-            this.messageBoxRepository.save(messageBox);
+            this.messageBoxRepositoryService.save(messageBox);
             return null;
         });
 

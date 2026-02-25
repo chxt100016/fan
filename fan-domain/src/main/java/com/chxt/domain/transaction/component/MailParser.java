@@ -79,16 +79,17 @@ public class MailParser {
 		List<TransactionLog> logs = new ArrayList<>();
 		for (T item : data) {
 			TransactionLog log = TransactionLog.builder()
-				.date(strategy.getDate(item))
-				.amount(strategy.getAmount(item))
-				.currency(strategy.getCurrency(item))
-				.type(strategy.getType(item))
-				.method(strategy.getMethod(item))
-				.channel(strategy.getChannel())
-				.description(strategy.getDescription(item))
-				.logId(strategy.getLogId(item))
-                .userId(this.userId)
-				.build();
+                    .date(strategy.getDate(item))
+                    .amount(strategy.getAmount(item))
+                    .currency(strategy.getCurrency(item))
+                    .type(strategy.getType(item))
+                    .method(strategy.getMethod(item))
+                    .channel(strategy.getChannel())
+                    .description(strategy.getDescription(item))
+                    .logId(strategy.getLogId(item))
+                    .userId(this.userId)
+                    .counterparty(strategy.getCounterparty(item))
+				    .build();
 			logs.add(log);
 		}
 

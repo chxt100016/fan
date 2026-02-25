@@ -174,9 +174,4 @@ public class TransactionChannel {
         }
     }
 
-
-    @SneakyThrows
-    public void printLogs() {
-        this.logs.stream().sorted(Comparator.comparing(TransactionLog::getDate)).forEach(TransactionLog::printLog);
-    }
 }

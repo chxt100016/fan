@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TransactionLogRepository {
 
-    void batchAdd(TransactionChannel transactionChannel);
+    void batchAdd(List<TransactionChannel> transactionChannelList);
 
     List<TransactionLog> list(String userId, String startDate, String endDate);
 

@@ -182,4 +182,9 @@ public class CgbcCreditParser implements MailParserStrategy<List<String>> {
     public String getDescription(List<String> data) {
         return data.get(2);
     }
+
+    @Override
+    public String getCounterparty(List<String> data) {
+        return "";
+    }
 }

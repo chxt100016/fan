@@ -144,5 +144,10 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         return String.format(format, data.get("收/支"), data.get("交易类型"), data.get("交易对方"), data.get("商品"), data.get("交易状态"), data.get("备注"), data.get("当前状态"));
     }
 
+    @Override
+    public String getCounterparty(Map<String, String> data) {
+        return "";
+    }
+
 
 }

@@ -31,6 +31,11 @@ public class TransactionLogPO {
      * 交易金额
      */
     private BigDecimal amount;
+
+    /**
+     * 交易对方
+     */
+    private String counterparty;
     
     /**
      * 交易币种

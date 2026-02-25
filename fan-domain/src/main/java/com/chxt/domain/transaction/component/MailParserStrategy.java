@@ -55,6 +55,8 @@ public interface MailParserStrategy<T> {
 
     String getDescription(T data);
 
+    String getCounterparty(T data);
+
     default String getLogId(T data) {
         return this.getChannel() + ":" + this.getDate(data).getTime() + ":" + DigestUtils.md5Hex(JSON.toJSONString(data));
     }

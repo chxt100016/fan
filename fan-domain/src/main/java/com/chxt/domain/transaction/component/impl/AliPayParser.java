@@ -74,7 +74,12 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
         String format = "收/支:%s;交易分类:%s;交易对方:%s;对方账号:%s;商品说明:%s;交易状态:%s;备注:%s;";
         return String.format(format, data.get("收/支"), data.get("交易分类"), data.get("交易对方"), data.get("对方账号"), data.get("商品说明"), data.get("交易状态"), data.get("备注"));
     }
-    
+
+    @Override
+    public String getCounterparty(Map<String, String> data) {
+        return "";
+    }
+
     @Override
     @SneakyThrows
     public Date getDate(Map<String,String> data) {
