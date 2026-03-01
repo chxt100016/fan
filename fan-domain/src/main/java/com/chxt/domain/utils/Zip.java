@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.exception.WrongPasswordException;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +48,11 @@ public class Zip {
 			} else {
 				throw e;
 			}
-		} 
+		}
+
+        if (this.isWrongPassword()) {
+            throw new WrongPasswordException(TransactionEnums.Channel.ALI_PAY, mail);
+        }
     }
 
 

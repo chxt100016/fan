@@ -32,7 +32,7 @@ public class TransactionEntityRepositoryImpl implements TransactionEntityReposit
 
 
     @Override
-    public MailPicker getPicker(String userId, String startDate, List<String> channel) {
+    public MailPicker getPicker(String userId, String startDate, String endDate, List<String> channel) {
         UserMailPO userMail = this.userMailRepositoryService.getByUserId(userId);
         if (userMail == null) {
             return  null;
@@ -43,7 +43,8 @@ public class TransactionEntityRepositoryImpl implements TransactionEntityReposit
                 .setHost(userMail.getHost())
                 .setUsername(userMail.getUsername())
                 .setPassword(userMail.getPassword())
-                .setStartDateStr(startDate);
+                .setStartDateStr(startDate)
+                .setEndDateStr(endDate);
 
         channel.stream().map(ALL_STRATEGIES::get).forEach(picker::addMailCoordinate);
         return picker;
@@ -51,28 +52,28 @@ public class TransactionEntityRepositoryImpl implements TransactionEntityReposit
     }
 
     @Override
-    public MailParser getParser(String userId, List<String> channels) {
+    public MailParser getParser(String userId, String startDate, String endDate, List<String> channels) {
         MailParser mailParser = new MailParser();
         mailParser.setUserId(userId);
+        mailParser.setStartDate(startDate);
+        mailParser.setEndDate(endDate != null ? endDate : DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
         channels.stream().map(ALL_STRATEGIES::get).forEach(mailParser::addParser);
 
         // 获取密码
         mailParser.setPasswordHelper((channel, timeStamp, fileName) -> {
             String uniqueNo = userId + ":" + channel + ":" + timeStamp + ":" + fileName;
             MessageBoxPO exist = this.messageBoxRepositoryService.getByUniqueNo(uniqueNo);
-            if (exist != null && StringUtils.isNotEmpty(exist.getAnswer())) {
-                return exist.getAnswer();
-            }
-            if (StringUtils.isNotEmpty(channel)) {
+            if (exist == null) {
+                MessageBoxPO messageBox = new MessageBoxPO()
+                        .setUniqueNo(uniqueNo)
+                        .setUserId(userId)
+                        .setTitle(TransactionEnums.Channel.getNameByCode(channel))
+                        .setMessage(String.format("请输入密码, %s / %s", DateFormatUtils.format(new Date(timeStamp), "yyyy-MM-dd HH:mm:ss"), fileName));
+                this.messageBoxRepositoryService.save(messageBox);
                 return null;
             }
-            MessageBoxPO messageBox = new MessageBoxPO()
-                    .setUniqueNo(uniqueNo)
-                    .setUserId(userId)
-                    .setTitle(TransactionEnums.Channel.getNameByCode(channel))
-                    .setMessage(String.format("请输入密码, %s / %s", DateFormatUtils.format(new Date(timeStamp), "yyyy-MM-dd HH:mm:ss"), fileName));
-            this.messageBoxRepositoryService.save(messageBox);
-            return null;
+
+            return StringUtils.isNotEmpty(exist.getAnswer()) ? exist.getAnswer() : null;
         });
 
         return mailParser;

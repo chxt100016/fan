@@ -1,13 +1,10 @@
 package com.chxt.domain.transaction.component;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-
 import com.alibaba.fastjson2.JSON;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.chxt.domain.utils.Mail;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 
@@ -29,9 +26,8 @@ public interface MailParserStrategy<T> {
 
      /**
      * 处理邮件并解析数据
-     * @return 解析后的交易记录列表
      */
-    List<T> parse(Mail mail, PasswordHelper helper);
+     void parse(MailParserContext<T> context);
 
     /**
      * 获取策略支持的渠道
@@ -39,9 +35,9 @@ public interface MailParserStrategy<T> {
      */
     String getChannel();
 
-    Date getTransactionStartDate(Mail mail, List<T> data);
+    Date getTransactionStartDate(MailParserContext<T> context);
 
-    Date getTransactionEndDate(Mail mail, List<T> data);
+    Date getTransactionEndDate(MailParserContext<T> context);
 
     Date getDate(T data);
 

@@ -1,27 +1,20 @@
 package com.chxt.domain.transaction.component.impl;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-
+import com.chxt.domain.transaction.component.MailParserContext;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.utils.Excel;
+import com.chxt.domain.utils.Zip;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import com.chxt.domain.transaction.model.constants.TransactionEnums;
-import com.chxt.domain.transaction.model.exception.PasswordRequiredException;
-import com.chxt.domain.transaction.model.exception.WrongPasswordException;
-import com.chxt.domain.transaction.component.MailParserStrategy;
-import com.chxt.domain.transaction.component.PasswordHelper;
-import com.chxt.domain.utils.Excel;
-import com.chxt.domain.utils.Mail;
-import com.chxt.domain.utils.Zip;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class AliPayParser implements MailParserStrategy<Map<String,String>> {
@@ -88,8 +81,8 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
     
     @Override
     @SneakyThrows
-    public Date getTransactionStartDate(Mail mail, List<Map<String,String>> data) {
-        String name = mail.getAttachmentFileName();
+    public Date getTransactionStartDate(MailParserContext<Map<String,String>> context) {
+        String name = context.getAttachmentFileName();
         // start time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
         Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
         Matcher matcher = pattern.matcher(name);
@@ -99,11 +92,11 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
         }
         throw new Exception("支付宝交易明细文件名格式不正确");
     }
-    
+
     @Override
     @SneakyThrows
-    public Date getTransactionEndDate(Mail mail, List<Map<String,String>> data) {
-        String name = mail.getAttachmentFileName();
+    public Date getTransactionEndDate(MailParserContext<Map<String,String>> context) {
+        String name = context.getAttachmentFileName();
         // end time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
         Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
         Matcher matcher = pattern.matcher(name);
@@ -116,21 +109,13 @@ public class AliPayParser implements MailParserStrategy<Map<String,String>> {
 
     @Override
     @SneakyThrows
-    public List<Map<String,String>> parse(Mail mail, PasswordHelper helper) {
+    public void parse(MailParserContext<Map<String,String>> context) {
+        String password = context.getPassword();
 
-        String password = helper.getPassword(TransactionEnums.Channel.ALI_PAY.getCode(), mail.getDate().getTime(), mail.getAttachmentFileName());
-		if (password == null) {
-			throw new PasswordRequiredException(TransactionEnums.Channel.ALI_PAY, mail);
-		}
-		
-        // 解压ZIP文件
-        Zip zip = new Zip(mail.getAttachment(), password);
-		if (zip.isWrongPassword()) {
-			throw new WrongPasswordException(TransactionEnums.Channel.ALI_PAY, mail);
-		}
-		
+        Zip zip = new Zip(context.getAttachment(), password);
         Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);
-        return excel.parseBytes();
+
+        context.setData(excel.parseBytes());
     } 
 
 }

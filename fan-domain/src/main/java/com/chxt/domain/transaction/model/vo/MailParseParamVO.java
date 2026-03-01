@@ -17,6 +17,7 @@ public class MailParseParamVO {
 
     private String userId;
     private String startDate;  // 开始日期，格式为yyyy-MM-dd
+    private String endDate;
 	private List<String> channel;
 
 }

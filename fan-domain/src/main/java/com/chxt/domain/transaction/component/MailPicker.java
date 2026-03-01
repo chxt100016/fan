@@ -2,7 +2,7 @@ package com.chxt.domain.transaction.component;
 
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.vo.ChannelMail;
-import com.chxt.domain.utils.DateRange;
+import com.chxt.domain.utils.DateRanges;
 import com.chxt.domain.utils.Mail;
 import com.chxt.domain.utils.MailClient;
 import lombok.AllArgsConstructor;
@@ -61,9 +61,9 @@ public class MailPicker {
 
         try {
             // 计算时间区间
-            List<DateRange> dateRanges = DateRange.split(this.startDateStr, this.endDateStr, DEFAULT_BATCH_SIZE);
+            DateRanges dateRanges = DateRanges.split(this.startDateStr, this.endDateStr, DEFAULT_BATCH_SIZE);
 
-            if (CollectionUtils.isEmpty(dateRanges)) {
+            if (dateRanges.isEmpty()) {
                 log.warn("split date range failed, use normal search");
                 return search(printInfo);
             }
@@ -95,11 +95,11 @@ public class MailPicker {
     /**
      * 按时间区间并发搜索单个渠道的邮件
      */
-    private List<Mail> searchByDateRanges(MailCoordinate coordinate, List<DateRange> dateRanges, boolean printInfo) {
+    private List<Mail> searchByDateRanges(MailCoordinate coordinate, DateRanges dateRanges, boolean printInfo) {
         try {
             List<Future<List<Mail>>> futures = new ArrayList<>();
             // 为每个时间区间提交搜索任务
-            for (DateRange dateRange : dateRanges) {
+            for (DateRanges.DateRange dateRange : dateRanges.getRanges()) {
                 futures.add(executorService.submit(() -> {
                     try (MailClient mailClient = new MailClient(this.host, this.username, this.password, printInfo)) {
                         return mailClient.search(
