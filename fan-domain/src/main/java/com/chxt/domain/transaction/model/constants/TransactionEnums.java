@@ -21,7 +21,7 @@ public class TransactionEnums {
         CMB_BANK("cmb_bank", "招商储蓄卡", CmbBankParser.class),
         ALI_PAY("ali_pay", "支付宝", AliPayParser.class),
         WECHAT_PAY("wechat_pay", "微信支付", WechatPayParser.class),
-        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
+//        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
         ;
 
         private final String code;

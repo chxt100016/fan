@@ -67,8 +67,7 @@ public class WechatPayParser implements MailParserStrategy<Map<String, String>>{
         String name = context.getSubject();
         // start time of the day from name,  example: 微信支付账单(20250313-20250513)——【解压密码可在微信支付公众号查看】.csv
         Pattern pattern = Pattern.compile("微信支付-账单流水文件\\((\\d{8})-(\\d{8})\\).*");
-        Matcher matcher = pattern.mat
-        cher(name);
+        Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {
             String startDateStr = matcher.group(1);
             return DateUtils.parseDate(startDateStr, "yyyyMMdd");
