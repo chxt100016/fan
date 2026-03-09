@@ -2,8 +2,9 @@ package com.chxt.domain.utils;
 
 
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -15,13 +16,17 @@ import java.util.List;
 import java.util.Objects;
 
 @Data
-@Accessors(chain = true)
 @Slf4j
 public class DateRange {
 
     private Date startDate;
 
     private Date endDate;
+
+    public DateRange(Date startDate, Date endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 
     public String getStartDateStr() {
         if (Objects.isNull(startDate)) {
@@ -37,6 +42,54 @@ public class DateRange {
         }
 
         return DateFormatUtils.format(endDate, "yyyy-MM-dd");
+    }
+
+    /**
+     * 将 yyyy-MM-dd 格式的日期列表转换为多个连续的 DateRange
+     */
+    @SneakyThrows
+    public static List<DateRange> of(List<String> dateList) {
+        if (CollectionUtils.isEmpty(dateList)) {
+            return List.of();
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setLenient(false);
+
+        // 1. 解析并排序
+        List<Date> dates = new ArrayList<>();
+        for (String dateStr : dateList) {
+            dates.add(sdf.parse(dateStr));
+        }
+        dates.sort(Date::compareTo);
+
+        // 2. 合并连续日期
+        List<DateRange> result = new ArrayList<>();
+        Date start = dates.get(0);
+        Date prev = start;
+
+        for (int i = 1; i < dates.size(); i++) {
+            Date current = dates.get(i);
+
+            // 判断是否连续（间隔一天）
+            if (!isNextDay(prev, current)) {
+                result.add(new DateRange(start, prev));
+                start = current;
+            }
+            prev = current;
+        }
+
+        // 最后一段
+        result.add(new DateRange(start, prev));
+
+        return result;
+    }
+
+    private static boolean isNextDay(Date d1, Date d2) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(d1);
+        cal.add(Calendar.DATE, 1);
+        return cal.getTime().equals(d2);
     }
 
     /**
@@ -85,9 +138,7 @@ public class DateRange {
                     currentEnd = endDate;
                 }
 
-                dateRanges.add(new DateRange()
-                        .setStartDate(currentStart)
-                        .setEndDate(currentEnd));
+                dateRanges.add(new DateRange(currentStart, currentEnd));
 
                 // 移动到下一个区间的起始日期
                 calendar.add(Calendar.DAY_OF_MONTH, 1);
@@ -105,10 +156,16 @@ public class DateRange {
     }
 
 
-    public static void main(String[] args) {
-        System.out.println("========== 测试1: 30天分成5个区间 ==========");
-        testSplit("2024-01-01", "2024-01-30", 5);
 
+    public static void main(String[] args) {
+        List<DateRange> dateRanges = DateRange.of(List.of("2026-02-25", "2026-02-26", "2026-02-22", "2026-02-23"));
+        for (DateRange dateRange : dateRanges) {
+            System.out.println(dateRange.getStartDateStr() + " -> " + dateRange.getEndDateStr());
+        }
+
+//        System.out.println("========== 测试1: 30天分成5个区间 ==========");
+//        testSplit("2024-01-01", "2024-01-30", 5);
+//
 //        System.out.println("\n========== 测试2: 100天分成5个区间 ==========");
 //        testSplit("2024-01-01", "2024-04-10", 5);
 //
