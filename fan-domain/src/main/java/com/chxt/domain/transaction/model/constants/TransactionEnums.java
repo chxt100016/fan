@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.chxt.domain.transaction.component.MailParserStrategy;
-import com.chxt.domain.transaction.component.impl.AliPayParser;
-import com.chxt.domain.transaction.component.impl.CgbcCreditParser;
-import com.chxt.domain.transaction.component.impl.CmbCreditParser;
-import com.chxt.domain.transaction.component.impl.WechatPayParser;
+import com.chxt.domain.transaction.component.impl.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +18,10 @@ public class TransactionEnums {
     public enum Channel {
         
         CMB_CREDIT("cmb_credit", "招商信用卡", CmbCreditParser.class),
+        CMB_BANK("cmb_bank", "招商储蓄卡", CmbBankParser.class),
         ALI_PAY("ali_pay", "支付宝", AliPayParser.class),
         WECHAT_PAY("wechat_pay", "微信支付", WechatPayParser.class),
-        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
+//        CGBC_CREDIT("cgbc_credit", "广发信用卡", CgbcCreditParser.class),
         ;
 
         private final String code;

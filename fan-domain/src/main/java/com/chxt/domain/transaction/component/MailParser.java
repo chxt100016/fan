@@ -21,6 +21,12 @@ public class MailParser {
     private String userId;
 
     @Setter
+    private String startDate;
+
+    @Setter
+    private String endDate;
+
+    @Setter
     private PasswordHelper passwordHelper;
 
     private final Map<String, MailParserStrategy<?>> parserMap = new HashMap<>();
@@ -59,10 +65,16 @@ public class MailParser {
         TransactionChannel channel = new TransactionChannel(userId, strategy.getChannel());
         for (Mail mail : mails) {
             try {
-				List<T> data = strategy.parse(mail, this.passwordHelper);
-				Date startDate = strategy.getTransactionStartDate(mail, data);
-				Date endDate = strategy.getTransactionEndDate(mail, data);
-				List<TransactionLog> logs = parseMailData(data, strategy);
+                MailParserContext<T> context = new MailParserContext<>(strategy.getChannel(), mail, this.passwordHelper);
+                strategy.parse(context);
+                if (CollectionUtils.isEmpty(context.getData())) {
+                    continue;
+                }
+                context.setStartDate(this.startDate);
+                context.setEndDate(this.endDate);
+				Date startDate = strategy.getTransactionStartDate(context);
+				Date endDate = strategy.getTransactionEndDate(context);
+				List<TransactionLog> logs = parseMailData(context.getData(), strategy);
 				channel.addDateRange(startDate, endDate);
 				channel.addLogs(logs);
 			} catch (TransactionParseException e) {

@@ -1,16 +1,17 @@
 package com.chxt.domain.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.chxt.domain.transaction.model.exception.WrongPasswordException;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.LocalFileHeader;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Slf4j
@@ -46,7 +47,11 @@ public class Zip {
 			} else {
 				throw e;
 			}
-		} 
+		}
+
+        if (this.isWrongPassword()) {
+            throw new WrongPasswordException(null, null);
+        }
     }
 
 

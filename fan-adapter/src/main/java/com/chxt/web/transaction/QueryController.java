@@ -5,11 +5,9 @@ import com.chxt.transaction.QueryService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.SneakyThrows;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +39,11 @@ public class QueryController {
             out.write(bytes);
             out.flush();
         }
+    }
+
+    @GetMapping("/range/str")
+    public List<String> getRangeStr(@RequestParam("userId") String userId) {
+        return this.queryService.getRangeStr(userId);
     }
 
 

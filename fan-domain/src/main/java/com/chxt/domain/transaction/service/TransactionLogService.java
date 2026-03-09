@@ -35,21 +35,17 @@ public class TransactionLogService {
 
     @SneakyThrows
     public void init(MailParseParamVO param) {
-        MailPicker picker = this.userMailFactory.getPicker(param.getUserId(), param.getStartDate(), param.getChannel());
+        MailPicker picker = this.userMailFactory.getPicker(param.getUserId(), param.getStartDate(), param.getEndDate(), param.getChannel());
         List<ChannelMail> mailList = picker.search();
 
-        MailParser parser = this.userMailFactory.getParser(param.getUserId(), param.getChannel());
+        MailParser parser = this.userMailFactory.getParser(param.getUserId(), param.getStartDate(), param.getEndDate(), param.getChannel());
         List<TransactionChannel> data = parser.parse(mailList).stream().filter(TransactionChannel::isSuccess).toList();
         this.transactionLogRepository.batchAdd(data);
     }
 
-    private void save(TransactionChannel item) {
-
-    }
-
-
     public List<Transaction> analysisLog(AnalysisParamVO param) {
-        List<TransactionLog> data = this.transactionLogRepository.list(param.getUserId(), param.getStartTime(), param.getEndTime());
+        List<TransactionChannel> channelList = this.transactionLogRepository.list(param.getUserId(), param.getStartTime(), param.getEndTime());
+        List<TransactionLog> data = channelList.stream().flatMap(item -> item.getLogs().stream()).toList();
         List<Transaction> transactions = this.mergeAll(data);
         this.transactionRepository.batchAdd(param, transactions);
         return transactions;
@@ -84,6 +80,8 @@ public class TransactionLogService {
 
         return transactions;
     }
+
+
 
 
     

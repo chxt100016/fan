@@ -4,6 +4,7 @@ package com.chxt.domain.utils;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -61,5 +62,11 @@ public class DateStandardUtils {
         calendar.set(Calendar.MILLISECOND, 0);
 
         return calendar.getTime();
+    }
+
+    @SneakyThrows
+    public static Date addDate(String dateStr, Integer value) {
+        Date date = DateUtils.parseDate(dateStr, "yyyy-MM-dd");
+        return DateUtils.addDays(date, value);
     }
 }

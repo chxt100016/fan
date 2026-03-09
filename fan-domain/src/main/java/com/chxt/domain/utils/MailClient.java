@@ -122,7 +122,7 @@ public class MailClient implements AutoCloseable{
         // 结束时间
         if(StringUtils.isNotBlank(endDateStr)) {
             Date endDate = DateUtils.parseDate(endDateStr, "yyyy-MM-dd");
-            SearchTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.GE, endDate);
+            SearchTerm dateTerm = new ReceivedDateTerm(ComparisonTerm.LE, endDate);
             list.add(dateTerm);
         }
         

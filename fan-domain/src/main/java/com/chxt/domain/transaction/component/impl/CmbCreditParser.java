@@ -1,19 +1,20 @@
 package com.chxt.domain.transaction.component.impl;
 
-import java.math.BigDecimal;
-import java.util.*;
-
+import com.chxt.domain.transaction.component.MailParserContext;
+import com.chxt.domain.transaction.component.MailParserStrategy;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.utils.DateStandardUtils;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.chxt.domain.transaction.model.constants.TransactionEnums;
-import com.chxt.domain.transaction.component.MailParserStrategy;
-import com.chxt.domain.transaction.component.PasswordHelper;
-import com.chxt.domain.utils.Mail;
-
-import lombok.SneakyThrows;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
 /**
@@ -37,6 +38,32 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     @Override
     public String getChannel() {
         return TransactionEnums.Channel.CMB_CREDIT.getCode();
+    }
+
+    @Override
+    @SneakyThrows
+    public void parse(MailParserContext<String[]> context) {
+
+        Document doc = Jsoup.parse(context.getContent());
+        Element detail = doc.getElementById("fixBand3");
+        if (Objects.isNull(detail)) {
+            return;
+        }
+        Element title = detail.getElementById("loopHeader1");
+        if (Objects.isNull(title)) {
+            return;
+        }
+        String dateStr = title.text().split(" ")[0];
+        List<Element> items = detail.getElementsByAttributeValueMatching("id", "fixBand4");
+
+        List<String[]> res = new ArrayList<>();
+        for(Element item : items) {
+            String[] split = item.text().split(" ");
+            split[0] = dateStr + " " + split[0];
+            res.add(split);
+        }
+
+        context.setData(res);
     }
 
     @Override
@@ -88,41 +115,13 @@ public class CmbCreditParser implements MailParserStrategy<String[]> {
     }
     
     @Override
-    public Date getTransactionStartDate(Mail mail, List<String[]> data) {
-        // start time of the day
-        Date date = getDate(data.get(0));
-        return DateUtils.truncate(date, Calendar.HOUR_OF_DAY);
+    public Date getTransactionStartDate(MailParserContext<String[]> context) {
+
+        return DateStandardUtils.addDate(context.getStartDate(), -1);
     }
     
     @Override
-    public Date getTransactionEndDate(Mail mail, List<String[]> data) {
-        // the same day
-        return getTransactionStartDate(mail, data);
+    public Date getTransactionEndDate(MailParserContext<String[]> context) {
+        return DateStandardUtils.addDate(context.getEndDate(), -1);
     }
-    
-    @Override
-    @SneakyThrows
-    public List<String[]> parse(Mail mail, PasswordHelper helper) {
-        
-        Document doc = Jsoup.parse(mail.getBody());
-        Element detail = doc.getElementById("fixBand3");
-        if (Objects.isNull(detail)) {
-            return List.of();
-        }
-        Element title = detail.getElementById("loopHeader1");
-        if (Objects.isNull(title)) {
-            return List.of();
-        }
-        String dateStr = title.text().split(" ")[0];
-        List<Element> items = detail.getElementsByAttributeValueMatching("id", "fixBand4");
-
-        List<String[]> res = new ArrayList<>();
-        for(Element item : items) {
-            String[] split = item.text().split(" ");
-            split[0] = dateStr + " " + split[0];
-            res.add(split);
-        }
-        return res;
-    }
-
 } 
