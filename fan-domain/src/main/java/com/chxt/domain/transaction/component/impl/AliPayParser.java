@@ -1,0 +1,128 @@
+package com.chxt.domain.transaction.component.impl;
+
+import com.chxt.domain.transaction.component.RecordParserContext;
+import com.chxt.domain.transaction.component.RecordParserStrategy;
+import com.chxt.domain.transaction.model.constants.TransactionEnums;
+import com.chxt.domain.transaction.model.vo.LogDescVO;
+import com.chxt.domain.utils.Excel;
+import com.chxt.domain.utils.Zip;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Slf4j
+public class AliPayParser implements RecordParserStrategy<Map<String,String>> {
+
+    private final static String ALI_PAY_FROM = "service@mail.alipay.com";
+
+    private final static String ALI_PAY_SUBJECT = "支付宝交易流水明细";
+    
+    private final static String ALIPAY_HEADER_MARKER = "------------------------支付宝支付科技有限公司  电子客户回单------------------------";
+	
+
+
+    @Override
+    public String getFrom() {
+        return ALI_PAY_FROM;
+    }
+
+    @Override
+    public String getSubject() {
+       return ALI_PAY_SUBJECT;
+    }
+
+    @Override
+    public String getChannel() {
+        return TransactionEnums.Channel.ALI_PAY.getCode();
+    }
+
+    @Override
+    public String getType(Map<String,String> data) {
+        return StringUtils.endsWith(data.get("收/支"), "支出") ? TransactionEnums.Type.EXPENSE.getCode() : TransactionEnums.Type.INCOME.getCode();
+    }
+    
+    @Override
+    public BigDecimal getAmount(Map<String,String> data) {
+        return new BigDecimal(data.get("金额"));
+    }
+    
+    @Override
+    public String getCurrency(Map<String,String> data) {
+        return TransactionEnums.Currency.CNY.getCode();
+    }
+    
+    @Override
+    public String getMethod(Map<String,String> data) {
+        return data.get("收/付款方式");
+    }
+    
+    @Override
+    public LogDescVO getDescription(Map<String,String> data) {
+        return new LogDescVO()
+                .put("收/支", data.get("收/支"))
+                .put("交易分类", data.get("交易分类"))
+                .put("交易对方", data.get("交易对方"))
+                .put("对方账号", data.get("对方账号"))
+                .put("商品说明", data.get("商品说明"))
+                .put("交易状态", data.get("交易状态"))
+                .put("备注", data.get("备注"));
+    }
+
+    @Override
+    public String getCounterparty(Map<String, String> data) {
+        return "";
+    }
+
+    @Override
+    @SneakyThrows
+    public Date getDate(Map<String,String> data) {
+        return DateUtils.parseDate(data.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
+    }
+    
+    @Override
+    @SneakyThrows
+    public Date getTransactionStartDate(RecordParserContext<Map<String,String>> context) {
+        String name = context.getAttachmentFileName();
+        // start time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
+        Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            String startDateStr = matcher.group(1);
+            return DateUtils.parseDate(startDateStr, "yyyyMMdd");
+        }
+        throw new Exception("支付宝交易明细文件名格式不正确");
+    }
+
+    @Override
+    @SneakyThrows
+    public Date getTransactionEndDate(RecordParserContext<Map<String,String>> context) {
+        String name = context.getAttachmentFileName();
+        // end time of the day from name,  example: 支付宝交易明细(20250330-20250430).zip
+        Pattern pattern = Pattern.compile("支付宝交易明细\\((\\d{8})-(\\d{8})\\).zip");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            String endDateStr = matcher.group(2);
+            return DateUtils.parseDate(endDateStr, "yyyyMMdd");
+        }
+        throw new Exception("支付宝交易明细文件名格式不正确");
+    }
+
+    @Override
+    @SneakyThrows
+    public void parse(RecordParserContext<Map<String,String>> context) {
+        String password = context.getPassword();
+
+        Zip zip = new Zip(context.getAttachment(), password);
+        Excel excel = new Excel(zip.getOne(), ALIPAY_HEADER_MARKER);
+
+        context.setData(excel.parseBytes());
+    } 
+
+}
