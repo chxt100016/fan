@@ -2,6 +2,10 @@ package com.chxt.domain.transaction.model.entity;
 
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.vo.TransactionTagVO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.math.BigDecimal;
@@ -12,68 +16,65 @@ public class TransactionDashboard {
 
     private final List<Transaction> transactions;
 
-
-
     public TransactionDashboard(List<Transaction> transactions) {
         this.transactions = transactions;
-        Map<String, String> dayExpense = this.getDayExpense();
-        Map<String, String> monthExpense = this.getMonthExpense();
-        Map<String, String> tagCount = this.getTagCount();
     }
 
     /**
-     * 天维度支出 key是日期格式yyyy-MM-dd
+     * 天维度统计 key是日期格式 yyyy-MM-dd
      */
-    public Map<String, String> getDayExpense() {
-        Map<String, BigDecimal> dayExpense = this.getTransactionsOrEmpty().stream()
-                .filter(this::isExpense)
-                .filter(item -> item.getDate() != null && item.getAmount() != null)
+    public Map<String, DashboardMetrics> getDay() {
+        return this.getTransactionsOrEmpty().stream()
+                .filter(this::hasDateAndAmount)
                 .collect(Collectors.groupingBy(
                         item -> DateFormatUtils.format(item.getDate(), "yyyy-MM-dd"),
                         TreeMap::new,
-                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                        Collectors.collectingAndThen(Collectors.toList(), this::toDashboardMetrics)
                 ));
-        return this.toStringMap(dayExpense);
     }
 
     /**
-     * 月维度支出 key是 月份的数字
+     * 月维度统计 key是 yyyy-MM
      */
-    public Map<String, String> getMonthExpense() {
-        Map<String, BigDecimal> monthExpense = this.getTransactionsOrEmpty().stream()
-                .filter(this::isExpense)
-                .filter(item -> item.getDate() != null && item.getAmount() != null)
+    public Map<String, DashboardMetrics> getMonth() {
+        return this.getTransactionsOrEmpty().stream()
+                .filter(this::hasDateAndAmount)
                 .collect(Collectors.groupingBy(
                         item -> DateFormatUtils.format(item.getDate(), "yyyy-MM"),
                         TreeMap::new,
-                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)
+                        Collectors.collectingAndThen(Collectors.toList(), this::toDashboardMetrics)
                 ));
-        return this.toStringMap(monthExpense);
     }
 
     /**
-     * 统计每个tag下存在transaction
+     * 标签维度统计
      */
-    public Map<String, String> getTagCount() {
-        Map<String, Long> tagCount = this.getTransactionsOrEmpty().stream()
-                .map(Transaction::getTags)
+    public Map<String, DashboardMetrics> getTag() {
+        Map<String, List<Transaction>> tagTransactionMap = this.getTransactionsOrEmpty().stream()
                 .filter(Objects::nonNull)
-                .map(tags -> tags.stream()
-                        .map(TransactionTagVO::getTag)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet()))
-                .flatMap(Set::stream)
+                .filter(this::hasAmount)
+                .flatMap(transaction -> this.getTagsOrEmpty(transaction).stream()
+                        .map(tag -> new AbstractMap.SimpleEntry<>(tag, transaction)))
                 .collect(Collectors.groupingBy(
-                        item -> item,
+                        Map.Entry::getKey,
                         TreeMap::new,
-                        Collectors.counting()
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())
                 ));
-        return tagCount.entrySet().stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(Map.Entry.comparingByKey()))
+
+        return tagTransactionMap.entrySet().stream()
+                .sorted((left, right) -> {
+                    int compareCount = Long.compare(
+                            right.getValue().size(),
+                            left.getValue().size()
+                    );
+                    if (compareCount != 0) {
+                        return compareCount;
+                    }
+                    return left.getKey().compareTo(right.getKey());
+                })
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        item -> String.valueOf(item.getValue()),
+                        item -> this.toDashboardMetrics(item.getValue()),
                         (left, right) -> left,
                         LinkedHashMap::new
                 ));
@@ -83,19 +84,68 @@ public class TransactionDashboard {
         return this.transactions == null ? Collections.emptyList() : this.transactions;
     }
 
+    private Set<String> getTagsOrEmpty(Transaction transaction) {
+        if (transaction == null || transaction.getTags() == null) {
+            return Collections.emptySet();
+        }
+        return transaction.getTags().stream()
+                .map(TransactionTagVO::getTag)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    private DashboardMetrics toDashboardMetrics(List<Transaction> transactionList) {
+        BigDecimal expense = BigDecimal.ZERO;
+        long expenseCount = 0L;
+        BigDecimal income = BigDecimal.ZERO;
+        long incomeCount = 0L;
+
+        for (Transaction transaction : transactionList) {
+            if (this.isExpense(transaction)) {
+                expense = expense.add(transaction.getAmount());
+                expenseCount++;
+                continue;
+            }
+            if (this.isIncome(transaction)) {
+                income = income.add(transaction.getAmount());
+                incomeCount++;
+            }
+        }
+
+        return DashboardMetrics.builder()
+                .expense(expense.toPlainString())
+                .expenseCount(expenseCount)
+                .income(income.toPlainString())
+                .incomeCount(incomeCount)
+                .build();
+    }
+
+    private boolean hasDateAndAmount(Transaction transaction) {
+        return transaction != null && transaction.getDate() != null && transaction.getAmount() != null;
+    }
+
+    private boolean hasAmount(Transaction transaction) {
+        return transaction != null && transaction.getAmount() != null;
+    }
+
     private boolean isExpense(Transaction transaction) {
         return transaction != null
                 && TransactionEnums.Type.EXPENSE.getCode().equals(transaction.getType());
     }
 
-    private Map<String, String> toStringMap(Map<String, BigDecimal> source) {
-        return source.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        item -> item.getValue().toPlainString(),
-                        (left, right) -> left,
-                        LinkedHashMap::new
-                ));
+    private boolean isIncome(Transaction transaction) {
+        return transaction != null
+                && TransactionEnums.Type.INCOME.getCode().equals(transaction.getType());
     }
 
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DashboardMetrics {
+        private String expense;
+        private Long expenseCount;
+        private String income;
+        private Long incomeCount;
+    }
 }
