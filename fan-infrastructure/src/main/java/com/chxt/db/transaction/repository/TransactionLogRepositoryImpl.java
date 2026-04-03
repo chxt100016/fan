@@ -48,7 +48,7 @@ public class TransactionLogRepositoryImpl implements TransactionLogRepository {
             List<String> logIds = logs.stream().map(TransactionLog::getLogId).toList();
             List<TransactionLogPO> exist = this.transactionLogRepositoryService.lambdaQuery().in(TransactionLogPO::getLogId, logIds).list();
             if (exist.size() == logIds.size()) {
-                return;
+                continue;
             }
 
             Map<String, Integer> channelDayCount = buildChannelDayCount(channel);

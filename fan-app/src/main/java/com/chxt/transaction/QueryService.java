@@ -2,6 +2,7 @@ package com.chxt.transaction;
 
 import com.chxt.domain.gateway.TransactionLogRepository;
 import com.chxt.domain.gateway.TransactionRepository;
+import com.chxt.domain.obsidian.ListFormat;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.entity.Transaction;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
@@ -36,9 +37,11 @@ public class QueryService {
                 .toList();
     }
 
-    public TransactionDashboard getDashboard(String userId) {
+    public ListFormat getDashboard(String userId) {
         List<Transaction> list = this.transactionRepository.list(new AnalysisParamVO().setUserId(userId));
-        return new TransactionDashboard(list);
+        TransactionDashboard dashboard = new TransactionDashboard(list);
+        return ListFormat.of("bill", dashboard);
+
     }
 
 }

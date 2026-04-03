@@ -22,10 +22,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.17.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.chxt</groupId>
-            <artifactId>fan-client</artifactId>
-        </dependency>
         
         <dependency>
             <groupId>org.apache.commons</groupId>

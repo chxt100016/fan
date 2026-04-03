@@ -23,33 +23,39 @@ public class TransactionDashboard {
     /**
      * 天维度统计 key是日期格式 yyyy-MM-dd
      */
-    public Map<String, DashboardMetrics> getDay() {
-        return this.getTransactionsOrEmpty().stream()
+    public List<DashboardMetrics> getDay() {
+        Map<String, List<Transaction>> dayTransactionMap = this.getTransactionsOrEmpty().stream()
                 .filter(this::hasDateAndAmount)
                 .collect(Collectors.groupingBy(
                         item -> DateFormatUtils.format(item.getDate(), "yyyy-MM-dd"),
                         TreeMap::new,
-                        Collectors.collectingAndThen(Collectors.toList(), this::toDashboardMetrics)
+                        Collectors.toList()
                 ));
+        return dayTransactionMap.entrySet().stream()
+                .map(item -> this.buildDashboardMetrics(item.getValue(), item.getKey(), null))
+                .collect(Collectors.toList());
     }
 
     /**
      * 月维度统计 key是 yyyy-MM
      */
-    public Map<String, DashboardMetrics> getMonth() {
-        return this.getTransactionsOrEmpty().stream()
+    public List<DashboardMetrics> getMonth() {
+        Map<String, List<Transaction>> monthTransactionMap = this.getTransactionsOrEmpty().stream()
                 .filter(this::hasDateAndAmount)
                 .collect(Collectors.groupingBy(
                         item -> DateFormatUtils.format(item.getDate(), "yyyy-MM"),
                         TreeMap::new,
-                        Collectors.collectingAndThen(Collectors.toList(), this::toDashboardMetrics)
+                        Collectors.toList()
                 ));
+        return monthTransactionMap.entrySet().stream()
+                .map(item -> this.buildDashboardMetrics(item.getValue(), item.getKey(), null))
+                .collect(Collectors.toList());
     }
 
     /**
      * 标签维度统计
      */
-    public Map<String, DashboardMetrics> getTag() {
+    public List<DashboardMetrics> getTag() {
         Map<String, List<Transaction>> tagTransactionMap = this.getTransactionsOrEmpty().stream()
                 .filter(Objects::nonNull)
                 .filter(this::hasAmount)
@@ -72,12 +78,8 @@ public class TransactionDashboard {
                     }
                     return left.getKey().compareTo(right.getKey());
                 })
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        item -> this.toDashboardMetrics(item.getValue()),
-                        (left, right) -> left,
-                        LinkedHashMap::new
-                ));
+                .map(item -> this.buildDashboardMetrics(item.getValue(), null, item.getKey()))
+                .collect(Collectors.toList());
     }
 
     private List<Transaction> getTransactionsOrEmpty() {
@@ -94,7 +96,7 @@ public class TransactionDashboard {
                 .collect(Collectors.toSet());
     }
 
-    private DashboardMetrics toDashboardMetrics(List<Transaction> transactionList) {
+    private DashboardMetrics buildDashboardMetrics(List<Transaction> transactionList, String date, String tag) {
         BigDecimal expense = BigDecimal.ZERO;
         long expenseCount = 0L;
         BigDecimal income = BigDecimal.ZERO;
@@ -113,6 +115,8 @@ public class TransactionDashboard {
         }
 
         return DashboardMetrics.builder()
+                .date(date)
+                .tag(tag)
                 .expense(expense.toPlainString())
                 .expenseCount(expenseCount)
                 .income(income.toPlainString())
@@ -143,6 +147,8 @@ public class TransactionDashboard {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DashboardMetrics {
+        private String date;
+        private String tag;
         private String expense;
         private Long expenseCount;
         private String income;
