@@ -1,17 +1,20 @@
 package com.chxt.domain.transaction.model.entity;
 
+import com.alibaba.fastjson2.JSON;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.vo.TransactionTagVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class TransactionDashboard {
 
     private final List<Transaction> transactions;

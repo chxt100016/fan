@@ -55,7 +55,6 @@ public class Http {
 
 
 
-
     private Object entity;
 
     private HashMap<String, String> entityMap;
@@ -75,6 +74,8 @@ public class Http {
     private StatusLine statusLine;
 
     private byte[] contentByteArray;
+
+    private boolean success;
 
 
     private Http() {
@@ -147,32 +148,58 @@ public class Http {
 
     @SneakyThrows
     public <T> T result(Class<T> clazz) {
+        if (!this.success || this.contentByteArray == null) {
+            return null;
+        }
         return StringUtils.isBlank(new String(this.contentByteArray)) ? null : JSON.parseObject(new String(this.contentByteArray), clazz);
     }
 
     @SneakyThrows
     public <T> T result(TypeReference<T> typeReference) {
+        if (!this.success || this.contentByteArray == null) {
+            return null;
+        }
         return StringUtils.isBlank(new String(this.contentByteArray)) ? null : JSON.parseObject(new String(this.contentByteArray), typeReference);
     }
 
     @SneakyThrows
     public String result() {
+        if (!this.success || this.contentByteArray == null) {
+            return null;
+        }
         return new String(this.contentByteArray);
     }
 
     @SneakyThrows
     public void download(String path){
-        FileUtils.copyInputStreamToFile(new ByteArrayInputStream(this.contentByteArray), new File(path));
+        if (!this.success || this.contentByteArray == null) {
+            throw new IOException("HTTP request failed or no content available for download");
+        }
+        File file = new File(path);
+        File parentDir = file.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            if (!parentDir.mkdirs()) {
+                throw new IOException("Failed to create directory: " + parentDir.getAbsolutePath());
+            }
+        }
+        FileUtils.copyInputStreamToFile(new ByteArrayInputStream(this.contentByteArray), file);
     }
 
     @SneakyThrows
     public byte[] byteArray(){
+        if (!this.success) {
+            return null;
+        }
         return this.contentByteArray;
     }
 
 
     public int getStatusCode() {
         return this.statusLine.getStatusCode();
+    }
+
+    public boolean isSuccess() {
+        return this.success;
     }
 
     @SneakyThrows
@@ -213,8 +240,13 @@ public class Http {
 
     @SneakyThrows
     public Http doDelete() {
+        return this.doDelete(null);
+    }
+
+    @SneakyThrows
+    public Http doDelete(PostProcessor postProcessor) {
         this.request = new HttpDelete();
-        this.execute(null);
+        this.execute(postProcessor);
         return this;
     }
 
@@ -224,8 +256,9 @@ public class Http {
         this.setUri();
         this.setEntity();
 
+        CloseableHttpResponse response = null;
         try {
-            CloseableHttpResponse response = Http.httpClient.execute(this.request);
+            response = Http.httpClient.execute(this.request);
 
             if(postProcessor != null) {
                 CloseableHttpResponse responseTmp = postProcessor.process(Http.httpClient, this.request, response);
@@ -240,12 +273,24 @@ public class Http {
                 this.contentByteArray = EntityUtils.toByteArray(response.getEntity());
             } else {
                 this.contentByteArray = new byte[0];
-                this.request.releaseConnection();
             }
-            
+
+            this.success = true;
+
         } catch (Exception e) {
-            log.error("http请求异常, url:{}, entity:{}", JSON.toJSONString(this.request.getURI()), JSON.toJSONString(this.entity), e);
+            log.error("http 请求异常，url:{}, entity:{}",
+                this.request.getURI() != null ? this.request.getURI().toString() : "unknown",
+                this.entity, e);
+            this.contentByteArray = null;
+            this.success = false;
         } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    log.warn("关闭 response 失败", e);
+                }
+            }
             this.request.releaseConnection();
         }
     }
@@ -269,15 +314,15 @@ public class Http {
     }
 
     private void setEntity(){
-        
-        if (!(this.request instanceof HttpGet)) {
+
+        if (!(this.request instanceof HttpGet) && !(this.request instanceof HttpDelete)) {
             if (this.fileName != null && this.fileData != null) {
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                     .addBinaryBody("media", this.fileData, ContentType.MULTIPART_FORM_DATA, this.fileName);
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(builder.build());
-            } else if (this.entity == null && this.entityMap != null) {
+            } else if (this.entityMap != null && this.entity == null) {
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entityMap), "UTF-8"));
-            } else {
+            } else if (this.entity != null) {
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entity), "UTF-8"));
             }
         }
