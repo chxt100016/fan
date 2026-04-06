@@ -13,9 +13,11 @@ docker run \
   -itd \
   -p 5005:5005 \
   -p 8080:8888 \
+  -e TZ=Asia/Shanghai \
   --name=fan \
   --restart=always \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /etc/timezone:/etc/timezone:ro \
   -v /etc/download/xunlei/downloads:/etc/download/xunlei/downloads \
   fan 
 docker image prune -f
-

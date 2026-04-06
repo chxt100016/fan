@@ -28,7 +28,7 @@ public class TennisCourtKeeper {
             .friday().key(TimetableEnum.HL_OUT).hour(8, 19)
             .friday().key(TimetableEnum.HL_IN).hour(19)
             // 六
-            .saturday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17)
+            .saturday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
             // 日
             .sunday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
             .getUniqueNo();
