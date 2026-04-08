@@ -67,6 +67,8 @@ public class Http {
 
     private volatile Map<String, String> header;
 
+    private volatile Map<String, String> responseHeaders;
+
     private volatile List<NameValuePair> param;
 
     private HttpRequestBase request;
@@ -76,6 +78,8 @@ public class Http {
     private byte[] contentByteArray;
 
     private boolean success;
+
+    private boolean formEncoded;
 
 
     private Http() {
@@ -136,6 +140,12 @@ public class Http {
 
     public Http jsonHeader(){
         this.header("Content-Type", "application/json");
+        return this;
+    }
+
+    public Http formEncoded(){
+        this.formEncoded = true;
+        this.header("Content-Type", "application/x-www-form-urlencoded");
         return this;
     }
 
@@ -200,6 +210,11 @@ public class Http {
 
     public boolean isSuccess() {
         return this.success;
+    }
+
+    public String getResponseHeader(String name) {
+        if (this.responseHeaders == null) return null;
+        return this.responseHeaders.get(name);
     }
 
     @SneakyThrows
@@ -275,6 +290,12 @@ public class Http {
                 this.contentByteArray = new byte[0];
             }
 
+            // Capture response headers
+            this.responseHeaders = new HashMap<>();
+            for (org.apache.http.Header h : response.getAllHeaders()) {
+                this.responseHeaders.put(h.getName(), h.getValue());
+            }
+
             this.success = true;
 
         } catch (Exception e) {
@@ -320,6 +341,15 @@ public class Http {
                 MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                     .addBinaryBody("media", this.fileData, ContentType.MULTIPART_FORM_DATA, this.fileName);
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(builder.build());
+            } else if (this.formEncoded && this.entityMap != null) {
+                StringBuilder sb = new StringBuilder();
+                for (Map.Entry<String, String> entry : this.entityMap.entrySet()) {
+                    if (sb.length() > 0) sb.append("&");
+                    sb.append(java.net.URLEncoder.encode(entry.getKey(), java.nio.charset.StandardCharsets.UTF_8))
+                      .append("=")
+                      .append(java.net.URLEncoder.encode(entry.getValue(), java.nio.charset.StandardCharsets.UTF_8));
+                }
+                ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(sb.toString(), "UTF-8"));
             } else if (this.entityMap != null && this.entity == null) {
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entityMap), "UTF-8"));
             } else if (this.entity != null) {
