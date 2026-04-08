@@ -28,7 +28,6 @@
     </properties>
 
     <modules>
-        <module>fan-client</module>
         <module>fan-adapter</module>
         <module>fan-app</module>
         <module>fan-domain</module>

@@ -44,7 +44,7 @@ public class WechatPayParser implements RecordParserStrategy<Map<String, String>
         Elements aElements = doc.getElementsByTag("a");
         String url = aElements.get(0).attr("href");
         Http http = Http.uri(url).doGet();
-        if (http.result().contains("当前文件已过期")) {
+        if (http.result().contains("文件已过期")) {
             throw new FileOutOfTimeException(TransactionEnums.Channel.WECHAT_PAY, context.getMail());
         }
 
