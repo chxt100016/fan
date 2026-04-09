@@ -351,9 +351,9 @@ public class Http {
                 }
                 ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(sb.toString(), "UTF-8"));
             } else if (this.entityMap != null && this.entity == null) {
-                ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entityMap), "UTF-8"));
+                ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entityMap), ContentType.APPLICATION_JSON));
             } else if (this.entity != null) {
-                ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entity), "UTF-8"));
+                ((HttpEntityEnclosingRequestBase) this.request).setEntity(new StringEntity(JSON.toJSONString(this.entity), ContentType.APPLICATION_JSON));
             }
         }
     }

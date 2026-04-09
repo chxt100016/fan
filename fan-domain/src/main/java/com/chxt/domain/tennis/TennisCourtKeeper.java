@@ -26,11 +26,11 @@ public class TennisCourtKeeper {
             .thursday().key(TimetableEnum.HL_OUT).hour(8)
             // 五
             .friday().key(TimetableEnum.HL_OUT).hour(8, 19)
-            .friday().key(TimetableEnum.HL_IN).hour(19)
+            .friday().key(TimetableEnum.HL_IN).hour(19,20)
             // 六
-            .saturday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+            .saturday().key(TimetableEnum.HL_OUT).hour(14, 15, 16, 17, 18, 19, 20)
             // 日
-            .sunday().key(TimetableEnum.HL_OUT, TimetableEnum.HL_IN).hour(10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+            .sunday().key(TimetableEnum.HL_OUT).hour(14, 15, 16, 17, 18, 19, 20)
             .getUniqueNo();
 
     private Map<String, TennisCourt> historyMap = new HashMap<>();

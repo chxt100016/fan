@@ -9,13 +9,11 @@ import java.util.Deque;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.chxt.cache.token.TokenEnum;
 import com.chxt.cache.token.TokenFactory;
+import com.chxt.client.bluebubbles.BlueBubblesClient;
 import com.chxt.client.ezviz.EzvizClient;
 import com.chxt.client.ezviz.model.CaptureResponse;
 
@@ -32,6 +30,11 @@ public class TestController {
     @Resource
     private EzvizClient ezvizClient;
 
+    @Resource
+    private BlueBubblesClient blueBubblesClient;
+
+    
+
     private String flag = "1";
 
     @RequestMapping(value = "/version", method=RequestMethod.GET)
@@ -43,6 +46,12 @@ public class TestController {
     @GetMapping("/hello")
     public String hello() {
         return "hello";
+    }
+
+    @GetMapping("/bluebubbles")
+    public String bluebubbles(@RequestParam("message") String message) {
+        this.blueBubblesClient.send(message);
+        return "success";
     }
 
     @GetMapping("/ezviz")
