@@ -1,5 +1,6 @@
 package com.chxt.transaction;
 
+import com.chxt.client.dongya58.model.Participant;
 import com.chxt.domain.gateway.TransactionLogRepository;
 import com.chxt.domain.gateway.TransactionRepository;
 import com.chxt.domain.obsidian.ListFormat;
