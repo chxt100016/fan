@@ -1,18 +1,15 @@
 package com.chxt.web.activity;
 
 import com.chxt.activity.ActivityService;
+import com.chxt.activity.ActivityService.ActivityVO;
 import com.chxt.client.dongya58.model.ActivityRequest;
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * 活动查询 Controller
@@ -24,12 +21,8 @@ public class ActivityController {
     @Resource
     private ActivityService activityService;
 
-    /**
-     * 查询活动数据并下载 markdown 文件
-     * 所有活动合并到一个文件中，按 district 归类展示
-     */
     @GetMapping("/query")
-    public void query(
+    public List<ActivityVO> query(
             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
             @RequestParam(value = "limit", required = false, defaultValue = "100") Integer limit,
             @RequestParam(value = "filterSportType", required = false) Integer filterSportType,
@@ -41,8 +34,7 @@ public class ActivityController {
             @RequestParam(value = "filterTennisVerifiedType", required = false) String filterTennisVerifiedType,
             @RequestParam(value = "filterAgeGroup", required = false) String filterAgeGroup,
             @RequestParam(value = "orderByTimeAsc", required = false) Boolean orderByTimeAsc,
-            @RequestParam(value = "city", required = false) String city,
-            HttpServletResponse response) {
+            @RequestParam(value = "city", required = false) String city) {
 
         ActivityRequest request = ActivityRequest.builder()
                 .page(page)
@@ -59,25 +51,7 @@ public class ActivityController {
                 .city(city)
                 .build();
 
-        String markdown = activityService.getActivitiesMarkdown(request);
-        write(markdown, response);
+        return activityService.getActivities(request);
     }
 
-    @SneakyThrows
-    private void write(String content, HttpServletResponse response) {
-        byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-
-        String fileName = URLEncoder.encode("activities.md", StandardCharsets.UTF_8)
-                .replace("+", "%20");
-
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setContentType("text/markdown");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-        response.setContentLength(bytes.length);
-
-        try (ServletOutputStream out = response.getOutputStream()) {
-            out.write(bytes);
-            out.flush();
-        }
-    }
 }
