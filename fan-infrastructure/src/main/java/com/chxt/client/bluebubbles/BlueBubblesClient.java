@@ -1,5 +1,7 @@
 package com.chxt.client.bluebubbles;
 
+import java.util.Base64;
+
 import org.springframework.stereotype.Component;
 
 import com.chxt.domain.utils.Http;
@@ -16,7 +18,7 @@ public class BlueBubblesClient {
     private static final String CHAT_GUID = "iMessage;-;+8613372507785"; // 目标对话的 GUID
 
     public void send(String message) {
-        Http
+        String result = Http
                 .uri(URL)
                 .param("password", PASSWORD)
                 .entity("chatGuid", CHAT_GUID)
@@ -24,6 +26,22 @@ public class BlueBubblesClient {
                 .entity("message", message)
                 .entity("method", "apple-script")
                 .entity("subject", "")
+                .entity("effectId", "")
+                .entity("selectedMessageGuid", "")
+                .doPost().result();
+        log.info(result);
+    }
+
+    public void sendImage(byte[] imageData, String caption) {
+        String base64Image = Base64.getEncoder().encodeToString(imageData);
+        Http
+                .uri(URL)
+                .param("password", PASSWORD)
+                .entity("chatGuid", CHAT_GUID)
+                .entity("tempGuid", String.valueOf(System.currentTimeMillis()))
+                .entity("message", base64Image)
+                .entity("method", "apple-script")
+                .entity("subject", caption != null ? caption : "")
                 .entity("effectId", "")
                 .entity("selectedMessageGuid", "")
                 .doPost();

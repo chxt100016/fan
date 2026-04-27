@@ -24,7 +24,7 @@ public class TennisNoticeService {
     @PostConstruct
     public void init(){
         this.pictureStream = new PictureStream("TENNIS");
-        this.keeper = new TennisCourtKeeper(this.pictureStream);
+//        this.keeper = new TennisCourtKeeper(this.pictureStream);
 
     }
 

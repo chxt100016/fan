@@ -1,7 +1,5 @@
 package com.chxt.domain.notice;
 
-import com.chxt.domain.pic.TimeCell;
-
 import java.util.List;
 
 public interface NoticeListener {

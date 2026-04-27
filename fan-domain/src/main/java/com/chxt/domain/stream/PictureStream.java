@@ -1,6 +1,5 @@
 package com.chxt.domain.stream;
 
-import com.chxt.domain.notice.NoticeListener;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class PictureStream implements NoticeListener {
+public class PictureStream {
     
     /**
      * 标准MJPEG格式头， 一个空格都改不得
@@ -105,10 +104,5 @@ public class PictureStream implements NoticeListener {
             index += fpt;
             total ++;
         }
-    }
-
-    @Override
-    public void doNotice(byte[] cover, List<byte[]> pictureList) {
-        this.update(cover, pictureList);
     }
 }
