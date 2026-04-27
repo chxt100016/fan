@@ -13,4 +13,28 @@ spring:
         password: root
         driver-class-name: com.mysql.cj.jdbc.Driver
         type: com.zaxxer.hikari.HikariDataSource
+
+dongya58:
+  monitor:
+    schedule:
+      cron: "0 0 */2 * * *"
+    time-filter:
+      days:
+        周一: "09:00"
+        周二: "10:00"
+        周三: "09:00"
+        周四: "10:00"
+        周五: "09:00"
+        周六: "08:00"
+        周日: "08:00"
+    place-filter:
+      places:
+        - "黄龙体育中心"
+        - "城西网球中心"
+        - "江干网球中心"
+    new-match:
+      time-window-hours: 2
+    notice:
+      enabled: true
+      title-prefix: "[动呀网球]"
         
