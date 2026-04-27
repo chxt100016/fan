@@ -1,11 +1,10 @@
 package com.chxt.cache.stream;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.chxt.domain.stream.PictureStream;
 import org.springframework.stereotype.Component;
 
-import com.chxt.domain.stream.PictureStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class PictureStreamCache {
@@ -22,12 +21,8 @@ public class PictureStreamCache {
         // 如果不存在，则进行同步
         synchronized (pictureStreamMap) {
             // 双重检查
-            pictureStream = pictureStreamMap.get(name);
-            if (pictureStream == null) {
-                // 创建新的实例
-                pictureStream = new PictureStream(name);
-                pictureStreamMap.put(name, pictureStream);
-            }
+            pictureStream = pictureStreamMap.computeIfAbsent(name, PictureStream::new);
+            // 创建新的实例
             return pictureStream;
         }
     }

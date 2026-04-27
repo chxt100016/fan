@@ -1,6 +1,5 @@
 package com.chxt.domain.tennis;
 
-import com.chxt.domain.notice.NoticeListener;
 import com.chxt.domain.pic.ScheduleImage;
 import com.chxt.domain.pic.TimetableEnum;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class TennisCourtKeeper {
             // 一
             .monday().key(TimetableEnum.HL_OUT).hour(8)
             // 二
-            .tuesday().key(TimetableEnum.HL_OUT).hour(7, 8)
+            .tuesday().key(TimetableEnum.HL_OUT).hour(8)
             // 三
             .wednesday().key(TimetableEnum.HL_OUT).hour(8)
             // 四
@@ -28,49 +27,43 @@ public class TennisCourtKeeper {
             .friday().key(TimetableEnum.HL_OUT).hour(8, 19)
             .friday().key(TimetableEnum.HL_IN).hour(19,20)
             // 六
-            .saturday().key(TimetableEnum.HL_OUT).hour(14, 15, 16, 17, 18, 19, 20)
+            .saturday().key(TimetableEnum.HL_OUT).hour(17, 18, 19, 20)
             // 日
-            .sunday().key(TimetableEnum.HL_OUT).hour(14, 15, 16, 17, 18, 19, 20)
+            .sunday().key(TimetableEnum.HL_OUT).hour(17, 18, 19, 20)
             .getUniqueNo();
 
     private Map<String, TennisCourt> historyMap = new HashMap<>();
 
-    private List<NoticeListener> listeners;
 
-    public TennisCourtKeeper (NoticeListener listener) {
-        this.listeners = List.of(listener);
-    }
 
-    public void add(List<TennisCourt> tennisCourts) {
+    public byte[] add(List<TennisCourt> tennisCourts) {
         if (CollectionUtils.isEmpty(tennisCourts)) {
-            return;
+            return null;
         }
         List<TennisCourt> likeIt = tennisCourts.stream()
                 .filter(item -> likelist.contains(item.getUniqueNo()))
                 .toList();
         if (CollectionUtils.isEmpty(likeIt)) {
-            return;
+            return null;
         }
         boolean shouldNotice = likeIt.stream().anyMatch(item -> !historyMap.containsKey(item.getUniqueNo()));
 
         historyMap.clear();
         tennisCourts.forEach(item -> historyMap.put(item.getUniqueNo(), item));
 
-        if (shouldNotice) {
-            this.doNotice(likeIt);
+        if (!shouldNotice) {
+            return null;
         }
+        return this.getPic(likeIt);
     }
 
     @SneakyThrows
-    private void doNotice(List<TennisCourt> list) {
+    private byte[] getPic(List<TennisCourt> list) {
         if(CollectionUtils.isEmpty(list)){
-            return;
+            return null;
         }
-//        byte[] a = new TimeTable().getByte(list.stream().map(TennisDTO::getTimeCell).toList());
-
         Map<String,List<String>> dayOfWeekAndTimeMap = TennisCourt.getDayOfWeekAndTime(list);
-        byte[] cover = new ScheduleImage(dayOfWeekAndTimeMap).generate();
-        listeners.forEach(item -> item.doNotice(cover, List.of(cover)));
+        return new ScheduleImage(dayOfWeekAndTimeMap).generate();
     }
 
 }

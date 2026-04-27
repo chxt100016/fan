@@ -1,16 +1,13 @@
 package com.chxt.notice;
 
 import com.chxt.cache.stream.PictureStreamCache;
-import com.chxt.cache.token.TokenEnum;
-import com.chxt.cache.token.TokenFactory;
-import com.chxt.client.wechatWork.WechatWorkClient;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.utils.ThumbnailUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -38,20 +35,16 @@ public class GateNoticeService {
     @Resource
     private PictureStreamCache pictureStreamCache;
 
-    @Resource
-    private WechatWorkClient wechatWorkClient;
-
     @PostConstruct
     public void init() {
         new Thread(() -> {
-            // avutil.av_log_set_level(avutil.AV_LOG_QUIET);
+             avutil.av_log_set_level(avutil.AV_LOG_QUIET);
         }).start();
     }
 
     @SneakyThrows
     public void touch() {
-        
-        
+
         FFmpegFrameGrabber grabber = FFmpegFrameGrabber.createDefault(RTSP_URL);
         grabber.setOption("rtsp_transport", "tcp");
         grabber.setOption("fflags", "nobuffer");
@@ -74,18 +67,11 @@ public class GateNoticeService {
             }
         }
 
-
-        // 生成唯一ID，使用时间戳作为标识
-        String uniqueId = String.valueOf(System.currentTimeMillis());
-
         byte[] cover = ThumbnailUtils.generate(images, 1);
 
         // 更新图片流
         pictureStreamCache.getPictureStream(GATE_STREAM).update(cover, images);
 
-        // 微信通知
-//        String imageId = this.wechatWorkClient.uploadImg(uniqueId, cover, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
-//        this.wechatWorkClient.appImage(imageId, TokenFactory.innerStore(TokenEnum.WECHAT_WORK_ALARM));
     }
 
     @SneakyThrows
@@ -125,11 +111,5 @@ public class GateNoticeService {
     public void streamMjpeg(OutputStream outputStream) {
         PictureStream pictureStream = pictureStreamCache.getPictureStream(GATE_STREAM);
         pictureStream.stream(outputStream, 2000, 15);
-    }
-
-    public static void main(String[] args) {
-        String url = "https://public-image.pxb7.com/pxb7-upload/product/api/20250527/larker_332274a7-1aff-4415-9414-36b602952c44.jpg";
-        String fileName = FilenameUtils.getName(url);
-        System.out.println(fileName);
     }
 } 

@@ -1,5 +1,6 @@
 package com.chxt.notice;
 
+import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
 import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.tennis.TennisCourt;
@@ -16,15 +17,20 @@ public class TennisNoticeService {
     
     private static final Integer DAY_RANGE = 4;
 
+    private static final String TENNIS_STREAM = "tennis";
+
     
     private PictureStream pictureStream;
 
     private TennisCourtKeeper keeper;
 
+    @Resource
+    private PictureStreamCache pictureStreamCache;
+
     @PostConstruct
     public void init(){
         this.pictureStream = new PictureStream("TENNIS");
-//        this.keeper = new TennisCourtKeeper(this.pictureStream);
+        this.keeper = new TennisCourtKeeper();
 
     }
 
@@ -33,7 +39,11 @@ public class TennisNoticeService {
 
     public void touch() {
         List<TennisCourt> all = huanglongClient.getOutdoorAndIndoor(DAY_RANGE);
-        keeper.add(all);
+        byte[] pic = keeper.add(all);
+        if (pic != null && pic.length > 0) {
+            // 更新图片流
+            pictureStreamCache.getPictureStream(TENNIS_STREAM).update(pic, List.of(pic));
+        }
     }
 
     public byte[] getStillImage() {
