@@ -1,4 +1,4 @@
-package com.chxt.domain.gateway;
+package com.chxt.domain.transaction.gateway;
 
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.entity.TransactionLog;

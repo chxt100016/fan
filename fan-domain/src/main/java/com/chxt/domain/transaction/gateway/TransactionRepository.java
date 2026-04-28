@@ -1,4 +1,4 @@
-package com.chxt.domain.gateway;
+package com.chxt.domain.transaction.gateway;
 
 import com.chxt.domain.transaction.model.entity.Transaction;
 import com.chxt.domain.transaction.model.vo.AnalysisParamVO;

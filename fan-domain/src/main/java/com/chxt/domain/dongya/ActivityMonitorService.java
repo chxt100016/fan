@@ -1,7 +1,6 @@
 package com.chxt.domain.dongya;
 
 
-import com.chxt.domain.dongya.filter.ActivityFilterStrategy;
 import com.chxt.domain.dongya.filter.NewFemaleFilterStrategy;
 import com.chxt.domain.dongya.filter.NewMatchFilterStrategy;
 import com.chxt.domain.dongya.gateway.NotificationGateway;
@@ -21,9 +20,6 @@ public class ActivityMonitorService {
 
     @Resource
     private ActivityQueryService activityQueryService;
-
-    @Resource
-    private List<ActivityFilterStrategy> filterStrategies;
 
     @Resource
     private NotificationFormatter notificationFormatter;

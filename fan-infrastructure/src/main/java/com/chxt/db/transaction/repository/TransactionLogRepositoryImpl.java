@@ -6,7 +6,7 @@ import com.chxt.db.transaction.entity.TransactionLogPO;
 
 import com.chxt.db.transaction.service.TransactionChannelLogRepositoryService;
 import com.chxt.db.transaction.service.TransactionLogRepositoryService;
-import com.chxt.domain.gateway.TransactionLogRepository;
+import com.chxt.domain.transaction.gateway.TransactionLogRepository;
 import com.chxt.domain.transaction.model.entity.TransactionChannel;
 import com.chxt.domain.transaction.model.entity.TransactionLog;
 import com.chxt.domain.utils.DateRanges;

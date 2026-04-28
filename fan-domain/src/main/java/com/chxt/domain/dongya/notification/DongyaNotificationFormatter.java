@@ -30,16 +30,10 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
 
     @Override
     public String formatNewMatchNotification(Activity activity) {
-        StringBuilder sb = new StringBuilder();
 
-        sb.append(TITLE_PREFIX).append(" 新比赛通知\n\n");
-
-        sb.append("【比赛信息】\n");
-        sb.append(formatBasicInfo(activity)).append("\n");
-
-        sb.append(formatParticipants(activity));
-
-        return sb.toString();
+        return "【比赛信息】\n" +
+                formatBasicInfo(activity) + "\n" +
+                formatParticipants(activity);
     }
 
     @Override

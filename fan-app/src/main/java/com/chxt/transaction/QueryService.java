@@ -1,7 +1,7 @@
 package com.chxt.transaction;
 
-import com.chxt.domain.gateway.TransactionLogRepository;
-import com.chxt.domain.gateway.TransactionRepository;
+import com.chxt.domain.transaction.gateway.TransactionLogRepository;
+import com.chxt.domain.transaction.gateway.TransactionRepository;
 import com.chxt.domain.obsidian.ListFormat;
 import com.chxt.domain.transaction.model.constants.TransactionEnums;
 import com.chxt.domain.transaction.model.entity.Transaction;

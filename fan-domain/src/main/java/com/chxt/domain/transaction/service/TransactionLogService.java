@@ -1,7 +1,7 @@
 package com.chxt.domain.transaction.service;
 
-import com.chxt.domain.gateway.TransactionLogRepository;
-import com.chxt.domain.gateway.TransactionRepository;
+import com.chxt.domain.transaction.gateway.TransactionLogRepository;
+import com.chxt.domain.transaction.gateway.TransactionRepository;
 import com.chxt.domain.transaction.model.entity.RecordParser;
 import com.chxt.domain.transaction.model.entity.MailPicker;
 import com.chxt.domain.transaction.component.TransactionEntityRepository;
