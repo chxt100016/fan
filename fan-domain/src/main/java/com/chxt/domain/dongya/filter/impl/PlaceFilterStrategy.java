@@ -3,7 +3,6 @@ package com.chxt.domain.dongya.filter.impl;
 
 import com.chxt.domain.dongya.filter.ActivityFilterStrategy;
 import com.chxt.domain.dongya.model.Activity;
-import com.chxt.domain.dongya.model.ActivityCacheData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,7 @@ public class PlaceFilterStrategy implements ActivityFilterStrategy {
     private static final List<String> PLACES = List.of();
 
     @Override
-    public boolean test(Activity activity, ActivityCacheData cachedData) {
+    public boolean test(Activity activity) {
         if (activity.getPlacename() == null || activity.getPlacename().isEmpty()) {
             return false;
         }

@@ -39,7 +39,7 @@ public class TimeFilterStrategy implements ActivityFilterStrategy {
     );
 
     @Override
-    public boolean test(Activity activity, ActivityCacheData cachedData) {
+    public boolean test(Activity activity) {
         if (activity.getBeginTime() == null || activity.getBeginTime().isEmpty()) {
             return false;
         }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -22,10 +23,13 @@ import java.util.stream.Collectors;
 @Component
 public class NewFemaleFilterStrategy implements ActivityFilterStrategy {
 
+    private final ConcurrentHashMap<Integer, ActivityCacheData> activityCache = new ConcurrentHashMap<>();
+
     @Override
-    public boolean test(Activity activity, ActivityCacheData cachedData) {
+    public boolean test(Activity activity) {
+        ActivityCacheData cachedData = activityCache.get(activity.getActivityId());
+
         if (cachedData == null || cachedData.getFemaleParticipantIds() == null) {
-            log.debug("活动 {} 无缓存数据，无法检测新女生", activity.getActivityId());
             return false;
         }
 
@@ -38,7 +42,7 @@ public class NewFemaleFilterStrategy implements ActivityFilterStrategy {
                 .map(Participant::getId)
                 .collect(Collectors.toSet());
 
-        Set<Integer> newFemaleIds = Set.copyOf(currentFemaleIds);
+        Set<Integer> newFemaleIds = new java.util.HashSet<>(Set.copyOf(currentFemaleIds));
         newFemaleIds.removeAll(cachedData.getFemaleParticipantIds());
 
         boolean hasNew = !newFemaleIds.isEmpty();
@@ -51,6 +55,13 @@ public class NewFemaleFilterStrategy implements ActivityFilterStrategy {
             log.info("活动 {} 检测到新女生加入: {}", activity.getActivityId(), newFemaleNames);
         }
 
+        updateCache(activity);
         return hasNew;
+    }
+
+    private void updateCache(Activity activity) {
+        ActivityCacheData cacheData = ActivityCacheData.of(activity);
+        activityCache.put(activity.getActivityId(), cacheData);
+        log.debug("更新缓存: activityId={}", activity.getActivityId());
     }
 }

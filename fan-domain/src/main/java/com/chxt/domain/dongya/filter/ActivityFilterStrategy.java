@@ -2,7 +2,6 @@ package com.chxt.domain.dongya.filter;
 
 
 import com.chxt.domain.dongya.model.Activity;
-import com.chxt.domain.dongya.model.ActivityCacheData;
 
 /**
  * 活动过滤策略接口
@@ -18,8 +17,7 @@ public interface ActivityFilterStrategy {
      * 如果发生解析错误等异常情况，应该返回 false 并记录适当的日志。</p>
      *
      * @param activity 待测试的活动
-     * @param cachedData 缓存的活动数据，用于比较变化
      * @return true 表示活动符合过滤条件，false 表示不符合
      */
-    boolean test(Activity activity, ActivityCacheData cachedData);
+    boolean test(Activity activity);
 }
