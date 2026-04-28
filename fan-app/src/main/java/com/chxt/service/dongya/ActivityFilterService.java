@@ -96,7 +96,7 @@ public class ActivityFilterService {
         List<String> configuredPlaces = config.getPlaceFilter().getPlaces();
         if (configuredPlaces == null || configuredPlaces.isEmpty()) {
             log.debug("未配置地点筛选，跳过");
-            return false;
+            return true;
         }
 
         boolean matches = configuredPlaces.stream()

@@ -36,11 +36,11 @@ dongya58:
           time: "08:00"
     place-filter:
       places:
-        - "黄龙体育中心"
-        - "城西网球中心"
-        - "江干网球中心"
+#        - "黄龙体育中心"
+#        - "城西网球中心"
+#        - "江干网球中心"
     new-match:
-      time-window-hours: 2
+      time-window-hours: 96
     notice:
       enabled: true
       title-prefix: "[动呀网球]"

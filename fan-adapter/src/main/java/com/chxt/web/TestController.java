@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 
+import com.chxt.schedule.DongYaJob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +34,19 @@ public class TestController {
     @Resource
     private BlueBubblesClient blueBubblesClient;
 
-    
+
 
     private String flag = "1";
+
+    @Resource
+    private DongYaJob dongYaJob;
+
+    @RequestMapping("/dongya")
+    public String dongya() {
+        dongYaJob.monitorTennisMatches();
+        return "OK";
+    }
+
 
     @RequestMapping(value = "/version", method=RequestMethod.GET)
     public String version() {

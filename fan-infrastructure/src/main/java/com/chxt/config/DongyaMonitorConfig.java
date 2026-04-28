@@ -53,7 +53,7 @@ public class DongyaMonitorConfig {
 
     @Data
     public static class NewMatchConfig {
-        private Integer timeWindowHours = 2;
+        private Integer timeWindowHours = 24;
     }
 
     @Data

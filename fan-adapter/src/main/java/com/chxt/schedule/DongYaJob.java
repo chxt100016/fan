@@ -81,6 +81,10 @@ public class DongYaJob {
                     .page(1)
                     .limit(100)
                     .filterSportType(0)
+                    .filterMinMaxLevel("4.5,4.5")
+                    .filterType(4)
+                    .filterDivisionFormat(1)
+                    .city("杭州")
                     .build();
 
             ActivityResponse response = dongya58Client.getActivities(request);
