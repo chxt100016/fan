@@ -26,12 +26,10 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
 
     private static final String[] WEEKDAYS = {"", "周一", "周二", "周三", "周四", "周五", "周六", "周日"};
 
-    private static final String TITLE_PREFIX = "[动呀网球]";
-
     @Override
     public String formatNewMatchNotification(Activity activity) {
 
-        return "【比赛信息】\n" +
+        return "【新比赛】\n" +
                 formatBasicInfo(activity) + "\n" +
                 formatParticipants(activity);
     }
@@ -39,10 +37,7 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
     @Override
     public String formatNewFemaleJoinedNotification(Activity activity, ActivityCacheData cachedData) {
         StringBuilder sb = new StringBuilder();
-
-        sb.append(TITLE_PREFIX).append(" 女生加入通知\n\n");
-
-        sb.append("【比赛信息】\n");
+        sb.append("【比赛变更】\n");
         sb.append(formatBasicInfo(activity)).append("\n");
 
         sb.append("【新加入的女生】\n");
