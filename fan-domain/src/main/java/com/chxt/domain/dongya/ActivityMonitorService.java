@@ -1,8 +1,7 @@
 package com.chxt.domain.dongya;
 
 
-import com.chxt.domain.dongya.filter.NewFemaleFilterStrategy;
-import com.chxt.domain.dongya.filter.NewMatchFilterStrategy;
+import com.chxt.domain.dongya.filter.FilterManager;
 import com.chxt.domain.dongya.gateway.NotificationGateway;
 import com.chxt.domain.dongya.model.Activity;
 import com.chxt.domain.dongya.model.ActivityCacheData;
@@ -28,10 +27,7 @@ public class ActivityMonitorService {
     private NotificationGateway notificationGateway;
 
     @Resource
-    private NewMatchFilterStrategy newMatchFilterStrategy;
-
-    @Resource
-    private NewFemaleFilterStrategy newFemaleFilterStrategy;
+    private FilterManager filterManager;
 
     private final ConcurrentHashMap<Integer, ActivityCacheData> activityCache = new ConcurrentHashMap<>();
 
@@ -54,7 +50,7 @@ public class ActivityMonitorService {
                     ActivityCacheData cachedData = activityCache.get(activity.getActivityId());
 
                     if (shouldMonitor(activity, cachedData)) {
-                        sendNotification(activity, cachedData);
+                        sendNotification(activity);
                         notificationCount++;
                     }
                     updateCache(activity);
@@ -71,32 +67,13 @@ public class ActivityMonitorService {
     }
 
     private boolean shouldMonitor(Activity activity, ActivityCacheData cachedData) {
-        boolean isNewMatch = newMatchFilterStrategy.test(activity, cachedData);
-        boolean hasNewFemale = newFemaleFilterStrategy.test(activity, cachedData);
-
-        boolean shouldMonitor = isNewMatch || hasNewFemale;
-
-        log.info("活动 {} 监控决策: {} (新比赛: {}, 新女生: {})",
-                activity.getActivityId(), shouldMonitor, isNewMatch, hasNewFemale);
-
-        return shouldMonitor;
+        return filterManager.shouldMonitor(activity, cachedData);
     }
 
-    private void sendNotification(Activity activity, ActivityCacheData cachedData) {
+    private void sendNotification(Activity activity) {
         try {
-            String message;
 
-            boolean isNewMatch = newMatchFilterStrategy.test(activity, cachedData);
-            boolean hasNewFemale = newFemaleFilterStrategy.test(activity, cachedData);
-
-            if (isNewMatch) {
-                message = notificationFormatter.formatNewMatchNotification(activity);
-            } else if (hasNewFemale) {
-                message = notificationFormatter.formatNewFemaleJoinedNotification(activity, cachedData);
-            } else {
-                log.warn("活动 {} 既不是新比赛也没有新女生，不应发送通知", activity.getActivityId());
-                return;
-            }
+            String message = notificationFormatter.formatNewMatchNotification(activity);
 
             notificationGateway.sendNotification(message);
             log.info("发送通知成功: activityId={}", activity.getActivityId());

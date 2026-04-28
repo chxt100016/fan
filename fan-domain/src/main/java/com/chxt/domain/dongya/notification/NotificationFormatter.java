@@ -8,6 +8,4 @@ public interface NotificationFormatter {
 
     String formatNewMatchNotification(Activity activity);
 
-    String formatNewFemaleJoinedNotification(Activity activity, ActivityCacheData cachedData);
-
 }

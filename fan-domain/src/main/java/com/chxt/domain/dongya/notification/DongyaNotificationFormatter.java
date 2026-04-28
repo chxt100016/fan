@@ -2,7 +2,6 @@ package com.chxt.domain.dongya.notification;
 
 
 import com.chxt.domain.dongya.model.Activity;
-import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.domain.dongya.model.Participant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,9 +9,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Component
@@ -32,25 +28,6 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
         return "【新比赛】\n" +
                 formatBasicInfo(activity) + "\n" +
                 formatParticipants(activity);
-    }
-
-    @Override
-    public String formatNewFemaleJoinedNotification(Activity activity, ActivityCacheData cachedData) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("【比赛变更】\n");
-        sb.append(formatBasicInfo(activity)).append("\n");
-
-        sb.append("【新加入的女生】\n");
-        Set<Integer> cachedFemaleIds = cachedData.getFemaleParticipantIds();
-        List<String> newFemaleNames = activity.getParticipants().stream()
-                .filter(p -> p.getGender() != null && p.getGender() == 2)
-                .filter(p -> !cachedFemaleIds.contains(p.getId()))
-                .map(this::formatParticipantDetail)
-                .toList();
-
-        newFemaleNames.forEach(name -> sb.append("• ").append(name).append("\n"));
-
-        return sb.toString();
     }
 
     private String formatBasicInfo(Activity activity) {
@@ -93,8 +70,7 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
 
             if (finishTime != null && !finishTime.isEmpty()) {
                 LocalDateTime finish = LocalDateTime.parse(finishTime, DATE_TIME_FORMATTER);
-                String finishStr = finish.format(TIME_FORMATTER);
-                return String.format("%s(%s) %s ~ %s", dateStr, weekday, begin.format(TIME_FORMATTER), finishStr);
+                return String.format("%s(%s) %s", dateStr, weekday, begin.format(TIME_FORMATTER));
             }
 
             return String.format("%s(%s) %s", dateStr, weekday, begin.format(TIME_FORMATTER));
@@ -112,25 +88,8 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append("【参与者】\n");
 
-        List<String> males = new ArrayList<>();
-        List<String> females = new ArrayList<>();
-
         for (Participant p : activity.getParticipants()) {
-            if (p.getGender() != null && p.getGender() == 2) {
-                females.add(formatParticipantDetail(p));
-            } else {
-                males.add(formatParticipantDetail(p));
-            }
-        }
-
-        if (!males.isEmpty()) {
-            sb.append("男生:\n");
-            males.forEach(name -> sb.append("• ").append(name).append("\n"));
-        }
-
-        if (!females.isEmpty()) {
-            sb.append("女生:\n");
-            females.forEach(name -> sb.append("• ").append(name).append("\n"));
+            sb.append("• ").append(formatParticipantDetail(p)).append("\n");
         }
 
         return sb.toString();
@@ -138,9 +97,9 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
 
     private String formatParticipantDetail(Participant p) {
         StringBuilder sb = new StringBuilder();
-        sb.append(p.getName());
+        sb.append(getGenderText(p.getGender())).append(" ");
 
-        sb.append(" ").append(getGenderText(p.getGender()));
+        sb.append(" ").append(p.getName());
 
         if (p.getSinglesUtr() != null && p.getSinglesUtr() > 0) {
             sb.append(String.format(" UTR:%.2f", p.getSinglesUtr()));
