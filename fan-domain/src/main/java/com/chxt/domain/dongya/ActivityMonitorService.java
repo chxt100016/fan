@@ -1,11 +1,12 @@
 package com.chxt.domain.dongya;
 
-import com.chxt.cache.dongya.ActivityCacheData;
-import com.chxt.client.dongya58.model.Activity;
+
 import com.chxt.domain.dongya.filter.ActivityFilterStrategy;
 import com.chxt.domain.dongya.filter.NewFemaleFilterStrategy;
 import com.chxt.domain.dongya.filter.NewMatchFilterStrategy;
 import com.chxt.domain.dongya.gateway.NotificationGateway;
+import com.chxt.domain.dongya.model.Activity;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.domain.dongya.notification.NotificationFormatter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

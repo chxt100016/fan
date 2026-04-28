@@ -1,4 +1,4 @@
-package com.chxt.client.dongya58.model;
+package com.chxt.domain.dongya.model;
 
 import lombok.Data;
 

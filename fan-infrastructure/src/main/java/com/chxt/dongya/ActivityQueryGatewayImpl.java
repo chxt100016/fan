@@ -1,9 +1,9 @@
 package com.chxt.dongya;
 
 import com.chxt.client.dongya58.Dongya58Client;
-import com.chxt.client.dongya58.model.Activity;
-import com.chxt.client.dongya58.model.ActivityRequest;
-import com.chxt.client.dongya58.model.ActivityResponse;
+import com.chxt.domain.dongya.model.Activity;
+import com.chxt.domain.dongya.model.ActivityRequest;
+import com.chxt.domain.dongya.model.ActivityResponse;
 import com.chxt.domain.dongya.gateway.ActivityQueryGateway;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

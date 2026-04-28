@@ -1,7 +1,8 @@
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
-import com.chxt.client.dongya58.model.Activity;
+
+import com.chxt.domain.dongya.model.Activity;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package com.chxt.client.dongya58;
 
-import com.chxt.client.dongya58.model.ActivityRequest;
-import com.chxt.client.dongya58.model.ActivityResponse;
+import com.chxt.domain.dongya.model.ActivityRequest;
+import com.chxt.domain.dongya.model.ActivityResponse;
 import com.chxt.domain.utils.Http;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

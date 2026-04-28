@@ -1,9 +1,9 @@
 package com.chxt.activity;
 
 import com.chxt.client.dongya58.Dongya58Client;
-import com.chxt.client.dongya58.model.Activity;
-import com.chxt.client.dongya58.model.ActivityRequest;
-import com.chxt.client.dongya58.model.ActivityResponse;
+import com.chxt.domain.dongya.model.Activity;
+import com.chxt.domain.dongya.model.ActivityRequest;
+import com.chxt.domain.dongya.model.ActivityResponse;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -115,7 +115,7 @@ public class ActivityService {
      * 格式化参与者姓名：姓名 + 性别 + 水平
      * 格式：张三 男 UTR:2.50 或 李四 女 等级:L3
      */
-    private String formatParticipantName(com.chxt.client.dongya58.model.Participant p) {
+    private String formatParticipantName(com.chxt.domain.dongya.model.Participant p) {
         StringBuilder sb = new StringBuilder();
         sb.append(p.getName()).append(" ");
 

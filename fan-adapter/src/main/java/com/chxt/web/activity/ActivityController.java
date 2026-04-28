@@ -2,7 +2,7 @@ package com.chxt.web.activity;
 
 import com.chxt.activity.ActivityService;
 import com.chxt.activity.ActivityService.ActivityVO;
-import com.chxt.client.dongya58.model.ActivityRequest;
+import com.chxt.domain.dongya.model.ActivityRequest;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

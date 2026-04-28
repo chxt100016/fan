@@ -203,7 +203,7 @@ mkdir -p fan-domain/src/main/java/com/chxt/domain/dongya/filter
 ```java
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 
 public interface ActivityFilterStrategy {
@@ -230,7 +230,7 @@ git commit -m "feat(dongya): 添加过滤策略接口"
 ```java
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -288,7 +288,7 @@ git commit -m "feat(dongya): 添加新比赛过滤策略"
 ```java
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -365,7 +365,7 @@ git commit -m "feat(dongya): 添加时间过滤策略"
 ```java
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -418,7 +418,7 @@ git commit -m "feat(dongya): 添加地点过滤策略"
 ```java
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import com.chxt.client.dongya58.model.Participant;
 import lombok.extern.slf4j.Slf4j;
@@ -490,7 +490,7 @@ mkdir -p fan-domain/src/main/java/com/chxt/domain/dongya/notification
 ```java
 package com.chxt.domain.dongya.notification;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 
 public interface NotificationFormatter {
@@ -518,7 +518,7 @@ git commit -m "feat(dongya): 添加通知格式化接口"
 ```java
 package com.chxt.domain.dongya.notification;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import com.chxt.client.dongya58.model.Participant;
 import lombok.extern.slf4j.Slf4j;
@@ -755,7 +755,7 @@ git commit -m "feat(dongya): 添加活动查询服务"
 ```java
 package com.chxt.domain.dongya;
 
-import com.chxt.cache.dongya.ActivityCacheData;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 import com.chxt.client.dongya58.model.Activity;
 import com.chxt.domain.dongya.filter.ActivityFilterStrategy;
 import com.chxt.domain.dongya.filter.NewFemaleFilterStrategy;

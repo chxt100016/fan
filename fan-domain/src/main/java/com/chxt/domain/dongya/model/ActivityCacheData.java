@@ -1,7 +1,6 @@
-package com.chxt.cache.dongya;
+package com.chxt.domain.dongya.model;
 
-import com.chxt.client.dongya58.model.Activity;
-import com.chxt.client.dongya58.model.Participant;
+
 import lombok.Data;
 
 import java.util.Set;

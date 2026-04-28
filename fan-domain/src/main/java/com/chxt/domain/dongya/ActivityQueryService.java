@@ -1,7 +1,8 @@
 package com.chxt.domain.dongya;
 
-import com.chxt.client.dongya58.model.Activity;
+
 import com.chxt.domain.dongya.gateway.ActivityQueryGateway;
+import com.chxt.domain.dongya.model.Activity;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

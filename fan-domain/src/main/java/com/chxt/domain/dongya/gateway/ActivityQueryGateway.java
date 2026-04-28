@@ -1,6 +1,8 @@
 package com.chxt.domain.dongya.gateway;
 
-import com.chxt.client.dongya58.model.Activity;
+
+
+import com.chxt.domain.dongya.model.Activity;
 
 import java.util.List;
 

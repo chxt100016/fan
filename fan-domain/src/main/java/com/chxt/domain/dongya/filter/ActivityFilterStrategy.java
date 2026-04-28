@@ -1,7 +1,8 @@
 package com.chxt.domain.dongya.filter;
 
-import com.chxt.cache.dongya.ActivityCacheData;
-import com.chxt.client.dongya58.model.Activity;
+
+import com.chxt.domain.dongya.model.Activity;
+import com.chxt.domain.dongya.model.ActivityCacheData;
 
 /**
  * 活动过滤策略接口
