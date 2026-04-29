@@ -889,7 +889,7 @@ git commit -m "feat(dongya): 添加活动监控服务"
 - [ ] **Step 1: 修改 DongYaJob 简化为调用 ActivityMonitorService**
 
 ```java
-package com.chxt.schedule;
+package com.chxt.job;
 
 import com.chxt.domain.dongya.ActivityMonitorService;
 import jakarta.annotation.Resource;

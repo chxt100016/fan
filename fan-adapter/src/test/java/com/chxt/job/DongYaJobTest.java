@@ -1,4 +1,4 @@
-package com.chxt.schedule;
+package com.chxt.job;
 
 import com.chxt.config.DongyaMonitorConfig;
 import lombok.extern.slf4j.Slf4j;

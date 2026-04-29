@@ -1,4 +1,4 @@
-package com.chxt.schedule;
+package com.chxt.job;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import com.chxt.notice.TennisNoticeService;
 import jakarta.annotation.Resource;
 
 @Component
-public class TennisSchedule {
+public class TennisJob {
 
     @Resource
     private TennisNoticeService tennisNoticeService;

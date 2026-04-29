@@ -1,4 +1,4 @@
-package com.chxt.schedule;
+package com.chxt.job;
 
 import com.chxt.domain.dongya.ActivityMonitorService;
 import jakarta.annotation.Resource;

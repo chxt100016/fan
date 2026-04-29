@@ -1,4 +1,4 @@
-package com.chxt.schedule;
+package com.chxt.job;
 
 import com.chxt.tennis.TennisDataCollectService;
 import com.chxt.tennis.model.Tournament;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class TennisDataCollectSchedule {
+public class TennisDataCollectJob {
 
     @Resource
     private TennisDataCollectService tennisDataCollectService;
