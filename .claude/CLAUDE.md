@@ -1,1 +1,2 @@
-项目为COLA架构， domain层不能直接调用infrastructure, 需要在domain创建gateway接口，然后在infrastructure实现。wq
+- http请求使用项目的Http工具类实现
+- 项目为COLA架构， domain层不能直接调用infrastructure, 需要在domain创建gateway接口，然后在infrastructure实现。wq
