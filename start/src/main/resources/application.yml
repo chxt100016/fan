@@ -19,14 +19,11 @@ dongya58:
     schedule:
       cron: "0 0 */2 * * *"
 
-tennis:
-  collect:
-    matches:
-      cron: "0 */2 * * * *"    # 每2分钟 - 发现新赛事
-    oop:
-      cron: "0 */5 * * * *"    # 每5分钟 - 更新比分
+#tennis:
+#  collect:
+#    matches:
+#      cron: "0 */2 * * * *"    # 每2分钟 - 发现新赛事
+#    oop:
+#      cron: "0 */5 * * * *"    # 每5分钟 - 更新比分
+#
 
-bluebubbles:
-  url: http://localhost:1234/api/v1/message/text
-  password: 123456Aa.
-  chat-guid: any;-;+8613372507785
