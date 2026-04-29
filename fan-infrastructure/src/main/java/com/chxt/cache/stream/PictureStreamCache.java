@@ -1,5 +1,6 @@
 package com.chxt.cache.stream;
 
+import com.chxt.domain.notice.gateway.PictureStreamCacheGateway;
 import com.chxt.domain.stream.PictureStream;
 import org.springframework.stereotype.Component;
 
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class PictureStreamCache {
+public class PictureStreamCache implements PictureStreamCacheGateway {
 
     private final Map<String, PictureStream> pictureStreamMap = new HashMap<>();
 

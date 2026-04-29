@@ -2,9 +2,10 @@ package com.chxt.domain.dongya;
 
 
 import com.chxt.domain.dongya.filter.FilterManager;
-import com.chxt.domain.dongya.gateway.NotificationGateway;
 import com.chxt.domain.dongya.model.Activity;
 import com.chxt.domain.dongya.notification.NotificationFormatter;
+import com.chxt.domain.notice.NoticeManager;
+import com.chxt.domain.notice.model.ScreenEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,10 @@ public class ActivityMonitorService {
     private NotificationFormatter notificationFormatter;
 
     @Resource
-    private NotificationGateway notificationGateway;
+    private FilterManager filterManager;
 
     @Resource
-    private FilterManager filterManager;
+    private NoticeManager noticeManager;
 
     public void monitorActivities() {
         try {
@@ -51,7 +52,7 @@ public class ActivityMonitorService {
             }
 
             String message = notificationFormatter.formatNewMatchNotification(activity);
-            notificationGateway.sendNotification(message);
+            noticeManager.notice(ScreenEnum.DONG_YA, message);
             log.info("发送通知成功: activityId={}", activity.getActivityId());
 
         } catch (Exception e) {

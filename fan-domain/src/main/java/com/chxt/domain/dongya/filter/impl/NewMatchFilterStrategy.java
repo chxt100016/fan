@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class NewMatchFilterStrategy implements ActivityFilterStrategy {
 
-    private static final int TIME_WINDOW_HOURS = 2;
+    private static final int TIME_WINDOW_HOURS = 72;
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
