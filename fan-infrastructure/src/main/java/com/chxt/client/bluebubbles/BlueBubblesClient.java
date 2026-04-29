@@ -30,21 +30,4 @@ public class BlueBubblesClient {
                 .entity("selectedMessageGuid", "")
                 .doPost();
     }
-
-    public void sendImage(byte[] imageData, String caption) {
-        String base64Image = Base64.getEncoder().encodeToString(imageData);
-        Http
-                .uri(URL)
-                .param("password", PASSWORD)
-                .entity("chatGuid", CHAT_GUID)
-                .entity("tempGuid", String.valueOf(System.currentTimeMillis()))
-                .entity("message", base64Image)
-                .entity("method", "apple-script")
-                .entity("subject", caption != null ? caption : "")
-                .entity("effectId", "")
-                .entity("selectedMessageGuid", "")
-                .doPost();
-    }
-
-
 }
