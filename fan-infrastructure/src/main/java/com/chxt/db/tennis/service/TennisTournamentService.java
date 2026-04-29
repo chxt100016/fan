@@ -1,0 +1,77 @@
+package com.chxt.db.tennis.service;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chxt.db.tennis.entity.TennisTournamentPO;
+import com.chxt.db.tennis.mapper.TennisTournamentMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper, TennisTournamentPO> {
+
+    /**
+     * 批量保存/更新赛事（upsert）
+     */
+    public void saveOrUpdateBatch(List<TennisTournamentPO> tournaments) {
+        if (CollectionUtils.isEmpty(tournaments)) {
+            return;
+        }
+
+        // 查询已存在的赛事
+        List<String> tournamentIds = tournaments.stream()
+                .map(TennisTournamentPO::getTournamentId)
+                .toList();
+
+        Map<String, TennisTournamentPO> existMap = this.lambdaQuery()
+                .in(TennisTournamentPO::getTournamentId, tournamentIds)
+                .list()
+                .stream()
+                .collect(Collectors.toMap(TennisTournamentPO::getTournamentId, t -> t, (a, b) -> a));
+
+        // 分离插入和更新
+        List<TennisTournamentPO> toInsert = tournaments.stream()
+                .filter(t -> !existMap.containsKey(t.getTournamentId()))
+                .toList();
+
+        List<TennisTournamentPO> toUpdate = tournaments.stream()
+                .filter(t -> existMap.containsKey(t.getTournamentId()))
+                .map(t -> {
+                    TennisTournamentPO po = existMap.get(t.getTournamentId());
+                    po.setName(t.getName());
+                    po.setSurface(t.getSurface());
+                    po.setCategory(t.getCategory());
+                    po.setCity(t.getCity());
+                    po.setCountry(t.getCountry());
+                    po.setStartDate(t.getStartDate());
+                    po.setEndDate(t.getEndDate());
+                    po.setYear(t.getYear());
+                    po.setStatus(t.getStatus());
+                    return po;
+                })
+                .toList();
+
+        if (CollectionUtils.isNotEmpty(toInsert)) {
+            this.saveBatch(toInsert);
+            log.info("批量插入赛事: {}条", toInsert.size());
+        }
+        if (CollectionUtils.isNotEmpty(toUpdate)) {
+            this.updateBatchById(toUpdate);
+            log.info("批量更新赛事: {}条", toUpdate.size());
+        }
+    }
+
+    /**
+     * 查询进行中的赛事
+     */
+    public List<TennisTournamentPO> findActive() {
+        return this.lambdaQuery()
+                .eq(TennisTournamentPO::getStatus, "active")
+                .list();
+    }
+}

@@ -9,6 +9,7 @@ import java.util.Deque;
 
 
 import com.chxt.schedule.DongYaJob;
+import com.chxt.schedule.TennisDataCollectSchedule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +41,14 @@ public class TestController {
 
     @Resource
     private DongYaJob dongYaJob;
+
+    @Resource
+    private TennisDataCollectSchedule tennisDataCollectSchedule;
+
+    @RequestMapping("/tennisDateCollectSchedule")
+    public void tennisDataCollectSchedule() {
+        this.tennisDataCollectSchedule.collectLiveMatches();
+    }
 
     @RequestMapping("/dongya")
     public String dongya() {
