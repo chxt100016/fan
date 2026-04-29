@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class TennisCourtKeeper {
 
     private Map<String, TennisCourt> historyMap = new HashMap<>();
 
-
+    private List<TennisCourt> likeItem = new ArrayList<>();
 
     public byte[] add(List<TennisCourt> tennisCourts) {
         if (CollectionUtils.isEmpty(tennisCourts)) {
@@ -54,6 +55,7 @@ public class TennisCourtKeeper {
         if (!shouldNotice) {
             return null;
         }
+        this.likeItem = likeIt;
         return this.getPic(likeIt);
     }
 

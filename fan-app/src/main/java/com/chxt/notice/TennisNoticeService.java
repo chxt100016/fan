@@ -2,7 +2,6 @@ package com.chxt.notice;
 
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
-import com.chxt.domain.stream.PictureStream;
 import com.chxt.domain.tennis.TennisCourt;
 import com.chxt.domain.tennis.TennisCourtKeeper;
 import jakarta.annotation.PostConstruct;
@@ -19,9 +18,6 @@ public class TennisNoticeService {
 
     private static final String TENNIS_STREAM = "tennis";
 
-    
-    private PictureStream pictureStream;
-
     private TennisCourtKeeper keeper;
 
     @Resource
@@ -29,9 +25,7 @@ public class TennisNoticeService {
 
     @PostConstruct
     public void init(){
-        this.pictureStream = new PictureStream("TENNIS");
         this.keeper = new TennisCourtKeeper();
-
     }
 
     @Resource
@@ -47,16 +41,16 @@ public class TennisNoticeService {
     }
 
     public byte[] getStillImage() {
-        return this.pictureStream.getCover();
+        return this.pictureStreamCache.getPictureStream(TENNIS_STREAM).getCover();
     }
 
 
     public boolean check() {
 
-        return this.pictureStream.check();
+        return this.pictureStreamCache.getPictureStream(TENNIS_STREAM).check();
     }
 
     public void streamMjpeg(OutputStream outputStream) {
-        this.pictureStream.stream(outputStream, 3000, 15);
+        this.pictureStreamCache.getPictureStream(TENNIS_STREAM).stream(outputStream, 3000, 15);
     }
 }
