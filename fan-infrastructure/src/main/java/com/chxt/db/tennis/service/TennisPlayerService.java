@@ -6,6 +6,7 @@ import com.chxt.db.tennis.mapper.TennisPlayerMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ public class TennisPlayerService extends ServiceImpl<TennisPlayerMapper, TennisP
     /**
      * 批量保存/更新球员（upsert）
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<TennisPlayerPO> players) {
         if (CollectionUtils.isEmpty(players)) {
             return;

@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface PlayerAppConvertMapper {
 
@@ -30,4 +32,6 @@ public interface PlayerAppConvertMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     TennisPlayerPO toPlayerPO(Player player);
+
+    List<TennisPlayerPO> toPlayerPOList(List<Player> players);
 }

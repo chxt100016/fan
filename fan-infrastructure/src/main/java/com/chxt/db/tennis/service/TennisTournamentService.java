@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,26 +24,25 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
             return;
         }
 
-        // 查询已存在的赛事
-        List<String> tournamentIds = tournaments.stream()
-                .map(TennisTournamentPO::getTournamentId)
-                .toList();
-
+        // 查询已存在的赛事（使用 year + tournamentId 作为唯一标识）
         Map<String, TennisTournamentPO> existMap = this.lambdaQuery()
-                .in(TennisTournamentPO::getTournamentId, tournamentIds)
                 .list()
                 .stream()
-                .collect(Collectors.toMap(TennisTournamentPO::getTournamentId, t -> t, (a, b) -> a));
+                .collect(Collectors.toMap(
+                        t -> t.getYear() + "_" + t.getTournamentId(),
+                        t -> t,
+                        (a, b) -> a
+                ));
 
         // 分离插入和更新
         List<TennisTournamentPO> toInsert = tournaments.stream()
-                .filter(t -> !existMap.containsKey(t.getTournamentId()))
+                .filter(t -> !existMap.containsKey(t.getYear() + "_" + t.getTournamentId()))
                 .toList();
 
         List<TennisTournamentPO> toUpdate = tournaments.stream()
-                .filter(t -> existMap.containsKey(t.getTournamentId()))
+                .filter(t -> existMap.containsKey(t.getYear() + "_" + t.getTournamentId()))
                 .map(t -> {
-                    TennisTournamentPO po = existMap.get(t.getTournamentId());
+                    TennisTournamentPO po = existMap.get(t.getYear() + "_" + t.getTournamentId());
                     po.setName(t.getName());
                     po.setSurface(t.getSurface());
                     po.setCategory(t.getCategory());
@@ -50,7 +50,6 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
                     po.setCountry(t.getCountry());
                     po.setStartDate(t.getStartDate());
                     po.setEndDate(t.getEndDate());
-                    po.setYear(t.getYear());
                     po.setStatus(t.getStatus());
                     return po;
                 })
@@ -72,6 +71,16 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
     public List<TennisTournamentPO> findActive() {
         return this.lambdaQuery()
                 .eq(TennisTournamentPO::getStatus, "active")
+                .list();
+    }
+
+    /**
+     * 查询当前时间在 start_date 和 end_date 之间的赛事
+     */
+    public List<TennisTournamentPO> findCurrentTournaments(LocalDate date) {
+        return this.lambdaQuery()
+                .le(TennisTournamentPO::getStartDate, date)
+                .ge(TennisTournamentPO::getEndDate, date)
                 .list();
     }
 }

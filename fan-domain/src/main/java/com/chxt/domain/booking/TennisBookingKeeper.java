@@ -1,4 +1,4 @@
-package com.chxt.domain.tennis;
+package com.chxt.domain.booking;
 
 import com.chxt.domain.pic.ScheduleImage;
 import com.chxt.domain.pic.TimetableEnum;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 @Data
-public class TennisCourtKeeper {
+public class TennisBookingKeeper {
 
     private static final List<String> likelist = TennisCourt.buildUniqueNo()
             // 一

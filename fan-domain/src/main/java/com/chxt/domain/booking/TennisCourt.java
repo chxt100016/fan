@@ -1,4 +1,4 @@
-package com.chxt.domain.tennis;
+package com.chxt.domain.booking;
 
 
 import com.chxt.domain.pic.TimetableEnum;

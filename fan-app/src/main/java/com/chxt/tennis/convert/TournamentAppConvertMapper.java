@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface TournamentAppConvertMapper {
 
@@ -25,6 +27,8 @@ public interface TournamentAppConvertMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     TennisTournamentPO toTournamentPO(Tournament tournament);
+
+    List<TennisTournamentPO> toTournamentPOList(List<Tournament> tournaments);
 
     default java.time.LocalDate parseDate(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) return null;

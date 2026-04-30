@@ -2,8 +2,9 @@ package com.chxt.notice;
 
 import com.chxt.cache.stream.PictureStreamCache;
 import com.chxt.client.huanglong.HuanglongClient;
-import com.chxt.domain.tennis.TennisCourt;
-import com.chxt.domain.tennis.TennisCourtKeeper;
+import com.chxt.domain.booking.TennisBookingKeeper;
+import com.chxt.domain.booking.TennisCourt;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -18,14 +19,14 @@ public class TennisNoticeService {
 
     private static final String TENNIS_STREAM = "tennis";
 
-    private TennisCourtKeeper keeper;
+    private TennisBookingKeeper keeper;
 
     @Resource
     private PictureStreamCache pictureStreamCache;
 
     @PostConstruct
     public void init(){
-        this.keeper = new TennisCourtKeeper();
+        this.keeper = new TennisBookingKeeper();
     }
 
     @Resource

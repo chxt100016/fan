@@ -3,7 +3,7 @@ package com.chxt.client.huanglong;
 import com.chxt.client.huanglong.model.BookInfoRequest;
 import com.chxt.client.huanglong.model.BookInfoResponse;
 import com.chxt.domain.pic.TimetableEnum;
-import com.chxt.domain.tennis.TennisCourt;
+import com.chxt.domain.booking.TennisCourt;
 import com.chxt.domain.utils.Http;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;

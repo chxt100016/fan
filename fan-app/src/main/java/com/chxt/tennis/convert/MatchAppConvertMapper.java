@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(uses = {PlayerAppConvertMapper.class})
 public interface MatchAppConvertMapper {
 
@@ -36,6 +38,8 @@ public interface MatchAppConvertMapper {
     @Mapping(target = "createTime", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
     TennisMatchPO toMatchPO(Match match);
+
+    List<TennisMatchPO> toMatchPOList(List<Match> matches);
 
     default String buildPlayerName(MatchesResponse.PlayerTeam team) {
         if (team == null) return null;
