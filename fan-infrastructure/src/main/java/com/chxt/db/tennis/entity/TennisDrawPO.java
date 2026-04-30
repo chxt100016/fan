@@ -12,25 +12,14 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value = "tennis_match")
-public class TennisMatchPO {
+@TableName("tennis_draw")
+public class TennisDrawPO {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String matchId;
-    private Long drawId;
     private String tournamentId;
-    private Integer roundNumber;
-    private String roundName;
-    private String player1Id;
-    private String player2Id;
-    private String winnerId;
-    private LocalDateTime scheduledAt;
-    private LocalDateTime startedAt;
-    private LocalDateTime endedAt;
-    private String court;
-    private String status;
-    private Integer durationMinutes;
-    private String description;
+    private String drawType;
+    private Integer size;
+    private Integer totalRounds;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

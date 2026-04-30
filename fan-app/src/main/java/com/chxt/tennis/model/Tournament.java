@@ -18,8 +18,10 @@ public class Tournament {
     private String category;
     private String city;
     private String country;
+    private String tour;
+    private Integer prizeMoney;
+    private String prizeMoneyText;
+    private String status;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Integer year;
-    private String status;
 }

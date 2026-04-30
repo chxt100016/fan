@@ -3,11 +3,15 @@ package com.chxt.tennis;
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.db.tennis.entity.TennisMatchPO;
+import com.chxt.db.tennis.entity.TennisSetScorePO;
 import com.chxt.db.tennis.service.TennisMatchService;
+import com.chxt.db.tennis.service.TennisSetScoreService;
 import com.chxt.tennis.convert.DrawMatchAppConvertMapper;
 import com.chxt.tennis.convert.MatchAppConvertMapper;
 import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
+import com.chxt.tennis.model.SetScore;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,14 +28,13 @@ public class AtpMatchService {
     @Resource
     private TennisMatchService tennisMatchService;
 
-    /**
-     * 从 live matches 响应中转换比赛列表
-     */
+    @Resource
+    private TennisSetScoreService tennisSetScoreService;
+
     public int collect(List<MatchesResponse.MatchInfo> matches) {
         if (CollectionUtils.isEmpty(matches)) {
             return 0;
         }
-
         List<Match> data = matches.stream()
                 .map(MatchAppConvertMapper.INSTANCE::toMatch)
                 .toList();
@@ -39,10 +42,7 @@ public class AtpMatchService {
         return data.size();
     }
 
-    /**
-     * 从签表 rounds/fixtures 中构建比赛列表
-     */
-    public List<Match> buildFromDraw(DrawsResponse.Draw draw, String tournamentId) {
+    public List<Match> buildFromDraw(DrawsResponse.Draw draw, String tournamentId, Long drawId) {
         List<Match> allMatches = new ArrayList<>();
         if (draw == null || CollectionUtils.isEmpty(draw.getRounds())) {
             return allMatches;
@@ -55,17 +55,23 @@ public class AtpMatchService {
             for (DrawsResponse.Fixture fixture : round.getFixtures()) {
                 Match match = DrawMatchAppConvertMapper.INSTANCE.toMatch(fixture);
                 match.setTournamentId(tournamentId);
-                match.setDrawType(draw.getEventTypeCode());
-                match.setRound(round.getRoundName());
+                match.setDrawId(drawId);
+                match.setRoundNumber(round.getRoundId());
+                match.setRoundName(round.getRoundName());
+
+                // 如果没有有效的 matchId，生成一个唯一 ID
+                if (match.getMatchId() == null || match.getMatchId().isEmpty()) {
+                    String generatedId = generateMatchId(tournamentId, drawId, round.getRoundId(),
+                            match.getPlayer1Id(), match.getPlayer2Id());
+                    match.setMatchId(generatedId);
+                }
+
                 allMatches.add(match);
             }
         }
         return allMatches;
     }
 
-    /**
-     * 从 OOP 数据中构建比赛列表
-     */
     public List<Match> buildFromOop(OopResponse response) {
         List<Match> allMatches = new ArrayList<>();
         if (response == null || CollectionUtils.isEmpty(response.getOop())) {
@@ -89,14 +95,46 @@ public class AtpMatchService {
         return allMatches;
     }
 
-    /**
-     * 批量保存比赛
-     */
     public void saveMatches(List<Match> matches) {
         if (CollectionUtils.isEmpty(matches)) {
             return;
         }
-        tennisMatchService.saveOrUpdateBatch(
-                MatchAppConvertMapper.INSTANCE.toMatchPOList(matches));
+        List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(matches);
+        tennisMatchService.saveOrUpdateBatch(matchPOs);
+
+        // 保存 SetScore 数据
+        saveSetScores(matches);
+    }
+
+    private void saveSetScores(List<Match> matches) {
+        List<TennisSetScorePO> allSetScores = new ArrayList<>();
+        for (Match match : matches) {
+            if (CollectionUtils.isEmpty(match.getSets()) || match.getMatchId() == null) {
+                continue;
+            }
+            for (SetScore setScore : match.getSets()) {
+                TennisSetScorePO po = new TennisSetScorePO();
+                po.setMatchId(match.getMatchId());
+                po.setSetNumber(setScore.getSetNumber());
+                po.setP1Games(setScore.getP1Games());
+                po.setP2Games(setScore.getP2Games());
+                po.setP1Tiebreak(setScore.getP1Tiebreak());
+                po.setP2Tiebreak(setScore.getP2Tiebreak());
+                allSetScores.add(po);
+            }
+        }
+        tennisSetScoreService.saveOrUpdateBatch(allSetScores);
+    }
+
+    private String generateMatchId(String tournamentId, Long drawId, Integer roundNumber,
+                                   String Player1Id, String Player2Id) {
+        // 使用组合键生成唯一 ID: D_{drawId}_{roundNumber}_{Player1Id}_{Player2Id}
+        StringBuilder sb = new StringBuilder();
+        sb.append("D");
+        if (drawId != null) sb.append(drawId);
+        if (roundNumber != null) sb.append("R").append(roundNumber);
+        if (Player1Id != null) sb.append("P").append(Player1Id);
+        if (Player2Id != null) sb.append("p").append(Player2Id);
+        return sb.toString();
     }
 }

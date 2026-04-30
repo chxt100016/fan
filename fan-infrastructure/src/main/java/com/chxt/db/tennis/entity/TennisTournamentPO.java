@@ -19,14 +19,16 @@ public class TennisTournamentPO {
     private Long id;
     private String tournamentId;
     private String name;
-    private String surface;
+    private String tour;
     private String category;
+    private String surface;
     private String city;
     private String country;
+    private Integer prizeMoney;
+    private String prizeMoneyText;
+    private String status;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Integer year;
-    private String status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

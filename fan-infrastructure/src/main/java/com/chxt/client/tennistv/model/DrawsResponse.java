@@ -39,15 +39,60 @@ public class DrawsResponse {
         private Boolean IsBottomKnown;
         private Integer Winner;
         private String PulseStatus;
+        private MatchInfo Match;
+        private Metadata metadata;
+    }
+
+    @Data
+    public static class Metadata {
+        private String description;
     }
 
     @Data
     public static class ResultInfo {
         private String MatchCode;
         private Integer Winner;
+        private String ResultString;
         private String ResultReason;
+        private String ResultType;
         private TeamInfo TeamTop;
         private TeamInfo TeamBottom;
+        private List<SetResult> SetResults;
+        private String MatchTime;
+    }
+
+    @Data
+    public static class SetResult {
+        private Integer SetNumber;
+        private Integer GamesA;
+        private Integer GamesB;
+        private Integer TiebreakA;
+        private Integer TiebreakB;
+    }
+
+    @Data
+    public static class MatchInfo {
+        private String MatchId;
+        private String MatchDate;
+        private Integer CourtId;
+        private String CourtName;
+        private String MatchTime;
+        private String Status;
+        private String WinningPlayerId;
+        private PlayerTeamInfo PlayerTeam1;
+        private PlayerTeamInfo PlayerTeam2;
+    }
+
+    @Data
+    public static class PlayerTeamInfo {
+        private String PlayerId;
+        private List<SetInfo> Sets;
+    }
+
+    @Data
+    public static class SetInfo {
+        private Integer SetNumber;
+        private String SetScore;
     }
 
     @Data

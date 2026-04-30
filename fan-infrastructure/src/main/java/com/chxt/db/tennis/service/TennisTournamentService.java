@@ -17,42 +17,42 @@ import java.util.stream.Collectors;
 @Service
 public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper, TennisTournamentPO> {
 
-    /**
-     * 批量保存/更新赛事（upsert）
-     */
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<TennisTournamentPO> tournaments) {
         if (CollectionUtils.isEmpty(tournaments)) {
             return;
         }
 
-        // 查询已存在的赛事（使用 year + tournamentId 作为唯一标识）
+        List<String> tournamentIds = tournaments.stream()
+                .map(TennisTournamentPO::getTournamentId)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
         Map<String, TennisTournamentPO> existMap = this.lambdaQuery()
+                .in(TennisTournamentPO::getTournamentId, tournamentIds)
                 .list()
                 .stream()
-                .collect(Collectors.toMap(
-                        t -> t.getYear() + "_" + t.getTournamentId(),
-                        t -> t,
-                        (a, b) -> a
-                ));
+                .collect(Collectors.toMap(TennisTournamentPO::getTournamentId, t -> t, (a, b) -> a));
 
-        // 分离插入和更新
         List<TennisTournamentPO> toInsert = tournaments.stream()
-                .filter(t -> !existMap.containsKey(t.getYear() + "_" + t.getTournamentId()))
+                .filter(t -> t.getTournamentId() == null || !existMap.containsKey(t.getTournamentId()))
                 .toList();
 
         List<TennisTournamentPO> toUpdate = tournaments.stream()
-                .filter(t -> existMap.containsKey(t.getYear() + "_" + t.getTournamentId()))
+                .filter(t -> t.getTournamentId() != null && existMap.containsKey(t.getTournamentId()))
                 .map(t -> {
-                    TennisTournamentPO po = existMap.get(t.getYear() + "_" + t.getTournamentId());
+                    TennisTournamentPO po = existMap.get(t.getTournamentId());
                     po.setName(t.getName());
-                    po.setSurface(t.getSurface());
+                    po.setTour(t.getTour());
                     po.setCategory(t.getCategory());
+                    po.setSurface(t.getSurface());
                     po.setCity(t.getCity());
                     po.setCountry(t.getCountry());
+                    po.setPrizeMoney(t.getPrizeMoney());
+                    po.setPrizeMoneyText(t.getPrizeMoneyText());
+                    po.setStatus(t.getStatus());
                     po.setStartDate(t.getStartDate());
                     po.setEndDate(t.getEndDate());
-                    po.setStatus(t.getStatus());
                     return po;
                 })
                 .toList();
@@ -67,18 +67,12 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
         }
     }
 
-    /**
-     * 查询进行中的赛事
-     */
     public List<TennisTournamentPO> findActive() {
         return this.lambdaQuery()
                 .eq(TennisTournamentPO::getStatus, "active")
                 .list();
     }
 
-    /**
-     * 查询当前时间在 start_date 和 end_date 之间的赛事
-     */
     public List<TennisTournamentPO> findCurrentTournaments(LocalDate date) {
         return this.lambdaQuery()
                 .le(TennisTournamentPO::getStartDate, date)

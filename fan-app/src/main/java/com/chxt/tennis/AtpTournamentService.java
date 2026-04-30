@@ -38,7 +38,7 @@ public class AtpTournamentService {
         tournaments = response.getTournaments().stream()
                 .map(TournamentAppConvertMapper.INSTANCE::toTournament)
                 .toList();
-        saveTournaments(tournaments);
+//        saveTournaments(tournaments);
 
         return tournaments;
     }

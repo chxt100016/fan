@@ -16,16 +16,22 @@ public interface PlayerAppConvertMapper {
 
     PlayerAppConvertMapper INSTANCE = Mappers.getMapper(PlayerAppConvertMapper.class);
 
-    @Mapping(target = "fullName", ignore = true)
     @Mapping(target = "nationality", source = "playerCountryCode")
+    @Mapping(target = "birthDate", ignore = true)
+    @Mapping(target = "gender", ignore = true)
+    @Mapping(target = "hand", ignore = true)
     Player toPlayer(MatchesResponse.PlayerTeam team);
 
-    @Mapping(target = "countryCode", source = "nationality")
-    @Mapping(target = "fullName", ignore = true)
+    @Mapping(target = "nationality", source = "nationality")
+    @Mapping(target = "birthDate", ignore = true)
+    @Mapping(target = "gender", ignore = true)
+    @Mapping(target = "hand", ignore = true)
     Player toPlayerFromDraw(DrawsResponse.PlayerInfo info);
 
-    @Mapping(target = "countryCode", source = "playerCountryCode")
-    @Mapping(target = "fullName", ignore = true)
+    @Mapping(target = "nationality", source = "playerCountryCode")
+    @Mapping(target = "birthDate", ignore = true)
+    @Mapping(target = "gender", ignore = true)
+    @Mapping(target = "hand", ignore = true)
     Player toPlayerFromOop(OopResponse.PlayerTeam team);
 
     @Mapping(target = "id", ignore = true)

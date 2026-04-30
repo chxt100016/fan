@@ -18,9 +18,12 @@ public interface TournamentAppConvertMapper {
     @Mapping(target = "category", source = "type")
     @Mapping(target = "city", source = "info.city")
     @Mapping(target = "country", source = "location")
+    @Mapping(target = "tour", constant = "ATP")
+    @Mapping(target = "prizeMoneyText", expression = "java(info.getInfo() != null ? info.getInfo().getPrize() : null)")
+    @Mapping(target = "prizeMoney", ignore = true)
+    @Mapping(target = "status", constant = "active")
     @Mapping(target = "startDate", expression = "java(parseDate(info.getStart()))")
     @Mapping(target = "endDate", expression = "java(parseDate(info.getEnd()))")
-    @Mapping(target = "status", constant = "active")
     Tournament toTournament(MatchesResponse.TournamentInfo info);
 
     @Mapping(target = "id", ignore = true)

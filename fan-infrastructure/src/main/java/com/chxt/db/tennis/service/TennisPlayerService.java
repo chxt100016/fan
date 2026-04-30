@@ -16,18 +16,25 @@ import java.util.stream.Collectors;
 @Service
 public class TennisPlayerService extends ServiceImpl<TennisPlayerMapper, TennisPlayerPO> {
 
-    /**
-     * 批量保存/更新球员（upsert）
-     */
     @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<TennisPlayerPO> players) {
         if (CollectionUtils.isEmpty(players)) {
             return;
         }
 
-        // 查询已存在的球员
+        // 按 playerId 去重，保留最后出现的（更新的数据）
+        players = new java.util.ArrayList<>(players.stream()
+                .filter(p -> p.getPlayerId() != null)
+                .collect(Collectors.toMap(
+                        TennisPlayerPO::getPlayerId,
+                        p -> p,
+                        (a, b) -> b
+                ))
+                .values());
+
         List<String> playerIds = players.stream()
                 .map(TennisPlayerPO::getPlayerId)
+                .filter(java.util.Objects::nonNull)
                 .toList();
 
         Map<String, TennisPlayerPO> existMap = this.lambdaQuery()
@@ -36,21 +43,21 @@ public class TennisPlayerService extends ServiceImpl<TennisPlayerMapper, TennisP
                 .stream()
                 .collect(Collectors.toMap(TennisPlayerPO::getPlayerId, p -> p, (a, b) -> a));
 
-        // 分离插入和更新
         List<TennisPlayerPO> toInsert = players.stream()
-                .filter(p -> !existMap.containsKey(p.getPlayerId()))
+                .filter(p -> p.getPlayerId() == null || !existMap.containsKey(p.getPlayerId()))
                 .toList();
 
         List<TennisPlayerPO> toUpdate = players.stream()
-                .filter(p -> existMap.containsKey(p.getPlayerId()))
+                .filter(p -> p.getPlayerId() != null && existMap.containsKey(p.getPlayerId()))
                 .map(p -> {
                     TennisPlayerPO po = existMap.get(p.getPlayerId());
                     po.setFirstName(p.getFirstName());
                     po.setLastName(p.getLastName());
-                    po.setFullName(p.getFullName());
                     po.setNationality(p.getNationality());
-                    po.setCountryCode(p.getCountryCode());
-                    po.setRank(p.getRank());
+                    po.setBirthDate(p.getBirthDate());
+                    po.setGender(p.getGender());
+                    po.setRanking(p.getRanking());
+                    po.setHand(p.getHand());
                     return po;
                 })
                 .toList();

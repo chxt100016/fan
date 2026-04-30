@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,11 +21,12 @@ public class TennisPlayerPO {
     private String playerId;
     private String firstName;
     private String lastName;
-    private String fullName;
     private String nationality;
-    private String countryCode;
-    @TableField("`rank`")
-    private Integer rank;
+    private LocalDate birthDate;
+    private String gender;
+    @TableField("`ranking`")
+    private Integer ranking;
+    private String hand;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

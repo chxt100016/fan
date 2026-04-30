@@ -12,17 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
+@RequestMapping("/test")
 public class TestController {
 
 
     @Resource
     private AtpCollectService atpCollectService;
 
-    @RequestMapping("/tennisDateCollectSchedule")
-    public void tennisDataCollectSchedule() {
+    @RequestMapping("/tournaments")
+    public void tournaments() {
         this.atpCollectService.tournaments();
     }
 
+    @RequestMapping("/currentDraws")
+    public void currentDraws() {
+        this.atpCollectService.currentDraws();
+    }
 
 
 }

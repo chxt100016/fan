@@ -15,17 +15,14 @@ import java.util.stream.Collectors;
 @Service
 public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMatchPO> {
 
-    /**
-     * 批量保存/更新比赛（upsert）
-     */
     public void saveOrUpdateBatch(List<TennisMatchPO> matches) {
         if (CollectionUtils.isEmpty(matches)) {
             return;
         }
 
-        // 查询已存在的比赛
         List<String> matchIds = matches.stream()
                 .map(TennisMatchPO::getMatchId)
+                .filter(java.util.Objects::nonNull)
                 .toList();
 
         Map<String, TennisMatchPO> existMap = this.lambdaQuery()
@@ -34,23 +31,28 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
                 .stream()
                 .collect(Collectors.toMap(TennisMatchPO::getMatchId, m -> m, (a, b) -> a));
 
-        // 分离插入和更新
         List<TennisMatchPO> toInsert = matches.stream()
-                .filter(m -> !existMap.containsKey(m.getMatchId()))
+                .filter(m -> m.getMatchId() == null || !existMap.containsKey(m.getMatchId()))
                 .toList();
 
         List<TennisMatchPO> toUpdate = matches.stream()
-                .filter(m -> existMap.containsKey(m.getMatchId()))
+                .filter(m -> m.getMatchId() != null && existMap.containsKey(m.getMatchId()))
                 .map(m -> {
                     TennisMatchPO po = existMap.get(m.getMatchId());
-                    po.setScore(m.getScore());
-                    po.setSetsScore(m.getSetsScore());
-                    po.setStatus(m.getStatus());
+                    po.setTournamentId(m.getTournamentId());
+                    po.setDrawId(m.getDrawId());
+                    po.setRoundNumber(m.getRoundNumber());
+                    po.setRoundName(m.getRoundName());
+                    po.setPlayer1Id(m.getPlayer1Id());
+                    po.setPlayer2Id(m.getPlayer2Id());
                     po.setWinnerId(m.getWinnerId());
-                    po.setCourtName(m.getCourtName());
-                    po.setNotBeforeTime(m.getNotBeforeTime());
-                    po.setNotBeforeText(m.getNotBeforeText());
-                    po.setMatchTime(m.getMatchTime());
+                    po.setScheduledAt(m.getScheduledAt());
+                    po.setStartedAt(m.getStartedAt());
+                    po.setEndedAt(m.getEndedAt());
+                    po.setCourt(m.getCourt());
+                    po.setStatus(m.getStatus());
+                    po.setDurationMinutes(m.getDurationMinutes());
+                    po.setDescription(m.getDescription());
                     return po;
                 })
                 .toList();
@@ -65,19 +67,13 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
         }
     }
 
-    /**
-     * 查询进行中的比赛
-     */
-    public List<TennisMatchPO> findActiveByTournament(String tournamentId) {
+    public List<TennisMatchPO> findActiveByTournament(Long tournamentId) {
         return this.lambdaQuery()
                 .eq(TennisMatchPO::getTournamentId, tournamentId)
                 .in(TennisMatchPO::getStatus, "live", "scheduled")
                 .list();
     }
 
-    /**
-     * 是否有进行中的比赛
-     */
     public boolean hasActiveMatches() {
         return this.lambdaQuery()
                 .in(TennisMatchPO::getStatus, "live", "scheduled")
