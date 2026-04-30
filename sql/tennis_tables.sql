@@ -3,7 +3,7 @@
 -- 统一使用外部 API 返回的字符串 ID 作为关联字段
 -- ============================================================
 
-drop table tennis_player;
+DROP TABLE IF EXISTS tennis_player;
 CREATE TABLE tennis_player (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     player_id     VARCHAR(50)  COMMENT '外部API返回的球员ID，如 S0AG, DH50',
@@ -23,7 +23,7 @@ CREATE TABLE tennis_player (
     INDEX idx_tennis_player_nation  (nationality)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='球员基础信息';
 
-drop table tennis_tournament;
+DROP TABLE IF EXISTS tennis_tournament;
 CREATE TABLE tennis_tournament (
     id           BIGINT        NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50)  COMMENT '外部API返回的赛事ID，如 1536',
@@ -47,7 +47,7 @@ CREATE TABLE tennis_tournament (
     INDEX idx_tennis_tournament_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='赛事主信息';
 
-drop table tennis_draw;
+DROP TABLE IF EXISTS tennis_draw;
 CREATE TABLE tennis_draw (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50) NOT NULL COMMENT '外部赛事ID',
@@ -61,7 +61,7 @@ CREATE TABLE tennis_draw (
     INDEX idx_tennis_draw_tournament (tournament_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='签表（赛事下的具体项目）';
 
-drop table tennis_tournament_entry;
+DROP TABLE IF EXISTS tennis_tournament_entry;
 CREATE TABLE tennis_tournament_entry (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50) NOT NULL COMMENT '外部赛事ID',
@@ -78,7 +78,7 @@ CREATE TABLE tennis_tournament_entry (
     INDEX idx_tennis_entry_player         (player_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='球员报名信息';
 
-drop table tennis_match;
+DROP TABLE IF EXISTS tennis_match;
 CREATE TABLE tennis_match (
     id               BIGINT      NOT NULL AUTO_INCREMENT,
     match_id         VARCHAR(50) COMMENT '外部API返回的比赛ID，如 MS008',
@@ -107,7 +107,7 @@ CREATE TABLE tennis_match (
     INDEX idx_tennis_match_status_time (status, scheduled_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='具体比赛场次';
 
-drop table tennis_set_score;
+DROP TABLE IF EXISTS tennis_set_score;
 CREATE TABLE tennis_set_score (
     id          BIGINT   NOT NULL AUTO_INCREMENT,
     match_id    VARCHAR(50) NOT NULL COMMENT '外部比赛ID',

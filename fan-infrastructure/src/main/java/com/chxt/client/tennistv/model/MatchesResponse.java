@@ -96,7 +96,9 @@ public class MatchesResponse {
         private String pulseStatus;
         @JSONField(name = "CourtSeq")
         private Integer courtSeq;
+        @JSONField(name = "onDemandUrl")
         private String onDemandUrl;
+        @JSONField(name = "metadata")
         private MatchMetadata metadata;
     }
 

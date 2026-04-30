@@ -16,7 +16,10 @@ public interface PlayerAppConvertMapper {
 
     PlayerAppConvertMapper INSTANCE = Mappers.getMapper(PlayerAppConvertMapper.class);
 
+    @Mapping(target = "firstName", source = "playerFirstNameFull")
+    @Mapping(target = "lastName", source = "playerLastName")
     @Mapping(target = "nationality", source = "playerCountryCode")
+    @Mapping(target = "rank", ignore = true)
     @Mapping(target = "birthDate", ignore = true)
     @Mapping(target = "gender", ignore = true)
     @Mapping(target = "hand", ignore = true)

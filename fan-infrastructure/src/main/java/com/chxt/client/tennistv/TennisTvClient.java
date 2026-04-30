@@ -18,10 +18,12 @@ public class TennisTvClient {
      */
     public MatchesResponse getLiveMatches() {
         try {
-            return Http.uri(BASE_URI + "/matches")
+            Http http = Http.uri(BASE_URI + "/matches")
                     .param("status", "L")
-                    .doGet()
-                    .result(MatchesResponse.class);
+                    .header("origin", "https://www.tennistv.com")
+                    .doGet();
+
+            return http.result(MatchesResponse.class);
         } catch (Exception e) {
             log.error("获取最近比赛失败", e);
             return null;
