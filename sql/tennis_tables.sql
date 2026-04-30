@@ -1,84 +1,111 @@
--- 网球数据采集系统表结构
+-- ============================================================
+-- 网球赛程数据库建表语句（MySQL 8.0+）
+-- ============================================================
 
--- 球员表
-CREATE TABLE IF NOT EXISTS `tennis_player` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `player_id` varchar(64) NOT NULL COMMENT '球员唯一标识(API返回)',
-  `first_name` varchar(128) DEFAULT NULL COMMENT '名',
-  `last_name` varchar(128) DEFAULT NULL COMMENT '姓',
-  `full_name` varchar(256) DEFAULT NULL COMMENT '全名',
-  `nationality` varchar(64) DEFAULT NULL COMMENT '国籍',
-  `country_code` varchar(8) DEFAULT NULL COMMENT '国家代码',
-  `rank` int DEFAULT NULL COMMENT '排名',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_player_id` (`player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='球员表';
+CREATE TABLE tennis_player (
+    id            BIGINT       NOT NULL AUTO_INCREMENT,
+    first_name    VARCHAR(50)  NOT NULL,
+    last_name     VARCHAR(50)  NOT NULL,
+    nationality   CHAR(3)      NOT NULL COMMENT 'ISO 3166-1 alpha-3，如 CHN / USA',
+    birth_date    DATE,
+    gender        CHAR(1)      NOT NULL COMMENT 'M / F',
+    ranking       INT          COMMENT '当前排名，NULL 表示未排名',
+    hand          VARCHAR(10)  NOT NULL DEFAULT 'RIGHT' COMMENT 'RIGHT / LEFT / UNKNOWN',
+    status        VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE / RETIRED / INJURED',
+    create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    INDEX idx_tennis_player_name    (last_name, first_name),
+    INDEX idx_tennis_player_ranking (atp_ranking),
+    INDEX idx_tennis_player_nation  (nationality)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='球员基础信息';
 
--- 赛事表
-CREATE TABLE IF NOT EXISTS `tennis_tournament` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `tournament_id` varchar(64) NOT NULL COMMENT '赛事唯一标识(API返回)',
-  `name` varchar(256) DEFAULT NULL COMMENT '赛事名称',
-  `surface` varchar(32) DEFAULT NULL COMMENT '场地类型(clay/hard/grass/carpet)',
-  `category` varchar(64) DEFAULT NULL COMMENT '赛事级别(GS/ATP1000/ATP500/ATP250等)',
-  `city` varchar(128) DEFAULT NULL COMMENT '举办城市',
-  `country` varchar(64) DEFAULT NULL COMMENT '举办国家',
-  `start_date` date DEFAULT NULL COMMENT '开始日期',
-  `end_date` date DEFAULT NULL COMMENT '结束日期',
-  `year` int DEFAULT NULL COMMENT '赛事年份',
-  `status` varchar(32) DEFAULT 'active' COMMENT '赛事状态(active/completed)',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_tournament_id` (`tournament_id`),
-  KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='赛事表';
 
--- 比赛表
-CREATE TABLE IF NOT EXISTS `tennis_match` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `match_id` varchar(64) NOT NULL COMMENT '比赛唯一标识(API返回)',
-  `tournament_id` varchar(64) NOT NULL COMMENT '所属赛事ID',
-  `round` varchar(32) DEFAULT NULL COMMENT '轮次(R1/R2/R3/R4/QF/SF/F)',
-  `round_name` varchar(64) DEFAULT NULL COMMENT '轮次名称(Round of 128等)',
-  `draw_type` varchar(32) DEFAULT NULL COMMENT '签表类型(MS/MD/WS/WD)',
-  `player1_id` varchar(64) DEFAULT NULL COMMENT '球员1 ID',
-  `player2_id` varchar(64) DEFAULT NULL COMMENT '球员2 ID',
-  `player1_name` varchar(256) DEFAULT NULL COMMENT '球员1姓名(冗余)',
-  `player2_name` varchar(256) DEFAULT NULL COMMENT '球员2姓名(冗余)',
-  `score` varchar(128) DEFAULT NULL COMMENT '比分(如 6-4 7-5)',
-  `sets_score` varchar(128) DEFAULT NULL COMMENT '盘分(如 2-0)',
-  `status` varchar(32) DEFAULT NULL COMMENT '比赛状态(scheduled/live/finished/cancelled)',
-  `winner_id` varchar(64) DEFAULT NULL COMMENT '胜者ID',
-  `court_name` varchar(128) DEFAULT NULL COMMENT '场地名称',
-  `not_before_time` datetime DEFAULT NULL COMMENT '比赛不早于开始时间(NotBeforeISOTime)',
-  `not_before_text` varchar(32) DEFAULT NULL COMMENT '比赛不早于开始时间(文本显示，如10:00)',
-  `match_time` datetime DEFAULT NULL COMMENT '实际开始时间(API返回)',
-  `source` varchar(32) NOT NULL COMMENT '数据来源(draw/oop/live)',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_match_id` (`match_id`),
-  KEY `idx_tournament_id` (`tournament_id`),
-  KEY `idx_status` (`status`),
-  KEY `idx_tournament_round` (`tournament_id`, `round`),
-  KEY `idx_not_before_time` (`not_before_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='比赛表';
+CREATE TABLE tennis_tournament (
+id           BIGINT        NOT NULL AUTO_INCREMENT,
+name         VARCHAR(100)  NOT NULL COMMENT '赛事名称，如 Wimbledon',
+category     VARCHAR(20)   NOT NULL COMMENT 'GRAND_SLAM / ATP1000 / ATP500 / ATP250 / WTA1000',
+surface      VARCHAR(10)   NOT NULL COMMENT 'HARD / CLAY / GRASS / CARPET',
+city         VARCHAR(50)   NOT NULL,
+country      VARCHAR(16)       NOT NULL COMMENT '',
+prize_money  INT           COMMENT '总奖金（USD）',
+start_date   DATE          NOT NULL,
+end_date     DATE          NOT NULL,
+create_time   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+update_time   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+INDEX idx_tennis_tournament_date     (start_date, end_date),
+INDEX idx_tennis_tournament_status   (status),
+INDEX idx_tennis_tournament_category (category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='赛事主信息';
 
--- 比赛盘分表
-CREATE TABLE IF NOT EXISTS `tennis_match_set` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `match_id` varchar(64) NOT NULL COMMENT '比赛ID',
-  `set_no` int NOT NULL COMMENT '第几盘(1/2/3/4/5)',
-  `player1_games` int DEFAULT NULL COMMENT '球员1赢的局数',
-  `player2_games` int DEFAULT NULL COMMENT '球员2赢的局数',
-  `player1_points` varchar(32) DEFAULT NULL COMMENT '球员1抢七分数',
-  `player2_points` varchar(32) DEFAULT NULL COMMENT '球员2抢七分数',
-  `tiebreak` tinyint(1) DEFAULT 0 COMMENT '是否抢七',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_match_set` (`match_id`, `set_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='比赛盘分表';
+
+CREATE TABLE tennis_draw (
+id            BIGINT      NOT NULL AUTO_INCREMENT,
+tournament_id BIGINT      NOT NULL,
+draw_type     VARCHAR(10) NOT NULL COMMENT 'MS / WS / MD / WD / XD',
+size          INT         NOT NULL COMMENT '签表人数：32 / 64 / 128',
+total_rounds  INT         NOT NULL COMMENT '总轮数，由 size 决定',
+create_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+update_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+UNIQUE KEY uk_tennis_draw_tournament_type (tournament_id, draw_type),
+INDEX idx_tennis_draw_tournament (tournament_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='签表（赛事下的具体项目）';
+
+
+CREATE TABLE tennis_tournament_entry (
+id            BIGINT      NOT NULL AUTO_INCREMENT,
+tournament_id BIGINT      NOT NULL,
+player_id     BIGINT      NOT NULL,
+draw_type     VARCHAR(10) NOT NULL COMMENT '对应哪个项目签表',
+seed          SMALLINT    COMMENT '种子号，NULL 表示非种子',
+entry_type    VARCHAR(10) NOT NULL DEFAULT 'DIRECT' COMMENT 'DIRECT / WILDCARD / QUALIFIER / LUCKY_LOSER',
+status        VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED' COMMENT 'CONFIRMED / WITHDRAWN / RETIRED',
+create_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+update_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+UNIQUE KEY uk_tennis_entry_player_draw (tournament_id, player_id, draw_type),
+INDEX idx_tennis_entry_tournament     (tournament_id),
+INDEX idx_tennis_entry_player         (player_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='球员报名信息';
+
+
+CREATE TABLE tennis_match (
+id               BIGINT      NOT NULL AUTO_INCREMENT,
+draw_id          BIGINT      NOT NULL,
+round_number     TINYINT     NOT NULL COMMENT '轮次序号：1=首轮，7=决赛（128签）',
+round_name       VARCHAR(10) NOT NULL COMMENT 'R128 / R64 / R32 / R16 / QF / SF / F',
+player1_id       BIGINT      COMMENT '未确定对阵时允许为 NULL（待晋级）',
+player2_id       BIGINT      COMMENT '同上',
+winner_id        BIGINT      COMMENT '比赛结束前为 NULL',
+scheduled_at     DATETIME    COMMENT '计划开赛时间',
+started_at       DATETIME    COMMENT '实际开始时间',
+ended_at         DATETIME    COMMENT '实际结束时间',
+court            VARCHAR(50) COMMENT '场地名称，如 Centre Court',
+status           VARCHAR(20) NOT NULL DEFAULT 'SCHEDULED' COMMENT 'SCHEDULED / LIVE / COMPLETED / WALKOVER / RETIRED / SUSPENDED',
+duration_minutes SMALLINT    COMMENT '比赛时长（分钟）',
+create_time       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+update_time       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+INDEX idx_tennis_match_draw        (draw_id, round_number),
+INDEX idx_tennis_match_player1     (player1_id),
+INDEX idx_tennis_match_player2     (player2_id),
+INDEX idx_tennis_match_status_time (status, scheduled_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='具体比赛场次';
+
+
+CREATE TABLE tennis_set_score (
+id          BIGINT   NOT NULL AUTO_INCREMENT,
+match_id    BIGINT   NOT NULL,
+set_number  TINYINT  NOT NULL COMMENT '第几盘：1 / 2 / 3 ...',
+p1_games    TINYINT  NOT NULL DEFAULT 0 COMMENT 'player1 局数',
+p2_games    TINYINT  NOT NULL DEFAULT 0 COMMENT 'player2 局数',
+p1_tiebreak TINYINT  COMMENT '抢七分数，NULL 表示该盘无抢七',
+p2_tiebreak TINYINT  COMMENT '抢七分数，NULL 表示该盘无抢七',
+create_time  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+update_time  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+UNIQUE KEY uk_tennis_set_match_number (match_id, set_number),
+INDEX idx_tennis_set_match (match_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每盘比分详情';
