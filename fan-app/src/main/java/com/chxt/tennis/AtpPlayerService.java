@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TennisPlayerCollectService {
+public class AtpPlayerService {
 
     @Resource
     private TennisPlayerService tennisPlayerService;
@@ -24,10 +24,10 @@ public class TennisPlayerCollectService {
     /**
      * 从 live matches 响应中提取球员
      */
-    public List<Player> extractFromLiveMatches(List<MatchesResponse.MatchInfo> matches) {
+    public int collect(List<MatchesResponse.MatchInfo> matches) {
         List<Player> players = new ArrayList<>();
         if (matches == null) {
-            return players;
+            return 0;
         }
         for (MatchesResponse.MatchInfo match : matches) {
             if (match.getPlayerTeam1() != null) {
@@ -37,7 +37,9 @@ public class TennisPlayerCollectService {
                 players.add(PlayerAppConvertMapper.INSTANCE.toPlayer(match.getPlayerTeam2()));
             }
         }
-        return players;
+
+        this.savePlayers(players);
+        return players.size();
     }
 
     /**

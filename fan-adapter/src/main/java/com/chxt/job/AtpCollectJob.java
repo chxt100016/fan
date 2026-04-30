@@ -26,7 +26,7 @@ public class AtpCollectJob {
     public void collectDrawsForCurrentTournaments() {
         try {
             log.info("定时任务: 采集当前赛事签表");
-            atpCollectService.draws();
+            atpCollectService.currentDraws();
         } catch (Exception e) {
             log.error("定时任务: 采集当前赛事签表失败", e);
         }

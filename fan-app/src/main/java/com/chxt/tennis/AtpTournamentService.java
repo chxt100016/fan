@@ -1,6 +1,7 @@
 package com.chxt.tennis;
 
 import com.chxt.client.tennistv.TennisTvClient;
+import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
 import com.chxt.db.tennis.service.TennisTournamentService;
 import com.chxt.tennis.convert.TournamentAppConvertMapper;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TennisTournamentCollectService {
+public class AtpTournamentService {
 
     @Resource
     private TennisTvClient tennisTvClient;
@@ -45,7 +46,7 @@ public class TennisTournamentCollectService {
     /**
      * 查询当前时间在 start_date 和 end_date 之间的赛事
      */
-    public List<TennisTournamentPO> findCurrentTournaments() {
+    public List<TennisTournamentPO> current() {
         LocalDate today = LocalDate.now();
         return tennisTournamentService.findCurrentTournaments(today);
     }
@@ -53,11 +54,13 @@ public class TennisTournamentCollectService {
     /**
      * 批量保存赛事
      */
-    public void saveTournaments(List<Tournament> tournaments) {
-        if (CollectionUtils.isEmpty(tournaments)) {
-            return;
+    public int collect(List<MatchesResponse.TournamentInfo> infos) {
+        if (CollectionUtils.isEmpty(infos)) {
+            return 0;
         }
-        tennisTournamentService.saveOrUpdateBatch(
-                TournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments));
+        List<Tournament> tournaments = new ArrayList<>();
+        tournaments = infos.stream().map(TournamentAppConvertMapper.INSTANCE::toTournament).toList();
+        tennisTournamentService.saveOrUpdateBatch(TournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments));
+        return tournaments.size();
     }
 }

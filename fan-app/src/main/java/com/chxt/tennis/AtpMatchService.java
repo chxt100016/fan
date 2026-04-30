@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class TennisMatchCollectService {
+public class AtpMatchService {
 
     @Resource
     private TennisMatchService tennisMatchService;
@@ -27,13 +27,16 @@ public class TennisMatchCollectService {
     /**
      * 从 live matches 响应中转换比赛列表
      */
-    public List<Match> convertFromLiveMatches(List<MatchesResponse.MatchInfo> matches) {
+    public int collect(List<MatchesResponse.MatchInfo> matches) {
         if (CollectionUtils.isEmpty(matches)) {
-            return List.of();
+            return 0;
         }
-        return matches.stream()
+
+        List<Match> data = matches.stream()
                 .map(MatchAppConvertMapper.INSTANCE::toMatch)
                 .toList();
+        this.saveMatches(data);
+        return data.size();
     }
 
     /**

@@ -6,6 +6,7 @@ import com.chxt.db.tennis.mapper.TennisTournamentMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,7 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
     /**
      * 批量保存/更新赛事（upsert）
      */
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<TennisTournamentPO> tournaments) {
         if (CollectionUtils.isEmpty(tournaments)) {
             return;
