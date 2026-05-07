@@ -13,8 +13,8 @@ public class TennisCollectController {
     @Resource
     private AtpCollectService atpCollectService;
 
-    @GetMapping("/tournaments/{year}")
-    public String tournaments(@PathVariable Integer year) {
+    @GetMapping("/tournaments")
+    public String tournaments(@RequestParam("year") Integer year) {
         int size = atpCollectService.tournaments(year);
         return "赛事API采集完成, 数量=" + size;
     }

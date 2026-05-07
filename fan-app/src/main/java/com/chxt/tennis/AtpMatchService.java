@@ -2,14 +2,12 @@ package com.chxt.tennis;
 
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
-import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.db.tennis.entity.TennisMatchPO;
 import com.chxt.db.tennis.entity.TennisSetScorePO;
 import com.chxt.db.tennis.service.TennisMatchService;
 import com.chxt.db.tennis.service.TennisSetScoreService;
 import com.chxt.tennis.convert.DrawMatchAppConvertMapper;
 import com.chxt.tennis.convert.MatchAppConvertMapper;
-import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.SetScore;
 import jakarta.annotation.Resource;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
