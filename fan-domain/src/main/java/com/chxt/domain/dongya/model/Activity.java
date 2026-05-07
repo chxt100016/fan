@@ -1,6 +1,8 @@
 package com.chxt.domain.dongya.model;
 
+import com.chxt.domain.utils.DateStandardUtils;
 import lombok.Data;
+
 import java.util.List;
 
 /**
@@ -89,5 +91,63 @@ public class Activity {
         private Integer partnerType;
         private Integer minTennisLevel;
         private Integer maxTennisLevel;
+    }
+
+    public String toMessage() {
+        return "【新比赛】\n" +
+                formatBasicInfo() + "\n" +
+                formatParticipants();
+    }
+
+    private String formatBasicInfo() {
+        StringBuilder sb = new StringBuilder();
+
+        String timeInfo = DateStandardUtils.formatTimeInfo(this.beginTime, this.finishTime);
+        int currentCount = this.participants != null ? this.participants.size() : 0;
+        int maxCount = this.participantMax != null ? this.participantMax : 0;
+        sb.append(this.divisionInfo.get(0).getLevelTennis()).append(" ").append(this.placename).append("\n");
+        sb.append(timeInfo).append(" ").append(currentCount).append("/").append(maxCount).append("\n");
+        return sb.toString();
+    }
+
+    private String formatParticipants() {
+        if (this.participants == null || this.participants.isEmpty()) {
+            return "【参与者】\n暂无参与者\n";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("【参与者】\n");
+
+        for (Participant p : this.participants) {
+            sb.append("• ").append(formatParticipantDetail(p)).append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    private String formatParticipantDetail(Participant p) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getGenderText(p.getGender())).append(" ");
+
+        sb.append(" ").append(p.getName());
+
+        if (p.getSinglesUtr() != null && p.getSinglesUtr() > 0) {
+            sb.append(String.format(" UTR:%.2f", p.getSinglesUtr()));
+        } else if (p.getTennisLevel() != null && !p.getTennisLevel().isEmpty()) {
+            sb.append(String.format(" 等级:%s", p.getTennisLevel()));
+        }
+
+        return sb.toString();
+    }
+
+    private String getGenderText(Integer gender) {
+        if (gender == null) {
+            return "";
+        }
+        return switch (gender) {
+            case 1 -> "男";
+            case 2 -> "女";
+            default -> "";
+        };
     }
 }
