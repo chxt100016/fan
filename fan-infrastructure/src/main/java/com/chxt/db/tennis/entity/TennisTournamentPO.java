@@ -18,6 +18,7 @@ public class TennisTournamentPO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String tournamentId;
+    private Integer year;
     private String name;
     private String tour;
     private String category;

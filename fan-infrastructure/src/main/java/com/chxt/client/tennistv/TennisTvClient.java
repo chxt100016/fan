@@ -7,6 +7,8 @@ import com.chxt.domain.utils.Http;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 public class TennisTvClient {
@@ -45,13 +47,31 @@ public class TennisTvClient {
     }
 
     /**
+     * 接口2.5: 查询赛事列表
+     */
+    public List<MatchesResponse.TournamentInfo> getTournaments(int year) {
+        try {
+            return Http.uri(BASE_URI + "/tournaments")
+                    .param("from", year + "-01-01")
+                    .param("to", year + "-12-31")
+                    .param("size", "200")
+                    .header("origin", "https://www.tennistv.com")
+                    .doGet()
+                    .resultArray(MatchesResponse.TournamentInfo.class);
+        } catch (Exception e) {
+            log.error("获取赛事列表失败, year={}", year, e);
+            return null;
+        }
+    }
+
+    /**
      * 接口3: 查询比赛详情 (每日安排)
      */
-    public OopResponse getOop() {
+    public List<OopResponse> getOop() {
         try {
-            return Http.uri(BASE_URI + "/oop")
-                    .doGet()
-                    .result(OopResponse.class);
+            Http http = Http.uri(BASE_URI + "/oop")
+                    .doGet();
+            return http.resultArray(OopResponse.class);
         } catch (Exception e) {
             log.error("获取比赛详情失败", e);
             return null;

@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS tennis_tournament;
 CREATE TABLE tennis_tournament (
     id           BIGINT        NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50)  COMMENT '外部API返回的赛事ID，如 1536',
+    year         INT           NOT NULL DEFAULT 2026 COMMENT '赛事年份',
     name         VARCHAR(100)  NOT NULL COMMENT '赛事名称，如 Wimbledon',
     tour VARCHAR(10) NOT NULL DEFAULT 'ATP' COMMENT 'ATP / WTA / ITF/ Grand',
     category     VARCHAR(20)   NOT NULL COMMENT '',
@@ -41,23 +42,25 @@ CREATE TABLE tennis_tournament (
     create_time   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_tennis_tournament_tournament_id (tournament_id),
+    UNIQUE KEY uk_tennis_tournament_tournament_year (tournament_id, year),
     INDEX idx_tennis_tournament_date     (start_date, end_date),
     INDEX idx_tennis_tournament_status   (status),
-    INDEX idx_tennis_tournament_category (category)
+    INDEX idx_tennis_tournament_category (category),
+    INDEX idx_tennis_tournament_year     (year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='赛事主信息';
 
 DROP TABLE IF EXISTS tennis_draw;
 CREATE TABLE tennis_draw (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50) NOT NULL COMMENT '外部赛事ID',
+    year          INT         NOT NULL DEFAULT 2026 COMMENT '赛事年份',
     draw_type     VARCHAR(10) NOT NULL COMMENT 'MS / WS / MD / WD / XD',
     size          INT         NOT NULL COMMENT '签表人数：32 / 64 / 128',
     total_rounds  INT         NOT NULL COMMENT '总轮数，由 size 决定',
     create_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_tennis_draw_tournament_type (tournament_id, draw_type),
+    UNIQUE KEY uk_tennis_draw_tournament_year_type (tournament_id, year, draw_type),
     INDEX idx_tennis_draw_tournament (tournament_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='签表（赛事下的具体项目）';
 
@@ -65,6 +68,7 @@ DROP TABLE IF EXISTS tennis_tournament_entry;
 CREATE TABLE tennis_tournament_entry (
     id            BIGINT      NOT NULL AUTO_INCREMENT,
     tournament_id VARCHAR(50) NOT NULL COMMENT '外部赛事ID',
+    year          INT         NOT NULL DEFAULT 2026 COMMENT '赛事年份',
     player_id     VARCHAR(50) NOT NULL COMMENT '外部球员ID',
     draw_type     VARCHAR(10) NOT NULL COMMENT '对应哪个项目签表',
     seed          SMALLINT    COMMENT '种子号，NULL 表示非种子',
@@ -73,7 +77,7 @@ CREATE TABLE tennis_tournament_entry (
     create_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_tennis_entry_player_draw (tournament_id, player_id, draw_type),
+    UNIQUE KEY uk_tennis_entry_player_draw_year (tournament_id, year, player_id, draw_type),
     INDEX idx_tennis_entry_tournament     (tournament_id),
     INDEX idx_tennis_entry_player         (player_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='球员报名信息';
@@ -84,12 +88,14 @@ CREATE TABLE tennis_match (
     match_id         VARCHAR(50) COMMENT '外部API返回的比赛ID，如 MS008',
     draw_id          BIGINT      COMMENT '签表ID',
     tournament_id    VARCHAR(50) COMMENT '外部赛事ID，便于按赛事查询',
+    year             INT         COMMENT '赛事年份',
     round_number     TINYINT     COMMENT '轮次序号：1=首轮，7=决赛（128签）',
     round_name       VARCHAR(32) COMMENT 'R128 / R64 / R32 / R16 / QF / SF / F',
     player1_id       VARCHAR(50) COMMENT '外部球员ID，未确定对阵时允许为 NULL',
     player2_id       VARCHAR(50) COMMENT '外部球员ID，同上',
     winner_id        VARCHAR(50) COMMENT '外部球员ID，比赛结束前为 NULL',
     scheduled_at     DATETIME    COMMENT '计划开赛时间',
+    scheduled_at_text VARCHAR(50) COMMENT 'NotBefore文本，如 Starts At',
     started_at       DATETIME    COMMENT '实际开始时间',
     ended_at         DATETIME    COMMENT '实际结束时间',
     court            VARCHAR(50) COMMENT '场地名称，如 Centre Court',
@@ -102,6 +108,7 @@ CREATE TABLE tennis_match (
     UNIQUE KEY uk_tennis_match_match_id (match_id),
     INDEX idx_tennis_match_draw        (draw_id, round_number),
     INDEX idx_tennis_match_tournament  (tournament_id),
+    INDEX idx_tennis_match_tournament_year (tournament_id, year),
     INDEX idx_tennis_match_player1     (player1_id),
     INDEX idx_tennis_match_player2     (player2_id),
     INDEX idx_tennis_match_status_time (status, scheduled_at)

@@ -19,6 +19,7 @@ public class TennisMatchPO {
     private String matchId;
     private Long drawId;
     private String tournamentId;
+    private Integer year;
     private Integer roundNumber;
     private String roundName;
     private String player1Id;
@@ -30,6 +31,7 @@ public class TennisMatchPO {
     private String court;
     private String status;
     private Integer durationMinutes;
+    private String scheduledAtText;
     private String description;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

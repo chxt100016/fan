@@ -3,6 +3,7 @@ package com.chxt.domain.booking;
 import com.chxt.domain.pic.ScheduleImage;
 import com.chxt.domain.pic.TimetableEnum;
 import lombok.Data;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -21,7 +22,7 @@ public class TennisBookingKeeper {
             // 二
             .tuesday().key(TimetableEnum.HL_OUT).hour(8)
             // 三
-            .wednesday().key(TimetableEnum.HL_OUT).hour(8)
+            .wednesday().key(TimetableEnum.HL_OUT).hour(17, 18, 19, 20)
             // 四
             .thursday().key(TimetableEnum.HL_OUT).hour(8)
             // 五
@@ -35,17 +36,21 @@ public class TennisBookingKeeper {
 
     private Map<String, TennisCourt> historyMap = new HashMap<>();
 
+    @Getter
     private List<TennisCourt> likeItem = new ArrayList<>();
 
-    public byte[] add(List<TennisCourt> tennisCourts) {
+    @Getter
+    private byte[] pic;
+
+    public boolean add(List<TennisCourt> tennisCourts) {
         if (CollectionUtils.isEmpty(tennisCourts)) {
-            return null;
+            return false;
         }
         List<TennisCourt> likeIt = tennisCourts.stream()
                 .filter(item -> likelist.contains(item.getUniqueNo()))
                 .toList();
         if (CollectionUtils.isEmpty(likeIt)) {
-            return null;
+            return false;
         }
         boolean shouldNotice = likeIt.stream().anyMatch(item -> !historyMap.containsKey(item.getUniqueNo()));
 
@@ -53,10 +58,11 @@ public class TennisBookingKeeper {
         tennisCourts.forEach(item -> historyMap.put(item.getUniqueNo(), item));
 
         if (!shouldNotice) {
-            return null;
+            return false;
         }
         this.likeItem = likeIt;
-        return this.getPic(likeIt);
+        this. pic = this.getPic(likeIt);
+        return true;
     }
 
     @SneakyThrows

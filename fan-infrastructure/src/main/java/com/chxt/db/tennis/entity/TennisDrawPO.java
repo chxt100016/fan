@@ -17,6 +17,7 @@ public class TennisDrawPO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String tournamentId;
+    private Integer year;
     private String drawType;
     private Integer size;
     private Integer totalRounds;

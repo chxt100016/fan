@@ -32,16 +32,20 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
                 .in(TennisTournamentPO::getTournamentId, tournamentIds)
                 .list()
                 .stream()
-                .collect(Collectors.toMap(TennisTournamentPO::getTournamentId, t -> t, (a, b) -> a));
+                .collect(Collectors.toMap(
+                        t -> t.getTournamentId() + "_" + t.getYear(),
+                        t -> t, (a, b) -> a));
 
         List<TennisTournamentPO> toInsert = tournaments.stream()
-                .filter(t -> t.getTournamentId() == null || !existMap.containsKey(t.getTournamentId()))
+                .filter(t -> t.getTournamentId() == null
+                        || !existMap.containsKey(t.getTournamentId() + "_" + t.getYear()))
                 .toList();
 
         List<TennisTournamentPO> toUpdate = tournaments.stream()
-                .filter(t -> t.getTournamentId() != null && existMap.containsKey(t.getTournamentId()))
+                .filter(t -> t.getTournamentId() != null
+                        && existMap.containsKey(t.getTournamentId() + "_" + t.getYear()))
                 .map(t -> {
-                    TennisTournamentPO po = existMap.get(t.getTournamentId());
+                    TennisTournamentPO po = existMap.get(t.getTournamentId() + "_" + t.getYear());
                     po.setName(t.getName());
                     po.setTour(t.getTour());
                     po.setCategory(t.getCategory());

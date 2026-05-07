@@ -12,15 +12,7 @@ public class AtpCollectJob {
     @Resource
     private AtpCollectService atpCollectService;
 
-//    @Scheduled(cron = "${tennis.collect.matches.cron}")
-    public void collectLiveMatches() {
-        try {
-            log.info("定时任务: 采集进行中的比赛列表");
-            atpCollectService.tournaments();
-        } catch (Exception e) {
-            log.error("定时任务: 采集进行中的比赛列表失败", e);
-        }
-    }
+
 
 //    @Scheduled(cron = "${tennis.collect.draws.cron}")
     public void collectDrawsForCurrentTournaments() {

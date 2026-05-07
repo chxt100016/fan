@@ -12,8 +12,8 @@ public enum ScreenEnum {
     GATE("gate", "大门", NoticeProviderEnum.HOMEKIT,
             Map.of("key", "gate")
     ),
-    TENNIS("tennis", "网球", NoticeProviderEnum.HOMEKIT,
-            Map.of("key", "tennis")
+    TENNIS("tennis", "网球", NoticeProviderEnum.I_MESSAGE,
+            Map.of("guid", "any;-;+8613372507785,any;-;2430813409@qq.com")
     ),
     DONG_YA("dong_ya", "动鸭", NoticeProviderEnum.I_MESSAGE,
             Map.of("guid", "any;-;+8613372507785")

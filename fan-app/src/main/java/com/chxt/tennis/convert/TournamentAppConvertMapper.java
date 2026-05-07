@@ -18,9 +18,9 @@ public interface TournamentAppConvertMapper {
     @Mapping(target = "category", source = "type")
     @Mapping(target = "city", source = "info.city")
     @Mapping(target = "country", source = "location")
-    @Mapping(target = "tour", constant = "ATP")
+    @Mapping(target = "tour", source = "gender")
     @Mapping(target = "prizeMoneyText", expression = "java(info.getInfo() != null ? info.getInfo().getPrize() : null)")
-    @Mapping(target = "prizeMoney", ignore = true)
+    @Mapping(target = "prizeMoney", expression = "java(parsePrizeMoney(info.getInfo()))")
     @Mapping(target = "status", constant = "active")
     @Mapping(target = "startDate", expression = "java(parseDate(info.getStart()))")
     @Mapping(target = "endDate", expression = "java(parseDate(info.getEnd()))")
@@ -37,6 +37,16 @@ public interface TournamentAppConvertMapper {
         if (dateStr == null || dateStr.isEmpty()) return null;
         try {
             return java.time.LocalDate.parse(dateStr);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    default Integer parsePrizeMoney(MatchesResponse.TournamentDetailInfo info) {
+        if (info == null || info.getPrize() == null) return null;
+        try {
+            String cleaned = info.getPrize().replaceAll("[^0-9]", "");
+            return cleaned.isEmpty() ? null : Integer.parseInt(cleaned);
         } catch (Exception e) {
             return null;
         }

@@ -5,6 +5,8 @@ import com.chxt.client.huanglong.HuanglongClient;
 import com.chxt.domain.booking.TennisBookingKeeper;
 import com.chxt.domain.booking.TennisCourt;
 
+import com.chxt.domain.notice.NoticeManager;
+import com.chxt.domain.notice.model.ScreenEnum;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -30,15 +32,20 @@ public class TennisNoticeService {
     }
 
     @Resource
+    private NoticeManager noticeManager;
+
+    @Resource
     private HuanglongClient huanglongClient;
 
     public void touch() {
         List<TennisCourt> all = huanglongClient.getOutdoorAndIndoor(DAY_RANGE);
-        byte[] pic = keeper.add(all);
-        if (pic != null && pic.length > 0) {
-            // 更新图片流
-            pictureStreamCache.getPictureStream(TENNIS_STREAM).update(pic, List.of(pic));
+        boolean shouldNotice = keeper.add(all);
+        if (!shouldNotice) {
+            return;
         }
+
+        this.noticeManager.notice(ScreenEnum.TENNIS, TennisCourt.getNoticeText(keeper.getLikeItem()));
+
     }
 
     public byte[] getStillImage() {

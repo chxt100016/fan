@@ -34,13 +34,14 @@ public class DongyaNotificationFormatter implements NotificationFormatter {
         StringBuilder sb = new StringBuilder();
 
         String timeInfo = formatTimeInfo(activity.getBeginTime(), activity.getFinishTime());
-        sb.append("时间: ").append(timeInfo).append("\n");
-
-        sb.append("活动: ").append(activity.getName()).append("\n");
-
         int currentCount = activity.getParticipants() != null ? activity.getParticipants().size() : 0;
         int maxCount = activity.getParticipantMax() != null ? activity.getParticipantMax() : 0;
-        sb.append("人数: ").append(currentCount).append("/").append(maxCount).append("\n");
+        sb.append("时间: ").append(timeInfo).append(" ").append(currentCount).append("/").append(maxCount).append("\n");
+
+        sb.append("活动: ").append(activity.getPlacename()).append("\n");
+
+
+
 
         return sb.toString();
     }

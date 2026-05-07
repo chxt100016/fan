@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Tournament {
     private String tournamentId;
+    private Integer year;
     private String name;
     private String surface;
     private String category;

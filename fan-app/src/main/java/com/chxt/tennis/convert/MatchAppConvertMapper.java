@@ -15,13 +15,14 @@ public interface MatchAppConvertMapper {
     MatchAppConvertMapper INSTANCE = Mappers.getMapper(MatchAppConvertMapper.class);
 
     @Mapping(target = "tournamentId", expression = "java(info.getTournamentId() != null ? String.valueOf(info.getTournamentId()) : null)")
+    @Mapping(target = "year", source = "tournamentYear")
     @Mapping(target = "player1Id", expression = "java(info.getPlayerTeam1() != null ? info.getPlayerTeam1().getPlayerId() : null)")
     @Mapping(target = "player2Id", expression = "java(info.getPlayerTeam2() != null ? info.getPlayerTeam2().getPlayerId() : null)")
     @Mapping(target = "playerName1", expression = "java(buildPlayerName(info.getPlayerTeam1()))")
     @Mapping(target = "playerName2", expression = "java(buildPlayerName(info.getPlayerTeam2()))")
     @Mapping(target = "status", expression = "java(convertLiveMatchStatus(info.getStatus()))")
     @Mapping(target = "scheduledAt", expression = "java(parseDateTime(info.getMatchDate()))")
-    @Mapping(target = "roundName", ignore = true)
+    @Mapping(target = "roundName", expression = "java(info.getRound().getLongName())")
     @Mapping(target = "drawId", ignore = true)
     @Mapping(target = "roundNumber", ignore = true)
     @Mapping(target = "winnerId", ignore = true)

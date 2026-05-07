@@ -12,13 +12,15 @@ public interface OopMatchAppConvertMapper {
     OopMatchAppConvertMapper INSTANCE = Mappers.getMapper(OopMatchAppConvertMapper.class);
 
     @Mapping(target = "tournamentId", expression = "java(detail.getTournamentId() != null ? String.valueOf(detail.getTournamentId()) : null)")
+    @Mapping(target = "year", source = "tournamentYear")
     @Mapping(target = "player1Id", expression = "java(detail.getPlayerTeam1() != null ? detail.getPlayerTeam1().getPlayerId() : null)")
     @Mapping(target = "player2Id", expression = "java(detail.getPlayerTeam2() != null ? detail.getPlayerTeam2().getPlayerId() : null)")
     @Mapping(target = "playerName1", expression = "java(buildPlayerName(detail.getPlayerTeam1()))")
     @Mapping(target = "playerName2", expression = "java(buildPlayerName(detail.getPlayerTeam2()))")
     @Mapping(target = "status", expression = "java(convertOopStatus(detail.getStatus()))")
     @Mapping(target = "winnerId", expression = "java(detail.getWinningPlayerId())")
-    @Mapping(target = "scheduledAt", expression = "java(parseDateTime(detail.getMatchDate()))")
+    @Mapping(target = "scheduledAt", expression = "java(parseScheduledAt(detail.getMatchDate(), detail.getNotBeforeISOTime()))")
+    @Mapping(target = "scheduledAtText", source = "notBeforeText")
     @Mapping(target = "court", source = "courtName")
     @Mapping(target = "roundName", expression = "java(detail.getRound() != null ? detail.getRound().getLongName() : null)")
     @Mapping(target = "roundNumber", ignore = true)
@@ -55,10 +57,17 @@ public interface OopMatchAppConvertMapper {
         };
     }
 
-    default java.time.LocalDateTime parseDateTime(String dateTimeStr) {
-        if (dateTimeStr == null || dateTimeStr.isEmpty()) return null;
+    default java.time.LocalDateTime parseScheduledAt(String matchDate, String notBeforeISOTime) {
+        if (matchDate == null || notBeforeISOTime == null) return null;
         try {
-            return java.time.LocalDateTime.parse(dateTimeStr);
+            java.time.LocalDate date = java.time.LocalDate.parse(matchDate);
+            java.time.LocalTime time = java.time.LocalTime.parse(notBeforeISOTime.substring(0, 5));
+            java.time.ZoneOffset offset = java.time.ZoneOffset.of(notBeforeISOTime.substring(5));
+            return java.time.LocalDateTime.of(date, time)
+                    .atOffset(offset)
+                    .toZonedDateTime()  // 转成 ZonedDateTime
+                    .withZoneSameInstant(java.time.ZoneId.of("Asia/Shanghai"))
+                    .toLocalDateTime();
         } catch (Exception e) {
             return null;
         }

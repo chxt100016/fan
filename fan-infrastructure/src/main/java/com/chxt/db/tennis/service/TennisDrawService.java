@@ -12,9 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class TennisDrawService extends ServiceImpl<TennisDrawMapper, TennisDrawPO> {
 
     @Transactional(rollbackFor = Exception.class)
-    public Long saveOrUpdate(String tournamentId, String drawType, Integer size, Integer totalRounds) {
+    public Long saveOrUpdate(String tournamentId, Integer year, String drawType, Integer size, Integer totalRounds) {
         TennisDrawPO existing = this.lambdaQuery()
                 .eq(TennisDrawPO::getTournamentId, tournamentId)
+                .eq(TennisDrawPO::getYear, year)
                 .eq(TennisDrawPO::getDrawType, drawType)
                 .one();
 
@@ -27,11 +28,12 @@ public class TennisDrawService extends ServiceImpl<TennisDrawMapper, TennisDrawP
 
         TennisDrawPO draw = new TennisDrawPO();
         draw.setTournamentId(tournamentId);
+        draw.setYear(year);
         draw.setDrawType(drawType);
         draw.setSize(size);
         draw.setTotalRounds(totalRounds);
         this.save(draw);
-        log.info("创建签表: tournamentId={}, drawType={}, size={}", tournamentId, drawType, size);
+        log.info("创建签表: tournamentId={}, year={}, drawType={}, size={}", tournamentId, year, drawType, size);
         return draw.getId();
     }
 }

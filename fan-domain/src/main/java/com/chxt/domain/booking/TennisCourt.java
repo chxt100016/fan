@@ -170,6 +170,22 @@ public class TennisCourt {
         }
     }
 
+    public static String getNoticeText(List<TennisCourt> tennisCourts) {
+        if (CollectionUtils.isEmpty(tennisCourts)) {
+            return "";
+        }
+
+        Map<String, List<String>> dayOfWeekAndTime = getDayOfWeekAndTime(tennisCourts);
+        StringBuilder sb = new StringBuilder("【网球场】\uD83C\uDFBE\uD83C\uDFBE\uD83C\uDFBE\n");
+        for (Map.Entry<String, List<String>> entry : dayOfWeekAndTime.entrySet()) {
+            String key = entry.getKey();
+            List<String> value = entry.getValue();
+            sb.append(key).append(": ").append(String.join(",", value)).append("\n");
+        }
+        return sb.toString();
+
+    }
+
 
 
 

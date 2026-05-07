@@ -1,10 +1,13 @@
 package com.chxt.web;
 
 
+import com.chxt.client.bluebubbles.BlueBubblesClient;
+import com.chxt.job.DongYaJob;
 import com.chxt.tennis.AtpCollectService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -15,18 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
+    @Resource
+    private BlueBubblesClient blueBubblesClient;
 
     @Resource
-    private AtpCollectService atpCollectService;
+    private DongYaJob dongYaJob;
 
-    @RequestMapping("/tournaments")
-    public void tournaments() {
-        this.atpCollectService.tournaments();
+
+    @RequestMapping("/dongYa")
+    public void dongYa() {
+        this.dongYaJob.monitorTennisMatches();
     }
 
-    @RequestMapping("/currentDraws")
-    public void currentDraws() {
-        this.atpCollectService.currentDraws();
+    @RequestMapping("/blueBubbles")
+    public void blueBubbles(@RequestParam("msg") String msg) {
+        this.blueBubblesClient.send(msg);
     }
 
 

@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,7 +45,7 @@ public class AtpMatchService {
         return data.size();
     }
 
-    public List<Match> buildFromDraw(DrawsResponse.Draw draw, String tournamentId, Long drawId) {
+    public List<Match> buildFromDraw(DrawsResponse.Draw draw, String tournamentId, Long drawId, Integer year) {
         List<Match> allMatches = new ArrayList<>();
         if (draw == null || CollectionUtils.isEmpty(draw.getRounds())) {
             return allMatches;
@@ -56,6 +59,7 @@ public class AtpMatchService {
                 Match match = DrawMatchAppConvertMapper.INSTANCE.toMatch(fixture);
                 match.setTournamentId(tournamentId);
                 match.setDrawId(drawId);
+                match.setYear(year);
                 match.setRoundNumber(round.getRoundId());
                 match.setRoundName(round.getRoundName());
 
@@ -72,29 +76,6 @@ public class AtpMatchService {
         return allMatches;
     }
 
-    public List<Match> buildFromOop(OopResponse response) {
-        List<Match> allMatches = new ArrayList<>();
-        if (response == null || CollectionUtils.isEmpty(response.getOop())) {
-            return allMatches;
-        }
-
-        for (OopResponse.OopDay oopDay : response.getOop()) {
-            if (oopDay.getCourts() == null) {
-                continue;
-            }
-            for (Map.Entry<String, OopResponse.CourtDetail> entry : oopDay.getCourts().entrySet()) {
-                OopResponse.CourtDetail court = entry.getValue();
-                if (court.getMatches() == null) {
-                    continue;
-                }
-                for (OopResponse.MatchDetail detail : court.getMatches()) {
-                    allMatches.add(OopMatchAppConvertMapper.INSTANCE.toMatch(detail));
-                }
-            }
-        }
-        return allMatches;
-    }
-
     public void saveMatches(List<Match> matches) {
         if (CollectionUtils.isEmpty(matches)) {
             return;
@@ -104,6 +85,28 @@ public class AtpMatchService {
 
         // 保存 SetScore 数据
         saveSetScores(matches);
+    }
+
+    public void updateMatches(List<Match> matches) {
+        if (CollectionUtils.isEmpty(matches)) {
+            return;
+        }
+        List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(matches);
+        List<String> matchIds = matchPOs.stream()
+                .map(TennisMatchPO::getMatchId).filter(Objects::nonNull).toList();
+        if (CollectionUtils.isEmpty(matchIds)) {
+            return;
+        }
+        Set<String> existIds = tennisMatchService.lambdaQuery()
+                .in(TennisMatchPO::getMatchId, matchIds)
+                .list().stream().map(TennisMatchPO::getMatchId).collect(Collectors.toSet());
+        List<TennisMatchPO> toUpdate = matchPOs.stream()
+                .filter(m -> m.getMatchId() != null && existIds.contains(m.getMatchId()))
+                .toList();
+        if (CollectionUtils.isNotEmpty(toUpdate)) {
+            tennisMatchService.updateBatchById(toUpdate);
+            log.info("更新已有比赛: {}条", toUpdate.size());
+        }
     }
 
     private void saveSetScores(List<Match> matches) {

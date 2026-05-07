@@ -173,6 +173,14 @@ public class Http {
     }
 
     @SneakyThrows
+    public <T> List<T> resultArray(Class<T> clazz) {
+        if (!this.success || this.contentByteArray == null) {
+            return null;
+        }
+        return StringUtils.isBlank(new String(this.contentByteArray)) ? null : JSON.parseArray(new String(this.contentByteArray), clazz);
+    }
+
+    @SneakyThrows
     public String result() {
         if (!this.success || this.contentByteArray == null) {
             return null;

@@ -47,6 +47,7 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
                     po.setPlayer2Id(m.getPlayer2Id());
                     po.setWinnerId(m.getWinnerId());
                     po.setScheduledAt(m.getScheduledAt());
+                    po.setScheduledAtText(m.getScheduledAtText());
                     po.setStartedAt(m.getStartedAt());
                     po.setEndedAt(m.getEndedAt());
                     po.setCourt(m.getCourt());
@@ -67,9 +68,10 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
         }
     }
 
-    public List<TennisMatchPO> findActiveByTournament(Long tournamentId) {
+    public List<TennisMatchPO> findActiveByTournament(String tournamentId, Integer year) {
         return this.lambdaQuery()
                 .eq(TennisMatchPO::getTournamentId, tournamentId)
+                .eq(TennisMatchPO::getYear, year)
                 .in(TennisMatchPO::getStatus, "live", "scheduled")
                 .list();
     }

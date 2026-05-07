@@ -36,19 +36,17 @@ public class AtpCollectService {
     @Resource
     private TennisDrawService tennisDrawService;
 
-    public void tournaments() {
-        MatchesResponse response = tennisTvClient.getLiveMatches();
-        if (response == null) {
-            log.warn("获取最近比赛返回null");
-            return;
+    public int tournaments(int year) {
+        List<MatchesResponse.TournamentInfo> tournaments = tennisTvClient.getTournaments(year);
+        if (CollectionUtils.isEmpty(tournaments)) {
+            log.warn("从API获取赛事列表为空, year={}", year);
+            return 0;
         }
-
-        int tSize = atpTournamentService.collect(response.getTournaments());
-        int pSize = atpPlayerService.collect(response.getMatches());
-        int mSize = atpMatchService.collect(response.getMatches());
-
-        log.info("tournaments采集完成: 赛事={}, 球员={}, 比赛={}", tSize, pSize, mSize);
+        int size = atpTournamentService.collect(tournaments);
+        log.info("赛事API采集完成: year={}, 数量={}", year, size);
+        return size;
     }
+
 
     public void currentDraws() {
         List<TennisTournamentPO> tournaments = atpTournamentService.current();
@@ -60,15 +58,16 @@ public class AtpCollectService {
 
         for (TennisTournamentPO tournament : tournaments) {
             try {
-                int year = tournament.getStartDate() != null ? tournament.getStartDate().getYear() : java.time.LocalDate.now().getYear();
-                this.collectDraws(tournament.getTournamentId(), year);
+                int year = tournament.getYear() != null ? tournament.getYear()
+                        : (tournament.getStartDate() != null ? tournament.getStartDate().getYear() : java.time.LocalDate.now().getYear());
+                this.draws(tournament.getTournamentId(), year);
             } catch (Exception e) {
                 log.error("采集签表失败, tournamentId={}", tournament.getTournamentId(), e);
             }
         }
     }
 
-    public void collectDraws(String tournamentId, int year) {
+    public void draws(String tournamentId, int year) {
         DrawsResponse response = tennisTvClient.getDraws(tournamentId, year);
         if (response == null) {
             log.warn("签表数据为空");
@@ -83,9 +82,9 @@ public class AtpCollectService {
             DrawsResponse.Draw msDraw = response.getMS();
             Integer totalRounds = msDraw.getRounds() != null ? msDraw.getRounds().size() : 0;
             Long drawId = tennisDrawService.saveOrUpdate(
-                    tournamentId, "MS", msDraw.getDrawSize(), totalRounds);
+                    tournamentId, year, "MS", msDraw.getDrawSize(), totalRounds);
 
-            allMatches.addAll(atpMatchService.buildFromDraw(msDraw, tournamentId, drawId));
+            allMatches.addAll(atpMatchService.buildFromDraw(msDraw, tournamentId, drawId, year));
 
             for (DrawsResponse.Round round : response.getMS().getRounds()) {
                 if (CollectionUtils.isEmpty(round.getFixtures())) {
@@ -103,39 +102,22 @@ public class AtpCollectService {
         log.info("签表采集完成: 球员={}, 比赛={}", allPlayers.size(), allMatches.size());
     }
 
+
+
+
+
     public void currentMatch() {
         log.info("开始采集比赛详情");
 
-        OopResponse response = tennisTvClient.getOop();
-        if (response == null || CollectionUtils.isEmpty(response.getOop())) {
-            log.warn("比赛详情数据为空");
+        List<OopResponse> oop = tennisTvClient.getOop();
+        if (CollectionUtils.isEmpty(oop)) {
             return;
         }
 
-        List<Player> allPlayers = new ArrayList<>();
-        List<Match> allMatches = new ArrayList<>();
 
-        for (OopResponse.OopDay oopDay : response.getOop()) {
-            if (oopDay.getCourts() == null) {
-                continue;
-            }
 
-            for (Map.Entry<String, OopResponse.CourtDetail> entry : oopDay.getCourts().entrySet()) {
-                OopResponse.CourtDetail court = entry.getValue();
-                if (court.getMatches() == null) {
-                    continue;
-                }
 
-                for (OopResponse.MatchDetail detail : court.getMatches()) {
-                    allPlayers.addAll(atpPlayerService.extractFromOopMatch(detail));
-                    allMatches.add(com.chxt.tennis.convert.OopMatchAppConvertMapper.INSTANCE.toMatch(detail));
-                }
-            }
-        }
 
-        atpPlayerService.savePlayers(allPlayers);
-        atpMatchService.saveMatches(allMatches);
 
-        log.info("比赛详情采集完成: 球员={}, 比赛={}", allPlayers.size(), allMatches.size());
     }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 public class Match {
     private String matchId;
     private String tournamentId;
+    private Integer year;
     private Long drawId;
     private Integer roundNumber;
     private String roundName;
@@ -30,5 +31,6 @@ public class Match {
     private LocalDateTime endedAt;
     private Integer durationMinutes;
     private List<SetScore> sets;
+    private String scheduledAtText;
     private String description;
 }

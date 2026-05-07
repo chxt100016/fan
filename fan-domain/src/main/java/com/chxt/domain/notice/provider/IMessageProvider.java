@@ -14,9 +14,15 @@ public class IMessageProvider implements NoticeProvider{
 
     @Override
     public void notice(NoticeContext noticeContext) {
-        String guid = noticeContext.getScreenEnum().getConfig().get("guid");
+        String guidStr = noticeContext.getScreenEnum().getConfig().get("guid");
+        String[] guidArr = guidStr.split(",");
         String msg = noticeContext.getData().toString();
-        this.blueBubblesGateway.send(guid, msg);
+        for (String guid : guidArr) {
+            this.blueBubblesGateway.send(guid, msg);
+        }
+
+
+
     }
 
     @Override
