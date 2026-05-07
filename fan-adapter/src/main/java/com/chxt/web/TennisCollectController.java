@@ -21,7 +21,7 @@ public class TennisCollectController {
 
 
 
-    @PostMapping("/currentDraws")
+    @GetMapping("/currentDraws")
     public String collectCurrentDraws() {
         atpCollectService.currentDraws();
         return "当前签表采集完成";

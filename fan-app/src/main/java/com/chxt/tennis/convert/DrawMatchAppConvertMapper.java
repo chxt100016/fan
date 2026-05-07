@@ -88,6 +88,14 @@ public interface DrawMatchAppConvertMapper {
         if (fixture.getMatch() != null && fixture.getMatch().getWinningPlayerId() != null) {
             return fixture.getMatch().getWinningPlayerId();
         }
+        if (fixture.getResult() != null && "BYE".equals(fixture.getResult().getResultType())) {
+            if (fixture.getResult().getTeamTop() != null) {
+                return fixture.getResult().getTeamTop().getPlayer().getPlayerId();
+            }
+            if (fixture.getResult().getTeamBottom() != null) {
+                return fixture.getResult().getTeamBottom().getPlayer().getPlayerId();
+            }
+        }
         return null;
     }
 
