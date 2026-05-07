@@ -2,6 +2,7 @@ package com.chxt.domain.dongya;
 
 
 import com.chxt.domain.dongya.filter.FilterManager;
+import com.chxt.domain.dongya.gateway.ActivityQueryGateway;
 import com.chxt.domain.dongya.model.Activity;
 import com.chxt.domain.notice.NoticeManager;
 import com.chxt.domain.notice.model.ScreenEnum;
@@ -16,7 +17,7 @@ import java.util.List;
 public class ActivityMonitorService {
 
     @Resource
-    private ActivityQueryService activityQueryService;
+    private ActivityQueryGateway activityQueryGateway;
 
     @Resource
     private FilterManager filterManager;
@@ -26,7 +27,7 @@ public class ActivityMonitorService {
 
     public void monitorActivities() {
         try {
-            List<Activity> activities = activityQueryService.queryActivities();
+            List<Activity> activities = activityQueryGateway.queryActivities();
             if (activities.isEmpty()) {
                 log.info("未获取到活动数据");
                 return;

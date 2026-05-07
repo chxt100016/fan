@@ -94,7 +94,7 @@ public class Activity {
     }
 
     public String toMessage() {
-        return "【新比赛】\n" +
+        return "【新比赛】\uD83C\uDFAF\uD83C\uDFAF\uD83C\uDFAF \n" +
                 formatBasicInfo() + "\n" +
                 formatParticipants();
     }
@@ -105,8 +105,8 @@ public class Activity {
         String timeInfo = DateStandardUtils.formatTimeInfo(this.beginTime, this.finishTime);
         int currentCount = this.participants != null ? this.participants.size() : 0;
         int maxCount = this.participantMax != null ? this.participantMax : 0;
-        sb.append(this.divisionInfo.get(0).getLevelTennis()).append(" ").append(this.placename).append("\n");
-        sb.append(timeInfo).append(" ").append(currentCount).append("/").append(maxCount).append("\n");
+        sb.append(this.divisionInfo.get(0).getLevelTennis()).append(" ").append(this.getDistrict()).append(" ").append(this.placename).append("\n");
+        sb.append(timeInfo).append(" 人数:").append(currentCount).append("/").append(maxCount).append("\n");
         return sb.toString();
     }
 
