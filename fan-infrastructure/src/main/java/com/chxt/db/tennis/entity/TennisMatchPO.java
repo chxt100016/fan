@@ -32,6 +32,7 @@ public class TennisMatchPO {
     private String status;
     private Integer durationMinutes;
     private String scheduledAtText;
+    private Integer courtSeq;
     private String description;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

@@ -101,6 +101,7 @@ CREATE TABLE tennis_match (
     started_at       DATETIME    COMMENT '实际开始时间',
     ended_at         DATETIME    COMMENT '实际结束时间',
     court            VARCHAR(50) COMMENT '场地名称，如 Centre Court',
+    court_seq        TINYINT     COMMENT '该球场第几场比赛',
     status           VARCHAR(20) NOT NULL DEFAULT '' COMMENT '',
     duration_minutes SMALLINT    COMMENT '比赛时长（分钟）',
     description TEXT COMMENT '比赛描述',

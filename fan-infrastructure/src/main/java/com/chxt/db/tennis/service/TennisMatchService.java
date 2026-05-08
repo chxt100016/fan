@@ -51,6 +51,7 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
                     po.setStartedAt(m.getStartedAt());
                     po.setEndedAt(m.getEndedAt());
                     po.setCourt(m.getCourt());
+                    po.setCourtSeq(m.getCourtSeq());
                     po.setStatus(m.getStatus());
                     po.setDurationMinutes(m.getDurationMinutes());
                     po.setDescription(m.getDescription());

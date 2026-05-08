@@ -32,5 +32,6 @@ public class Match {
     private Integer durationMinutes;
     private List<SetScore> sets;
     private String scheduledAtText;
+    private Integer courtSeq;
     private String description;
 }

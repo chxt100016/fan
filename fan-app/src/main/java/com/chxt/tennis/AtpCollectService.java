@@ -127,8 +127,24 @@ public class AtpCollectService {
                     if (CollectionUtils.isEmpty(court.getMatches())) {
                         continue;
                     }
+
+                    java.time.LocalDateTime lastMatchScheduledAt = null;
+
                     for (OopResponse.MatchDetail detail : court.getMatches()) {
                         Match match = OopMatchAppConvertMapper.INSTANCE.toMatch(detail);
+
+                        // 处理 "Followed By" 的情况：使用上一场比赛时间 + 70分钟
+                        if ("Followed By".equals(detail.getNotBeforeText()) && match.getScheduledAt() == null) {
+                            if (lastMatchScheduledAt != null) {
+                                match.setScheduledAt(lastMatchScheduledAt.plusMinutes(70));
+                            }
+                        }
+
+                        // 更新上一场比赛的时间
+                        if (match.getScheduledAt() != null) {
+                            lastMatchScheduledAt = match.getScheduledAt();
+                        }
+
                         allMatches.add(match);
                     }
                 }

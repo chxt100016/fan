@@ -2,6 +2,7 @@ package com.chxt.tennis.convert;
 
 import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.tennis.model.Match;
+import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -22,6 +23,7 @@ public interface OopMatchAppConvertMapper {
     @Mapping(target = "scheduledAt", expression = "java(parseScheduledAt(detail.getMatchDate(), detail.getNotBeforeISOTime()))")
     @Mapping(target = "scheduledAtText", source = "notBeforeText")
     @Mapping(target = "court", source = "courtName")
+    @Mapping(target = "courtSeq", source = "courtSeq")
     @Mapping(target = "roundName", expression = "java(detail.getRound() != null ? detail.getRound().getLongName() : null)")
     @Mapping(target = "roundNumber", ignore = true)
     @Mapping(target = "drawId", ignore = true)
@@ -52,7 +54,8 @@ public interface OopMatchAppConvertMapper {
             case "F" -> "finished";
             case "L" -> "live";
             case "S" -> "scheduled";
-            case "C" -> "cancelled";
+            case "C" -> "coming";
+            case "P" -> "playing";
             default -> status;
         };
     }
@@ -60,15 +63,24 @@ public interface OopMatchAppConvertMapper {
     default java.time.LocalDateTime parseScheduledAt(String matchDate, String notBeforeISOTime) {
         if (matchDate == null || notBeforeISOTime == null) return null;
         try {
-            java.time.LocalDate date = java.time.LocalDate.parse(matchDate);
+            // 支持 "2026-05-08" 和 "2026-05-08T00:00:00" 两种格式
+            java.time.LocalDate date = matchDate.length() > 10
+                    ? java.time.LocalDate.parse(matchDate.substring(0, 10))
+                    : java.time.LocalDate.parse(matchDate);
             java.time.LocalTime time = java.time.LocalTime.parse(notBeforeISOTime.substring(0, 5));
-            java.time.ZoneOffset offset = java.time.ZoneOffset.of(notBeforeISOTime.substring(5));
+            String offsetStr = notBeforeISOTime.substring(5);
+            // 支持 "+0000" 格式（转换为 "+00:00"）
+            if (offsetStr.length() == 5 && (offsetStr.startsWith("+") || offsetStr.startsWith("-"))) {
+                offsetStr = offsetStr.substring(0, 3) + ":" + offsetStr.substring(3);
+            }
+            java.time.ZoneOffset offset = java.time.ZoneOffset.of(offsetStr);
             return java.time.LocalDateTime.of(date, time)
                     .atOffset(offset)
-                    .toZonedDateTime()  // 转成 ZonedDateTime
+                    .toZonedDateTime()
                     .withZoneSameInstant(java.time.ZoneId.of("Asia/Shanghai"))
                     .toLocalDateTime();
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
