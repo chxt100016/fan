@@ -7,13 +7,4 @@ spring:
         type: com.zaxxer.hikari.HikariDataSource
 
 job:
-  dongya58:
-    enabled: true
-    cron: "0 0 */2 * * *"
-  tennis:
-    enabled: true
-    collect:
-      matches:
-        cron: "0 */2 * * * *"
-      oop:
-        cron: "0 */5 * * * *"
+

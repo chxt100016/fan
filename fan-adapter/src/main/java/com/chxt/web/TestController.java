@@ -2,6 +2,7 @@ package com.chxt.web;
 
 
 import com.chxt.client.bluebubbles.BlueBubblesClient;
+import com.chxt.domain.dongya.ActivityMonitorService;
 import com.chxt.job.DongYaJob;
 import com.chxt.tennis.AtpCollectService;
 import jakarta.annotation.Resource;
@@ -22,12 +23,12 @@ public class TestController {
     private BlueBubblesClient blueBubblesClient;
 
     @Resource
-    private DongYaJob dongYaJob;
+    private ActivityMonitorService activityMonitorService;
 
 
     @RequestMapping("/dongYa")
     public void dongYa() {
-        this.dongYaJob.monitorTennisMatches();
+        this.activityMonitorService.monitorActivities();
     }
 
     @RequestMapping("/blueBubbles")
