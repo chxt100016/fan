@@ -1,5 +1,6 @@
 package com.chxt.job;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import com.chxt.notice.TennisNoticeService;
 import jakarta.annotation.Resource;
 
 @Component
+@ConditionalOnProperty(name = "job.tennis.enabled", havingValue = "true", matchIfMissing = false)
 public class TennisJob {
 
     @Resource

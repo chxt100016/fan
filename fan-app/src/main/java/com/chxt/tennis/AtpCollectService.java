@@ -6,6 +6,7 @@ import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
 import com.chxt.db.tennis.service.TennisDrawService;
+import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.Player;
 import jakarta.annotation.Resource;
@@ -113,10 +114,34 @@ public class AtpCollectService {
             return;
         }
 
+        List<Match> allMatches = new ArrayList<>();
+        for (OopResponse tournament : oop) {
+            if (CollectionUtils.isEmpty(tournament.getOop())) {
+                continue;
+            }
+            for (OopResponse.OopDay day : tournament.getOop()) {
+                if (day.getCourts() == null) {
+                    continue;
+                }
+                for (OopResponse.CourtDetail court : day.getCourts().values()) {
+                    if (CollectionUtils.isEmpty(court.getMatches())) {
+                        continue;
+                    }
+                    for (OopResponse.MatchDetail detail : court.getMatches()) {
+                        Match match = OopMatchAppConvertMapper.INSTANCE.toMatch(detail);
+                        allMatches.add(match);
+                    }
+                }
+            }
+        }
 
+        if (CollectionUtils.isEmpty(allMatches)) {
+            log.info("OOP中无比赛数据");
+            return;
+        }
 
-
-
+        atpMatchService.saveMatches(allMatches);
+        log.info("比赛详情采集完成: 数量={}", allMatches.size());
 
     }
 }
