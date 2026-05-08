@@ -3,10 +3,12 @@ package com.chxt.job;
 import com.chxt.tennis.AtpCollectService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "job.tennis.enabled", havingValue = "true", matchIfMissing = false)
 public class AtpCollectJob {
 
     @Resource

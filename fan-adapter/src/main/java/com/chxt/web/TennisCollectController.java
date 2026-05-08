@@ -33,7 +33,7 @@ public class TennisCollectController {
         return "签表采集完成: " + tournamentId + "/" + year;
     }
 
-    @PostMapping("/currentMatch")
+    @GetMapping("/currentMatch")
     public String collectCurrentMatch() {
         atpCollectService.currentMatch();
         return "比赛详情采集完成";
