@@ -6,6 +6,7 @@ import com.chxt.db.tennis.mapper.TennisMatchMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Service
 public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMatchPO> {
 
+    @Transactional(rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<TennisMatchPO> matches) {
         if (CollectionUtils.isEmpty(matches)) {
             return;
@@ -37,25 +39,9 @@ public class TennisMatchService extends ServiceImpl<TennisMatchMapper, TennisMat
 
         List<TennisMatchPO> toUpdate = matches.stream()
                 .filter(m -> m.getMatchId() != null && existMap.containsKey(m.getMatchId()))
-                .map(m -> {
+                .peek(m -> {
                     TennisMatchPO po = existMap.get(m.getMatchId());
-                    po.setTournamentId(m.getTournamentId());
-                    po.setDrawId(m.getDrawId());
-                    po.setRoundNumber(m.getRoundNumber());
-                    po.setRoundName(m.getRoundName());
-                    po.setPlayer1Id(m.getPlayer1Id());
-                    po.setPlayer2Id(m.getPlayer2Id());
-                    po.setWinnerId(m.getWinnerId());
-                    po.setScheduledAt(m.getScheduledAt());
-                    po.setScheduledAtText(m.getScheduledAtText());
-                    po.setStartedAt(m.getStartedAt());
-                    po.setEndedAt(m.getEndedAt());
-                    po.setCourt(m.getCourt());
-                    po.setCourtSeq(m.getCourtSeq());
-                    po.setStatus(m.getStatus());
-                    po.setDurationMinutes(m.getDurationMinutes());
-                    po.setDescription(m.getDescription());
-                    return po;
+                    m.setId(po.getId());
                 })
                 .toList();
 

@@ -22,21 +22,18 @@ public class TennisSetScoreService extends ServiceImpl<TennisSetScoreMapper, Ten
             return;
         }
 
-        List<String> matchIds = scores.stream()
-                .map(TennisSetScorePO::getMatchId)
-                .filter(java.util.Objects::nonNull)
-                .distinct()
-                .toList();
-
+        // 按 (tournamentId, year, matchId) 组合键查询已有数据
         Map<String, List<TennisSetScorePO>> existMap = this.lambdaQuery()
-                .in(TennisSetScorePO::getMatchId, matchIds)
+                .in(TennisSetScorePO::getTournamentId, scores.stream().map(TennisSetScorePO::getTournamentId).distinct().toList())
+                .in(TennisSetScorePO::getYear, scores.stream().map(TennisSetScorePO::getYear).filter(java.util.Objects::nonNull).distinct().toList())
+                .in(TennisSetScorePO::getMatchId, scores.stream().map(TennisSetScorePO::getMatchId).distinct().toList())
                 .list()
                 .stream()
-                .collect(Collectors.groupingBy(TennisSetScorePO::getMatchId));
+                .collect(Collectors.groupingBy(s -> buildKey(s.getTournamentId(), s.getYear(), s.getMatchId())));
 
         List<TennisSetScorePO> toInsert = scores.stream()
                 .filter(s -> {
-                    List<TennisSetScorePO> existing = existMap.get(s.getMatchId());
+                    List<TennisSetScorePO> existing = existMap.get(buildKey(s.getTournamentId(), s.getYear(), s.getMatchId()));
                     if (existing == null || existing.isEmpty()) return true;
                     return existing.stream().noneMatch(e -> e.getSetNumber().equals(s.getSetNumber()));
                 })
@@ -44,12 +41,12 @@ public class TennisSetScoreService extends ServiceImpl<TennisSetScoreMapper, Ten
 
         List<TennisSetScorePO> toUpdate = scores.stream()
                 .filter(s -> {
-                    List<TennisSetScorePO> existing = existMap.get(s.getMatchId());
+                    List<TennisSetScorePO> existing = existMap.get(buildKey(s.getTournamentId(), s.getYear(), s.getMatchId()));
                     if (existing == null) return false;
                     return existing.stream().anyMatch(e -> e.getSetNumber().equals(s.getSetNumber()));
                 })
                 .map(s -> {
-                    List<TennisSetScorePO> existing = existMap.get(s.getMatchId());
+                    List<TennisSetScorePO> existing = existMap.get(buildKey(s.getTournamentId(), s.getYear(), s.getMatchId()));
                     return existing.stream()
                             .filter(e -> e.getSetNumber().equals(s.getSetNumber()))
                             .findFirst()
@@ -72,5 +69,9 @@ public class TennisSetScoreService extends ServiceImpl<TennisSetScoreMapper, Ten
             this.updateBatchById(toUpdate);
             log.info("批量更新盘分: {}条", toUpdate.size());
         }
+    }
+
+    private String buildKey(String tournamentId, Integer year, String matchId) {
+        return tournamentId + "_" + year + "_" + matchId;
     }
 }

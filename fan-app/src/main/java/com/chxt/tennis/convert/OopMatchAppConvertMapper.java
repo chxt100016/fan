@@ -2,10 +2,14 @@ package com.chxt.tennis.convert;
 
 import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.tennis.model.Match;
-import lombok.extern.slf4j.Slf4j;
+import com.chxt.tennis.model.MatchStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Mapper
 public interface OopMatchAppConvertMapper {
@@ -18,7 +22,7 @@ public interface OopMatchAppConvertMapper {
     @Mapping(target = "player2Id", expression = "java(detail.getPlayerTeam2() != null ? detail.getPlayerTeam2().getPlayerId() : null)")
     @Mapping(target = "playerName1", expression = "java(buildPlayerName(detail.getPlayerTeam1()))")
     @Mapping(target = "playerName2", expression = "java(buildPlayerName(detail.getPlayerTeam2()))")
-    @Mapping(target = "status", expression = "java(convertOopStatus(detail.getStatus()))")
+    @Mapping(target = "status", expression = "java(com.chxt.tennis.model.MatchStatus.toStatus(detail.getStatus()))")
     @Mapping(target = "winnerId", expression = "java(detail.getWinningPlayerId())")
     @Mapping(target = "scheduledAt", expression = "java(parseScheduledAt(detail.getMatchDate(), detail.getNotBeforeISOTime()))")
     @Mapping(target = "scheduledAtText", source = "notBeforeText")
@@ -31,6 +35,7 @@ public interface OopMatchAppConvertMapper {
     @Mapping(target = "endedAt", ignore = true)
     @Mapping(target = "durationMinutes", ignore = true)
     @Mapping(target = "sets", ignore = true)
+    @Mapping(target = "matchDate", expression = "java(parseMatchDate(detail.getMatchDate()))")
     Match toMatch(OopResponse.MatchDetail detail);
 
     default String buildPlayerName(OopResponse.PlayerTeam team) {
@@ -46,18 +51,6 @@ public interface OopMatchAppConvertMapper {
             sb.append(team.getPlayerLastName());
         }
         return sb.length() > 0 ? sb.toString() : null;
-    }
-
-    default String convertOopStatus(String status) {
-        if (status == null) return null;
-        return switch (status) {
-            case "F" -> "finished";
-            case "L" -> "live";
-            case "S" -> "scheduled";
-            case "C" -> "coming";
-            case "P" -> "playing";
-            default -> status;
-        };
     }
 
     default java.time.LocalDateTime parseScheduledAt(String matchDate, String notBeforeISOTime) {
@@ -81,6 +74,20 @@ public interface OopMatchAppConvertMapper {
                     .toLocalDateTime();
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    default LocalDate parseMatchDate(String matchDateStr) {
+        if (matchDateStr == null || matchDateStr.isEmpty()) return null;
+        try {
+            // 支持 "2026-05-08" 和 "2026-05-08T10:12:44" 两种格式
+            if (matchDateStr.length() > 10) {
+                LocalDateTime dateTime = LocalDateTime.parse(matchDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                return dateTime.toLocalDate();
+            }
+            return LocalDate.parse(matchDateStr);
+        } catch (Exception e) {
             return null;
         }
     }

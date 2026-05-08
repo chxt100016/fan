@@ -115,6 +115,8 @@ public class AtpMatchService {
             for (SetScore setScore : match.getSets()) {
                 TennisSetScorePO po = new TennisSetScorePO();
                 po.setMatchId(match.getMatchId());
+                po.setTournamentId(match.getTournamentId());
+                po.setYear(match.getYear());
                 po.setSetNumber(setScore.getSetNumber());
                 po.setP1Games(setScore.getP1Games());
                 po.setP2Games(setScore.getP2Games());

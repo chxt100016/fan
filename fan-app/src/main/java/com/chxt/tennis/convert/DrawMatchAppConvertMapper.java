@@ -2,11 +2,13 @@ package com.chxt.tennis.convert;
 
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.tennis.model.Match;
+import com.chxt.tennis.model.MatchStatus;
 import com.chxt.tennis.model.SetScore;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public interface DrawMatchAppConvertMapper {
     @Mapping(target = "playerName1", expression = "java(buildFullName(getPlayer1(fixture)))")
     @Mapping(target = "playerName2", expression = "java(buildFullName(getPlayer2(fixture)))")
     @Mapping(target = "winnerId", expression = "java(getWinnerId(fixture))")
-    @Mapping(target = "status", expression = "java(convertDrawStatus(fixture.getPulseStatus()))")
+    @Mapping(target = "status", expression = "java(com.chxt.tennis.model.MatchStatus.toStatus(fixture.getMatch() != null ? fixture.getMatch().getStatus() : null))")
     @Mapping(target = "startedAt", expression = "java(parseMatchDate(fixture))")
     @Mapping(target = "endedAt", expression = "java(parseMatchDate(fixture))")
     @Mapping(target = "durationMinutes", expression = "java(parseDuration(fixture.getResult()))")
@@ -35,6 +37,7 @@ public interface DrawMatchAppConvertMapper {
     @Mapping(target = "scheduledAt", ignore = true)
     @Mapping(target = "sets", expression = "java(parseSetResults(fixture))")
     @Mapping(target = "description", expression = "java(fixture.getMetadata().getDescription())")
+    @Mapping(target = "matchDate", expression = "java(parseMatchDateToOnlyDate(fixture))")
     Match toMatch(DrawsResponse.Fixture fixture);
 
     default Long parseLong(Object value) {
@@ -122,22 +125,27 @@ public interface DrawMatchAppConvertMapper {
         return sb.length() > 0 ? sb.toString() : null;
     }
 
-    default String convertDrawStatus(String pulseStatus) {
-        if (pulseStatus == null) return "scheduled";
-        return switch (pulseStatus) {
-            case "C" -> "finished";
-            case "L" -> "live";
-            case "U" -> "scheduled";
-            default -> "scheduled";
-        };
-    }
-
     default LocalDateTime parseMatchDate(DrawsResponse.Fixture fixture) {
         if (fixture.getMatch() == null || fixture.getMatch().getMatchDate() == null) {
             return null;
         }
         try {
             return LocalDateTime.parse(fixture.getMatch().getMatchDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    default LocalDate parseMatchDateToOnlyDate(DrawsResponse.Fixture fixture) {
+        if (fixture.getMatch() == null) {
+            return null;
+        }
+        if (fixture.getMatch().getMatchDate() == null) {
+            return null;
+        }
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(fixture.getMatch().getMatchDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            return dateTime.toLocalDate();
         } catch (Exception e) {
             return null;
         }

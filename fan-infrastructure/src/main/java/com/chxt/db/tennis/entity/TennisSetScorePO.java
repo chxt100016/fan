@@ -18,6 +18,9 @@ public class TennisSetScorePO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String matchId;
+    @TableField("tournament_id")
+    private String tournamentId;
+    private Integer year;
     @TableField("set_number")
     private Integer setNumber;
     @TableField("p1_games")

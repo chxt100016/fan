@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,4 +35,5 @@ public class Match {
     private String scheduledAtText;
     private Integer courtSeq;
     private String description;
+    private LocalDate matchDate;
 }
