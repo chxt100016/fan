@@ -106,6 +106,19 @@ public class AtpCollectService {
 
 
 
+    /**
+     * 采集进行中比赛（status=P），更新时长、状态、盘分、场地、球员
+     */
+    public void liveMatch() {
+        log.info("开始采集进行中比赛");
+        MatchesResponse response = tennisTvClient.getMatchesByStatus("L");
+        if (response == null || CollectionUtils.isEmpty(response.getMatches())) {
+            log.info("无进行中的比赛");
+            return;
+        }
+        atpMatchService.updateLiveMatches(response.getMatches());
+    }
+
     public void currentMatch() {
         log.info("开始采集比赛详情");
 

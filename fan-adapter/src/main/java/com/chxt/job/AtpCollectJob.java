@@ -4,6 +4,7 @@ import com.chxt.tennis.AtpCollectService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -14,26 +15,21 @@ public class AtpCollectJob {
     @Resource
     private AtpCollectService atpCollectService;
 
-
-
-//    @Scheduled(cron = "${tennis.collect.draws.cron}")
-    public void collectDrawsForCurrentTournaments() {
-        try {
-            log.info("定时任务: 采集当前赛事签表");
-            atpCollectService.currentDraws();
-        } catch (Exception e) {
-            log.error("定时任务: 采集当前赛事签表失败", e);
-        }
+    /** 每天凌晨2点采集当前进行中赛事签表 */
+    @Scheduled(cron = "${job.tennis.collect.draws.cron}")
+    public void currentDraws() {
+        atpCollectService.currentDraws();
     }
 
+    /** 每小时采集比赛详情 */
+    @Scheduled(cron = "${job.tennis.collect.matches.cron}")
+    public void currentMatch() {
+        atpCollectService.currentMatch();
+    }
 
-//    @Scheduled(cron = "${tennis.collect.oop.cron}")
-    public void collectMatchDetails() {
-        try {
-            log.info("定时任务: 采集进行中比赛详情");
-            atpCollectService.currentMatch();
-        } catch (Exception e) {
-            log.error("定时任务: 采集比赛详情失败", e);
-        }
+    /** 每3分钟采集进行中比赛实时状态 */
+    @Scheduled(cron = "${job.tennis.collect.live.cron}")
+    public void liveMatch() {
+        atpCollectService.liveMatch();
     }
 }

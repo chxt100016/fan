@@ -33,6 +33,22 @@ public class TennisTvClient {
     }
 
     /**
+     * 接口1.1: 按状态查询比赛 (如 status=P 表示正在进行)
+     */
+    public MatchesResponse getMatchesByStatus(String status) {
+        try {
+            Http http = Http.uri(BASE_URI + "/matches")
+                    .param("status", status)
+                    .header("origin", "https://www.tennistv.com")
+                    .doGet();
+            return http.result(MatchesResponse.class);
+        } catch (Exception e) {
+            log.error("按状态查询比赛失败, status={}", status, e);
+            return null;
+        }
+    }
+
+    /**
      * 接口2: 查询签表数据
      */
     public DrawsResponse getDraws(String tournamentId, int year) {

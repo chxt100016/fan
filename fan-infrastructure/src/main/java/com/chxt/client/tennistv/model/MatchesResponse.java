@@ -134,6 +134,8 @@ public class MatchesResponse {
         private Integer setNumber;
         @JSONField(name = "SetScore")
         private String setScore;
+        @JSONField(name = "TieBreakScore")
+        private String tieBreakScore;
     }
 
     @Data

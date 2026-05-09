@@ -38,4 +38,9 @@ public class TennisCollectController {
         atpCollectService.currentMatch();
         return "比赛详情采集完成";
     }
+
+    @GetMapping("/live")
+    public void live() {
+        atpCollectService.liveMatch();
+    }
 }

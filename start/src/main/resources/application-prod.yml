@@ -11,9 +11,11 @@ job:
     enabled: true
     cron: "0 0 */2 * * *"
   tennis:
-    enabled: false
+    enabled: true
     collect:
+      draws:
+        cron: "0 0 2 * * ?"
       matches:
-        cron: "0 */2 * * * *"
-      oop:
-        cron: "0 */5 * * * *"
+        cron: "0 0 */1 * * ?"
+      live:
+        cron: "0 */5 * * * ?"
