@@ -3,8 +3,7 @@ package com.chxt.web;
 
 import com.chxt.client.bluebubbles.BlueBubblesClient;
 import com.chxt.domain.dongya.ActivityMonitorService;
-import com.chxt.job.DongYaJob;
-import com.chxt.tennis.AtpCollectService;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;

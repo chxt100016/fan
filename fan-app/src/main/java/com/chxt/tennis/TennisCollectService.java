@@ -4,8 +4,11 @@ import com.chxt.client.tennistv.TennisTvClient;
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.client.wta.WtaClient;
+import com.chxt.client.wta.model.WtaTournamentsResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
 import com.chxt.db.tennis.service.TennisDrawService;
+import com.chxt.db.tennis.service.TennisTournamentService;
 import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.Player;
@@ -14,12 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
-public class AtpCollectService {
+public class TennisCollectService {
 
     @Resource
     private TennisTvClient tennisTvClient;
@@ -36,7 +40,14 @@ public class AtpCollectService {
     @Resource
     private TennisDrawService tennisDrawService;
 
+    @Resource
+    private WtaClient wtaClient;
+
+    @Resource
+    private TennisTournamentService tennisTournamentService;
+
     public int tournaments(int year) {
+        // 采集 TennisTV (ATP) 赛事
         List<MatchesResponse.TournamentInfo> tournaments = tennisTvClient.getTournaments(year);
         if (CollectionUtils.isEmpty(tournaments)) {
             log.warn("从API获取赛事列表为空, year={}", year);
@@ -44,7 +55,47 @@ public class AtpCollectService {
         }
         int size = atpTournamentService.collect(tournaments);
         log.info("赛事API采集完成: year={}, 数量={}", year, size);
+
+        // 采集 WTA 赛事
+        collectWtaTournaments(year);
+
         return size;
+    }
+
+    /**
+     * 采集 WTA 赛事并写入数据库
+     */
+    private void collectWtaTournaments(int year) {
+        WtaTournamentsResponse response = wtaClient.getTournaments(year);
+        if (response == null || CollectionUtils.isEmpty(response.getContent())) {
+            log.warn("从WTA API获取赛事列表为空, year={}", year);
+            return;
+        }
+
+        List<TennisTournamentPO> poList = new ArrayList<>();
+        for (WtaTournamentsResponse.TournamentItem item : response.getContent()) {
+            TennisTournamentPO po = new TennisTournamentPO();
+            po.setTournamentId(String.valueOf(item.getTournamentGroup().getId()));
+            po.setYear(item.getYear());
+            po.setName(item.getTitle());
+            po.setTour("WTA");
+            // category 只取数字部分，如 "WTA 500" → "500"
+            String level = item.getTournamentGroup().getLevel();
+            po.setCategory(level != null ? level.replaceAll("\\D+", "") : null);
+            po.setSurface(item.getSurface());
+            po.setCity(item.getCity());
+            po.setCountry(item.getCountry());
+            po.setPrizeMoney((int) item.getPrizeMoney());
+            po.setPrizeMoneyText(item.getPrizeMoney() + " " + item.getPrizeMoneyCurrency());
+            // status: "past" → "completed"，其他 → "active"
+            po.setStatus("past".equals(item.getStatus()) ? "completed" : "active");
+            po.setStartDate(LocalDate.parse(item.getStartDate()));
+            po.setEndDate(LocalDate.parse(item.getEndDate()));
+            poList.add(po);
+        }
+
+        tennisTournamentService.saveOrUpdateBatch(poList);
+        log.info("WTA赛事采集完成: year={}, 数量={}", year, poList.size());
     }
 
 

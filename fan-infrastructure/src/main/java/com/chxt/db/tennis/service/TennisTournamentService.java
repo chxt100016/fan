@@ -83,4 +83,26 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
                 .ge(TennisTournamentPO::getEndDate, date)
                 .list();
     }
+
+    /**
+     * 按条件查询赛事，日期区间取赛事时间与查询窗口的交集（startDate <= dateTo && endDate >= dateFrom）
+     */
+    public List<TennisTournamentPO> listByCondition(String dbStatus, String tour,
+                                                     LocalDate dateFrom, LocalDate dateTo) {
+        var wrapper = this.lambdaQuery();
+        if (dbStatus != null) {
+            wrapper.eq(TennisTournamentPO::getStatus, dbStatus);
+        }
+        if (tour != null) {
+            wrapper.eq(TennisTournamentPO::getTour, tour);
+        }
+        if (dateFrom != null) {
+            wrapper.ge(TennisTournamentPO::getEndDate, dateFrom);
+        }
+        if (dateTo != null) {
+            wrapper.le(TennisTournamentPO::getStartDate, dateTo);
+        }
+        wrapper.orderByDesc(TennisTournamentPO::getStartDate);
+        return wrapper.list();
+    }
 }

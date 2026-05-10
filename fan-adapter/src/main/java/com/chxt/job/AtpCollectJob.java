@@ -1,6 +1,7 @@
 package com.chxt.job;
 
-import com.chxt.tennis.AtpCollectService;
+
+import com.chxt.tennis.TennisCollectService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,23 +14,23 @@ import org.springframework.stereotype.Component;
 public class AtpCollectJob {
 
     @Resource
-    private AtpCollectService atpCollectService;
+    private TennisCollectService tennisCollectService;
 
     /** 每天凌晨2点采集当前进行中赛事签表 */
     @Scheduled(cron = "${job.tennis.collect.draws.cron}")
     public void currentDraws() {
-        atpCollectService.currentDraws();
+        tennisCollectService.currentDraws();
     }
 
     /** 每小时采集比赛详情 */
     @Scheduled(cron = "${job.tennis.collect.matches.cron}")
     public void currentMatch() {
-        atpCollectService.currentMatch();
+        tennisCollectService.currentMatch();
     }
 
     /** 每3分钟采集进行中比赛实时状态 */
     @Scheduled(cron = "${job.tennis.collect.live.cron}")
     public void liveMatch() {
-        atpCollectService.liveMatch();
+        tennisCollectService.liveMatch();
     }
 }
