@@ -9,8 +9,6 @@ CREATE TABLE tennis_player (
     player_id     VARCHAR(50)  COMMENT '外部API返回的球员ID，如 S0AG, DH50',
     first_name    VARCHAR(50)  NOT NULL,
     last_name     VARCHAR(50)  NOT NULL,
-    first_name_zh    VARCHAR(50)  NOT NULL,
-    last_name_zh     VARCHAR(50)  NOT NULL,
     nationality   CHAR(3)      NOT NULL COMMENT 'ISO 3166-1 alpha-3，如 CHN / USA',
     birth_date    DATE,
     gender        CHAR(1)      COMMENT 'M / F',

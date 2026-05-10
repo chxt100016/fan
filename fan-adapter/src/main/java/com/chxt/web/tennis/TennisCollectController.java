@@ -1,4 +1,4 @@
-package com.chxt.web;
+package com.chxt.web.tennis;
 
 import com.chxt.tennis.AtpCollectService;
 import jakarta.annotation.Resource;
