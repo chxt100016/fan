@@ -76,23 +76,57 @@ public class TennisQueryService {
     }
 
     /**
-     * 按 (city, name) 分组，组内按 startDate 排序
+     * 按城市和时间分组：city 不区分大小写相同 且 startDate 和 endDate 时间重合算作同一分组
      */
     private List<List<TennisTournamentPO>> groupByCityAndName(List<TennisTournamentPO> list) {
-        // 先按 city+name 分组
-        var grouped = list.stream()
-                .collect(java.util.stream.Collectors.groupingBy(
-                        po -> safeStr(po.getCity()) + "|" + safeStr(po.getName())));
-
+        // 使用列表存储分组，每个分组是一个 Map 的 entry: key 是组索引，value 是该组的赛事列表
         List<List<TennisTournamentPO>> groups = new ArrayList<>();
-        for (var entry : grouped.entrySet()) {
-            List<TennisTournamentPO> group = entry.getValue().stream()
-                    .sorted(Comparator.comparing(TennisTournamentPO::getStartDate,
-                            Comparator.nullsLast(Comparator.naturalOrder())))
-                    .toList();
-            groups.add(group);
+
+        for (TennisTournamentPO po : list) {
+            boolean added = false;
+            for (List<TennisTournamentPO> group : groups) {
+                TennisTournamentPO first = group.get(0);
+                if (isSameGroup(first, po)) {
+                    group.add(po);
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                List<TennisTournamentPO> newGroup = new ArrayList<>();
+                newGroup.add(po);
+                groups.add(newGroup);
+            }
         }
+
+        // 组内按 startDate 排序
+        for (List<TennisTournamentPO> group : groups) {
+            group.sort(Comparator.comparing(TennisTournamentPO::getStartDate,
+                    Comparator.nullsLast(Comparator.naturalOrder())));
+        }
+
         return groups;
+    }
+
+    /**
+     * 判断两个赛事是否属于同一分组：city 不区分大小写相同 且 startDate 和 endDate 时间重合
+     */
+    private boolean isSameGroup(TennisTournamentPO a, TennisTournamentPO b) {
+        // city 不区分大小写比较
+        String cityA = a.getCity() != null ? a.getCity().toLowerCase() : "";
+        String cityB = b.getCity() != null ? b.getCity().toLowerCase() : "";
+        if (!cityA.equals(cityB)) {
+            return false;
+        }
+
+        // startDate 和 endDate 时间重合
+        if (a.getStartDate() == null || b.getStartDate() == null ||
+            a.getEndDate() == null || b.getEndDate() == null) {
+            return false;
+        }
+
+        // 时间重合判断：a.start <= b.end && b.start <= a.end
+        return !a.getStartDate().isAfter(b.getEndDate()) && !b.getStartDate().isAfter(a.getEndDate());
     }
 
     /**
