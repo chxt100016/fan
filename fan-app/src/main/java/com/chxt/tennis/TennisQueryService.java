@@ -165,20 +165,28 @@ public class TennisQueryService {
         // 解析 tournamentId 列表
         List<String> tournamentIds = parseTournamentIds(tournamentIdStr);
         if (CollectionUtils.isEmpty(tournamentIds)) {
-            return Map.of("liveMatches", List.of(), "upcomingMatches", List.of(), "finishedMatches", List.of());
+            return Map.of("upcomingMatches", List.of(), "finishedMatches", List.of());
         }
 
         // 查询比赛数据
         List<MatchData> matches = matchQueryGateway.listByTournamentIds(tournamentIds);
         if (CollectionUtils.isEmpty(matches)) {
-            return Map.of("liveMatches", List.of(), "upcomingMatches", List.of(), "finishedMatches", List.of());
+            return Map.of("upcomingMatches", List.of(), "finishedMatches", List.of());
+        }
+
+        // 过滤掉 player1_id 和 player2_id 都为空的比赛
+        matches = matches.stream()
+                .filter(m -> m.getPlayer1Id() != null || m.getPlayer2Id() != null)
+                .toList();
+        if (CollectionUtils.isEmpty(matches)) {
+            return Map.of("upcomingMatches", List.of(), "finishedMatches", List.of());
         }
 
         // 查询所有相关球员
         Set<String> playerIds = new HashSet<>();
         for (MatchData match : matches) {
-            playerIds.add(match.getPlayer1Id());
-            playerIds.add(match.getPlayer2Id());
+            if (match.getPlayer1Id() != null) playerIds.add(match.getPlayer1Id());
+            if (match.getPlayer2Id() != null) playerIds.add(match.getPlayer2Id());
         }
         List<PlayerData> players = matchQueryGateway.listPlayersByPlayerIds(new ArrayList<>(playerIds));
         Map<String, PlayerData> playerMap = players.stream()
@@ -190,25 +198,33 @@ public class TennisQueryService {
         Map<String, List<SetScoreData>> setScoreMap = setScores.stream()
                 .collect(Collectors.groupingBy(SetScoreData::getMatchId));
 
+        // 查询球员种子信息，构建 tournamentId:playerId -> seed 映射
+        List<PlayerSeedData> seeds = matchQueryGateway.listSeedsByTournamentIds(tournamentIds);
+        Map<String, Integer> seedMap = seeds.stream()
+                .collect(Collectors.toMap(
+                        s -> s.getTournamentId() + ":" + s.getPlayerId(),
+                        PlayerSeedData::getSeed,
+                        (a, b) -> a));
+
         // 转换并按状态分组
-        List<MatchQueryVO> liveMatches = new ArrayList<>();
         List<MatchQueryVO> upcomingMatches = new ArrayList<>();
         List<MatchQueryVO> finishedMatches = new ArrayList<>();
 
         for (MatchData match : matches) {
-            MatchQueryVO vo = toMatchVO(match, playerMap, setScoreMap);
+            MatchQueryVO vo = toMatchVO(match, playerMap, setScoreMap, seedMap);
             String status = vo.getStatus();
             if ("FINISHED".equals(status)) {
                 finishedMatches.add(vo);
-            } else if ("live".equals(match.getStatus()) || "LIVE".equals(status)) {
-                liveMatches.add(vo);
             } else {
                 upcomingMatches.add(vo);
             }
         }
 
+        // upcomingMatches 按 matchDate 正序，finishedMatches 按日期倒序
+        upcomingMatches.sort(Comparator.comparing(MatchQueryVO::getScheduledAt, Comparator.nullsLast(Comparator.naturalOrder())));
+        finishedMatches.sort(Comparator.comparing(MatchQueryVO::getStartedAt, Comparator.nullsLast(Comparator.reverseOrder())));
+
         Map<String, List<MatchQueryVO>> result = new LinkedHashMap<>();
-        result.put("liveMatches", liveMatches);
         result.put("upcomingMatches", upcomingMatches);
         result.put("finishedMatches", finishedMatches);
         return result;
@@ -231,14 +247,18 @@ public class TennisQueryService {
      * MatchData → MatchQueryVO 转换
      */
     private MatchQueryVO toMatchVO(MatchData match, Map<String, PlayerData> playerMap,
-                                   Map<String, List<SetScoreData>> setScoreMap) {
+                                   Map<String, List<SetScoreData>> setScoreMap,
+                                   Map<String, Integer> seedMap) {
         MatchQueryVO vo = new MatchQueryVO();
         vo.setId(match.getMatchId());
         vo.setTournamentId(match.getTournamentId());
         vo.setCourt(match.getCourt());
+        vo.setCourtSeq(match.getCourtSeq());
         vo.setRound(match.getRoundName());
         vo.setSchedulingType(match.getScheduledAtText());
         vo.setDate(match.getMatchDate() != null ? match.getMatchDate().format(DATE_FMT) : null);
+        vo.setStartedAt(match.getStartedAt());
+        vo.setScheduledAt(match.getScheduledAt());
 
         // 计算 scheduledTime
         if (match.getScheduledAt() != null) {
@@ -247,9 +267,9 @@ public class TennisQueryService {
             vo.setScheduledTime(null);
         }
 
-        // 设置球员信息
-        vo.setPlayer1(buildPlayerVO(match.getPlayer1Id(), playerMap));
-        vo.setPlayer2(buildPlayerVO(match.getPlayer2Id(), playerMap));
+        // 设置球员信息（包含种子）
+        vo.setPlayer1(buildPlayerVO(match.getPlayer1Id(), match.getTournamentId(), playerMap, seedMap));
+        vo.setPlayer2(buildPlayerVO(match.getPlayer2Id(), match.getTournamentId(), playerMap, seedMap));
 
         // 设置盘分
         List<SetScoreData> setScores = setScoreMap.getOrDefault(match.getMatchId(), List.of());
@@ -257,9 +277,8 @@ public class TennisQueryService {
         vo.setSets(sets);
 
         // 派生状态
-        String displayStatus = deriveMatchStatus(match);
-        vo.setStatus(displayStatus);
-        vo.setStatusLabel(resolveMatchStatusLabel(displayStatus));
+        vo.setStatus(match.getStatus());
+//        vo.setStatusLabel(resolveMatchStatusLabel(displayStatus));
 
         // 计算当前盘和当前盘比分
         vo.setCurrentSet(calculateCurrentSet(sets));
@@ -277,7 +296,9 @@ public class TennisQueryService {
     /**
      * 构建球员 VO
      */
-    private PlayerVO buildPlayerVO(String playerId, Map<String, PlayerData> playerMap) {
+    private PlayerVO buildPlayerVO(String playerId, String tournamentId,
+                                   Map<String, PlayerData> playerMap,
+                                   Map<String, Integer> seedMap) {
         if (playerId == null) {
             return null;
         }
@@ -297,7 +318,7 @@ public class TennisQueryService {
         }
         vo.setName(name);
         vo.setCountry(CountryEnum.getCountry(player.getNationality()));
-        vo.setSeed(null); // 暂时为空
+        vo.setSeed(seedMap.getOrDefault(tournamentId + ":" + playerId, null));
         return vo;
     }
 

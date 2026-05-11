@@ -18,6 +18,7 @@ public class MatchData {
     private String winnerId;
     private String roundName;
     private String court;
+    private Integer courtSeq;
     private String status;
     private Integer durationMinutes;
     private String scheduledAtText;

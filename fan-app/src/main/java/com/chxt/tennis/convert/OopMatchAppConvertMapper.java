@@ -1,21 +1,24 @@
 package com.chxt.tennis.convert;
 
 import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.tennis.model.Match;
-import com.chxt.tennis.model.MatchStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Mapper
 public interface OopMatchAppConvertMapper {
 
     OopMatchAppConvertMapper INSTANCE = Mappers.getMapper(OopMatchAppConvertMapper.class);
 
+    @Mapping(target = "matchId", source = "matchId")
     @Mapping(target = "tournamentId", expression = "java(detail.getTournamentId() != null ? String.valueOf(detail.getTournamentId()) : null)")
     @Mapping(target = "year", source = "tournamentYear")
     @Mapping(target = "player1Id", expression = "java(detail.getPlayerTeam1() != null ? detail.getPlayerTeam1().getPlayerId() : null)")
@@ -25,10 +28,10 @@ public interface OopMatchAppConvertMapper {
     @Mapping(target = "status", expression = "java(com.chxt.tennis.model.MatchStatus.toStatus(detail.getStatus()))")
     @Mapping(target = "winnerId", expression = "java(detail.getWinningPlayerId())")
     @Mapping(target = "scheduledAt", expression = "java(parseScheduledAt(detail.getMatchDate(), detail.getNotBeforeISOTime()))")
-    @Mapping(target = "scheduledAtText", source = "notBeforeText")
+    @Mapping(target = "scheduledAtText", expression = "java(parseNotBeforeText(detail))")
     @Mapping(target = "court", source = "courtName")
     @Mapping(target = "courtSeq", source = "courtSeq")
-    @Mapping(target = "roundName", expression = "java(detail.getRound() != null ? detail.getRound().getLongName() : null)")
+    @Mapping(target = "roundName", expression = "java(com.chxt.domain.tennis.model.TennisRoundEnum.toShortName(detail.getRound() != null ? detail.getRound().getLongName() : null))")
     @Mapping(target = "roundNumber", ignore = true)
     @Mapping(target = "drawId", ignore = true)
     @Mapping(target = "startedAt", ignore = true)
@@ -51,6 +54,19 @@ public interface OopMatchAppConvertMapper {
             sb.append(team.getPlayerLastName());
         }
         return sb.length() > 0 ? sb.toString() : null;
+    }
+
+    @Named("parseNotBeforeText")
+    default String parseNotBeforeText(OopResponse.MatchDetail detail) {
+        if (Objects.isNull(detail.getNotBeforeText())) {
+            return null;
+        }
+        return switch (detail.getNotBeforeText()) {
+            case "Starts At" -> "FIXED";
+            case "Followed By" -> "AFTER_PREVIOUS";
+            case "Not Before" -> "NOT_EARLIER_THAN";
+            default -> "UNKNOWN";
+        };
     }
 
     default java.time.LocalDateTime parseScheduledAt(String matchDate, String notBeforeISOTime) {

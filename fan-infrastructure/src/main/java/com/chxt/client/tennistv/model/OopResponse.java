@@ -40,64 +40,100 @@ public class OopResponse {
 
     @Data
     public static class OopDay {
-        private Integer DateSeq;
+        @JSONField(name = "DateSeq")
+        private Integer dateSeq;
         @JSONField(name = "Courts")
         private Map<String, CourtDetail> courts;
     }
 
     @Data
     public static class CourtDetail {
-        private Integer CourtId;
-        private String CourtName;
-        private List<MatchDetail> Matches;
+        @JSONField(name = "CourtId")
+        private Integer courtId;
+        @JSONField(name = "CourtName")
+        private String courtName;
+        @JSONField(name = "Matches")
+        private List<MatchDetail> matches;
     }
 
     @Data
     public static class MatchDetail {
-        private String MatchId;
-        private String AssociationCode;
-        private String UmpireFirstName;
-        private String UmpireLastName;
-        private Integer DateSeq;
-        private String MatchDate;
-        private Integer CourtId;
-        private String CourtName;
-        private RoundInfo Round;
-        private String MatchTime;
-        private Integer NumberOfSets;
-        private String Status;
-        private String WinningPlayerId;
-        private String Serve;
-        private PlayerTeam PlayerTeam1;
-        private PlayerTeam PlayerTeam2;
-        private Integer TournamentId;
-        private Integer TournamentYear;
-        private String PulseStatus;
-        private Integer CourtSeq;
+        @JSONField(name = "MatchId")
+        private String matchId;
+        @JSONField(name = "AssociationCode")
+        private String associationCode;
+        @JSONField(name = "UmpireFirstName")
+        private String umpireFirstName;
+        @JSONField(name = "UmpireLastName")
+        private String umpireLastName;
+        @JSONField(name = "DateSeq")
+        private Integer dateSeq;
+        @JSONField(name = "MatchDate")
+        private String matchDate;
+        @JSONField(name = "CourtId")
+        private Integer courtId;
+        @JSONField(name = "CourtName")
+        private String courtName;
+        @JSONField(name = "Round")
+        private RoundInfo round;
+        @JSONField(name = "MatchTime")
+        private String matchTime;
+        @JSONField(name = "NumberOfSets")
+        private Integer numberOfSets;
+        @JSONField(name = "Status")
+        private String status;
+        @JSONField(name = "WinningPlayerId")
+        private String winningPlayerId;
+        @JSONField(name = "Serve")
+        private String serve;
+        @JSONField(name = "PlayerTeam1")
+        private PlayerTeam playerTeam1;
+        @JSONField(name = "PlayerTeam2")
+        private PlayerTeam playerTeam2;
+        @JSONField(name = "TournamentId")
+        private Integer tournamentId;
+        @JSONField(name = "TournamentYear")
+        private Integer tournamentYear;
+        @JSONField(name = "PulseStatus")
+        private String pulseStatus;
+        @JSONField(name = "CourtSeq")
+        private Integer courtSeq;
         private String onDemandUrl;
-        private String NotBeforeISOTime;
-        private String NotBeforeText;
+        @JSONField(name = "NotBeforeISOTime")
+        private String notBeforeISOTime;
+        @JSONField(name = "NotBeforeText")
+        private String notBeforeText;
     }
 
     @Data
     public static class RoundInfo {
-        private String LongName;
+        @JSONField(name = "LongName")
+        private String longName;
     }
 
     @Data
     public static class PlayerTeam {
-        private String PlayerId;
-        private String PlayerFirstName;
-        private String PlayerFirstNameFull;
-        private String PlayerLastName;
-        private String PlayerCountryCode;
-        private String SeedPlayerTeam;
-        private List<SetScore> Sets;
+        @JSONField(name = "PlayerId")
+        private String playerId;
+        @JSONField(name = "PlayerFirstName")
+        private String playerFirstName;
+        @JSONField(name = "PlayerFirstNameFull")
+        private String playerFirstNameFull;
+        @JSONField(name = "PlayerLastName")
+        private String playerLastName;
+        @JSONField(name = "PlayerCountryCode")
+        private String playerCountryCode;
+        @JSONField(name = "SeedPlayerTeam")
+        private String seedPlayerTeam;
+        @JSONField(name = "Sets")
+        private List<SetScore> sets;
     }
 
     @Data
     public static class SetScore {
-        private Integer SetNumber;
-        private String SetScore;
+        @JSONField(name = "SetNumber")
+        private Integer setNumber;
+        @JSONField(name = "SetScore")
+        private String setScore;
     }
 }

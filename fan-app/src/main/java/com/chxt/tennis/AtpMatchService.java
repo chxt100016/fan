@@ -3,6 +3,7 @@ package com.chxt.tennis;
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisMatchPO;
+import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.db.tennis.entity.TennisSetScorePO;
 import com.chxt.db.tennis.service.TennisMatchService;
 import com.chxt.db.tennis.service.TennisSetScoreService;
@@ -59,7 +60,7 @@ public class AtpMatchService {
                 match.setDrawId(drawId);
                 match.setYear(year);
                 match.setRoundNumber(round.getRoundId());
-                match.setRoundName(round.getRoundName());
+                match.setRoundName(TennisRoundEnum.toShortName(round.getRoundName()));
 
                 // 如果没有有效的 matchId，生成一个唯一 ID
                 if (match.getMatchId() == null || match.getMatchId().isEmpty()) {

@@ -2,6 +2,7 @@ package com.chxt.tennis.convert;
 
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisMatchPO;
+import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.MatchStatus;
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public interface MatchAppConvertMapper {
     @Mapping(target = "playerName2", expression = "java(buildPlayerName(info.getPlayerTeam2()))")
     @Mapping(target = "status", expression = "java(com.chxt.tennis.model.MatchStatus.toStatus(info.getStatus()))")
     @Mapping(target = "scheduledAt", expression = "java(parseDateTime(info.getMatchDate()))")
-    @Mapping(target = "roundName", expression = "java(info.getRound().getLongName())")
+    @Mapping(target = "roundName", expression = "java(com.chxt.domain.tennis.model.TennisRoundEnum.toShortName(info.getRound().getLongName()))")
     @Mapping(target = "drawId", ignore = true)
     @Mapping(target = "roundNumber", ignore = true)
     @Mapping(target = "winnerId", ignore = true)

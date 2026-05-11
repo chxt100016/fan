@@ -102,7 +102,7 @@ public class TennisTournamentService extends ServiceImpl<TennisTournamentMapper,
         if (dateTo != null) {
             wrapper.le(TennisTournamentPO::getStartDate, dateTo);
         }
-        wrapper.orderByDesc(TennisTournamentPO::getStartDate);
+        wrapper.orderByAsc(TennisTournamentPO::getStartDate);
         return wrapper.list();
     }
 }

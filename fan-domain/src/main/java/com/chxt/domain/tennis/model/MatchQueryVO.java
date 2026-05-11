@@ -2,6 +2,7 @@ package com.chxt.domain.tennis.model;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,6 +14,7 @@ public class MatchQueryVO {
     private String id;
     private String tournamentId;
     private String court;
+    private Integer courtSeq;
     private String round;
     private String status;
     private String statusLabel;
@@ -21,6 +23,8 @@ public class MatchQueryVO {
     private String date;
     private PlayerVO player1;
     private PlayerVO player2;
+    private LocalDateTime startedAt;
+    private LocalDateTime scheduledAt;
     private List<SetScoreVO> sets;
     private Integer currentSet;
     private String currentSetScore;

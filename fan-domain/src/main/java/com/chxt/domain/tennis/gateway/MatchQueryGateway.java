@@ -2,6 +2,7 @@ package com.chxt.domain.tennis.gateway;
 
 import com.chxt.domain.tennis.model.MatchData;
 import com.chxt.domain.tennis.model.PlayerData;
+import com.chxt.domain.tennis.model.PlayerSeedData;
 import com.chxt.domain.tennis.model.SetScoreData;
 
 import java.util.List;
@@ -31,4 +32,11 @@ public interface MatchQueryGateway {
      * @return 球员列表
      */
     List<PlayerData> listPlayersByPlayerIds(List<String> playerIds);
+
+    /**
+     * 根据赛事ID列表查询球员种子信息
+     * @param tournamentIds 赛事ID列表
+     * @return 种子信息列表
+     */
+    List<PlayerSeedData> listSeedsByTournamentIds(List<String> tournamentIds);
 }

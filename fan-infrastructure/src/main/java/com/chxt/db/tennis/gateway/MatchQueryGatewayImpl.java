@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chxt.db.tennis.entity.TennisMatchPO;
 import com.chxt.db.tennis.entity.TennisPlayerPO;
 import com.chxt.db.tennis.entity.TennisSetScorePO;
+import com.chxt.db.tennis.entity.TennisTournamentEntryPO;
 import com.chxt.db.tennis.mapper.TennisMatchMapper;
 import com.chxt.db.tennis.mapper.TennisPlayerMapper;
 import com.chxt.db.tennis.mapper.TennisSetScoreMapper;
+import com.chxt.db.tennis.mapper.TennisTournamentEntryMapper;
 import com.chxt.domain.tennis.gateway.MatchQueryGateway;
 import com.chxt.domain.tennis.model.MatchData;
 import com.chxt.domain.tennis.model.PlayerData;
+import com.chxt.domain.tennis.model.PlayerSeedData;
 import com.chxt.domain.tennis.model.SetScoreData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,6 +30,7 @@ public class MatchQueryGatewayImpl implements MatchQueryGateway {
     private final TennisMatchMapper matchMapper;
     private final TennisPlayerMapper playerMapper;
     private final TennisSetScoreMapper setScoreMapper;
+    private final TennisTournamentEntryMapper tournamentEntryMapper;
 
     @Override
     public List<MatchData> listByTournamentIds(List<String> tournamentIds) {
@@ -35,6 +39,7 @@ public class MatchQueryGatewayImpl implements MatchQueryGateway {
         }
         List<TennisMatchPO> list = matchMapper.selectList(
                 new LambdaQueryWrapper<TennisMatchPO>()
+                        .isNotNull(TennisMatchPO::getMatchDate)
                         .in(TennisMatchPO::getTournamentId, tournamentIds)
 
         );
@@ -66,6 +71,19 @@ public class MatchQueryGatewayImpl implements MatchQueryGateway {
         return list.stream().map(this::toPlayerData).toList();
     }
 
+    @Override
+    public List<PlayerSeedData> listSeedsByTournamentIds(List<String> tournamentIds) {
+        if (CollectionUtils.isEmpty(tournamentIds)) {
+            return List.of();
+        }
+        List<TennisTournamentEntryPO> list = tournamentEntryMapper.selectList(
+                new LambdaQueryWrapper<TennisTournamentEntryPO>()
+                        .in(TennisTournamentEntryPO::getTournamentId, tournamentIds)
+                        .isNotNull(TennisTournamentEntryPO::getSeed)
+        );
+        return list.stream().map(this::toPlayerSeedData).toList();
+    }
+
     private MatchData toMatchData(TennisMatchPO po) {
         MatchData data = new MatchData();
         data.setMatchId(po.getMatchId());
@@ -75,6 +93,7 @@ public class MatchQueryGatewayImpl implements MatchQueryGateway {
         data.setWinnerId(po.getWinnerId());
         data.setRoundName(po.getRoundName());
         data.setCourt(po.getCourt());
+        data.setCourtSeq(po.getCourtSeq());
         data.setStatus(po.getStatus());
         data.setDurationMinutes(po.getDurationMinutes());
         data.setScheduledAtText(po.getScheduledAtText());
@@ -101,6 +120,14 @@ public class MatchQueryGatewayImpl implements MatchQueryGateway {
         data.setFirstName(po.getFirstName());
         data.setLastName(po.getLastName());
         data.setNationality(po.getNationality());
+        return data;
+    }
+
+    private PlayerSeedData toPlayerSeedData(TennisTournamentEntryPO po) {
+        PlayerSeedData data = new PlayerSeedData();
+        data.setTournamentId(po.getTournamentId());
+        data.setPlayerId(po.getPlayerId());
+        data.setSeed(po.getSeed() != null ? po.getSeed().intValue() : null);
         return data;
     }
 }

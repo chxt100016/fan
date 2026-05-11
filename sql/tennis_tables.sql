@@ -109,7 +109,7 @@ CREATE TABLE tennis_match (
     create_time       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_tennis_match_match_id (match_id),
+    UNIQUE KEY uk_tennis_match_match_id (match_id, draw_id, tournament_id, `year`),
     INDEX idx_tennis_match_draw        (draw_id, round_number),
     INDEX idx_tennis_match_tournament  (tournament_id),
     INDEX idx_tennis_match_tournament_year (tournament_id, year),
