@@ -22,35 +22,41 @@ public class TennisPlayerService extends ServiceImpl<TennisPlayerMapper, TennisP
             return;
         }
 
-        // 按 playerId 去重，保留最后出现的（更新的数据）
+        // ATP 和 WTA 的 playerId 来自不同系统可能重复，去重和查询都按 (playerId, tour) 组合键
         players = new java.util.ArrayList<>(players.stream()
-                .filter(p -> p.getPlayerId() != null)
+                .filter(p -> p.getPlayerId() != null && p.getTour() != null)
                 .collect(Collectors.toMap(
-                        TennisPlayerPO::getPlayerId,
+                        TennisPlayerService::playerKey,
                         p -> p,
                         (a, b) -> b
                 ))
                 .values());
 
-        List<String> playerIds = players.stream()
-                .map(TennisPlayerPO::getPlayerId)
-                .filter(java.util.Objects::nonNull)
-                .toList();
+        // 按 tour 分组，每组用 in(playerId) 查询，避免笛卡尔积
+        Map<String, List<TennisPlayerPO>> playersByTour = players.stream()
+                .collect(Collectors.groupingBy(TennisPlayerPO::getTour));
 
-        Map<String, TennisPlayerPO> existMap = this.lambdaQuery()
-                .in(TennisPlayerPO::getPlayerId, playerIds)
-                .list()
-                .stream()
-                .collect(Collectors.toMap(TennisPlayerPO::getPlayerId, p -> p, (a, b) -> a));
+        Map<String, TennisPlayerPO> existMap = new java.util.HashMap<>();
+        for (Map.Entry<String, List<TennisPlayerPO>> entry : playersByTour.entrySet()) {
+            String tour = entry.getKey();
+            List<String> ids = entry.getValue().stream()
+                    .map(TennisPlayerPO::getPlayerId)
+                    .toList();
+            this.lambdaQuery()
+                    .eq(TennisPlayerPO::getTour, tour)
+                    .in(TennisPlayerPO::getPlayerId, ids)
+                    .list()
+                    .forEach(po -> existMap.put(playerKey(po), po));
+        }
 
         List<TennisPlayerPO> toInsert = players.stream()
-                .filter(p -> p.getPlayerId() == null || !existMap.containsKey(p.getPlayerId()))
+                .filter(p -> !existMap.containsKey(playerKey(p)))
                 .toList();
 
         List<TennisPlayerPO> toUpdate = players.stream()
-                .filter(p -> p.getPlayerId() != null && existMap.containsKey(p.getPlayerId()))
+                .filter(p -> existMap.containsKey(playerKey(p)))
                 .map(p -> {
-                    TennisPlayerPO po = existMap.get(p.getPlayerId());
+                    TennisPlayerPO po = existMap.get(playerKey(p));
                     po.setFirstName(p.getFirstName());
                     po.setLastName(p.getLastName());
                     po.setNationality(p.getNationality());
@@ -70,5 +76,9 @@ public class TennisPlayerService extends ServiceImpl<TennisPlayerMapper, TennisP
             this.updateBatchById(toUpdate);
             log.info("批量更新球员: {}条", toUpdate.size());
         }
+    }
+
+    private static String playerKey(TennisPlayerPO po) {
+        return po.getTour() + ":" + po.getPlayerId();
     }
 }

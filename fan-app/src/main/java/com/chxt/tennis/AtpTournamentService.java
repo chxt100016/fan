@@ -52,15 +52,19 @@ public class AtpTournamentService {
     }
 
     /**
-     * 批量保存赛事
+     * 拉取并保存指定年份的 ATP 赛事
      */
-    public int collect(List<MatchesResponse.TournamentInfo> infos) {
+    public int collect(int year) {
+        List<MatchesResponse.TournamentInfo> infos = tennisTvClient.getTournaments(year);
         if (CollectionUtils.isEmpty(infos)) {
+            log.warn("从API获取赛事列表为空, year={}", year);
             return 0;
         }
-        List<Tournament> tournaments = new ArrayList<>();
-        tournaments = infos.stream().map(TournamentAppConvertMapper.INSTANCE::toTournament).toList();
+        List<Tournament> tournaments = infos.stream()
+                .map(TournamentAppConvertMapper.INSTANCE::toTournament)
+                .toList();
         tennisTournamentService.saveOrUpdateBatch(TournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments));
+        log.info("ATP赛事采集完成: year={}, 数量={}", year, tournaments.size());
         return tournaments.size();
     }
 }

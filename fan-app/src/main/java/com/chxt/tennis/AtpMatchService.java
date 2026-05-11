@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -116,18 +116,9 @@ public class AtpMatchService {
 
         // 更新比赛记录
         List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(allMatches);
-        List<String> matchIds = matchPOs.stream()
-                .map(TennisMatchPO::getMatchId).filter(Objects::nonNull).toList();
-        if (CollectionUtils.isNotEmpty(matchIds)) {
-            Set<String> existIds = tennisMatchService.lambdaQuery()
-                    .in(TennisMatchPO::getMatchId, matchIds)
-                    .list().stream().map(TennisMatchPO::getMatchId).collect(Collectors.toSet());
-            List<TennisMatchPO> toUpdate = matchPOs.stream()
-                    .filter(m -> m.getMatchId() != null && existIds.contains(m.getMatchId()))
-                    .toList();
-            if (CollectionUtils.isNotEmpty(toUpdate)) {
-                tennisMatchService.updateBatchById(toUpdate);
-            }
+        List<TennisMatchPO> toUpdate = fillIdForUpdate(matchPOs);
+        if (CollectionUtils.isNotEmpty(toUpdate)) {
+            tennisMatchService.updateBatchById(toUpdate);
         }
 
         // 更新盘分
@@ -143,21 +134,46 @@ public class AtpMatchService {
             return;
         }
         List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(matches);
-        List<String> matchIds = matchPOs.stream()
-                .map(TennisMatchPO::getMatchId).filter(Objects::nonNull).toList();
-        if (CollectionUtils.isEmpty(matchIds)) {
-            return;
-        }
-        Set<String> existIds = tennisMatchService.lambdaQuery()
-                .in(TennisMatchPO::getMatchId, matchIds)
-                .list().stream().map(TennisMatchPO::getMatchId).collect(Collectors.toSet());
-        List<TennisMatchPO> toUpdate = matchPOs.stream()
-                .filter(m -> m.getMatchId() != null && existIds.contains(m.getMatchId()))
-                .toList();
+        List<TennisMatchPO> toUpdate = fillIdForUpdate(matchPOs);
         if (CollectionUtils.isNotEmpty(toUpdate)) {
             tennisMatchService.updateBatchById(toUpdate);
             log.info("更新已有比赛: {}条", toUpdate.size());
         }
+    }
+
+    /**
+     * 按业务唯一键 (matchId, tournamentId, year) 查出已存在记录，
+     * 把数据库主键 id 回填到待更新的 PO 上。
+     * updateBatchById 走的是 @TableId 标注的 id 字段，不回填 id 时 SQL 不会命中任何行。
+     */
+    private List<TennisMatchPO> fillIdForUpdate(List<TennisMatchPO> matchPOs) {
+        // 收集所有非空的 matchId 作为查询条件，先用 matchId 粗筛缩小结果集
+        List<String> matchIds = matchPOs.stream()
+                .map(TennisMatchPO::getMatchId).filter(Objects::nonNull).distinct().toList();
+        if (CollectionUtils.isEmpty(matchIds)) {
+            return List.of();
+        }
+        // matchId 在不同赛事/年份下会重复，必须用 (matchId, tournamentId, year) 三元组作为唯一键
+        Map<String, Long> keyToId = tennisMatchService.lambdaQuery()
+                .in(TennisMatchPO::getMatchId, matchIds)
+                .list().stream()
+                .collect(Collectors.toMap(
+                        AtpMatchService::uniqueKey,
+                        TennisMatchPO::getId,
+                        (a, b) -> a));
+
+        // 仅保留库里已存在的记录并回填 id，否则 updateBatchById 因 id=null 而失效
+        return matchPOs.stream()
+                .filter(m -> keyToId.containsKey(uniqueKey(m)))
+                .peek(m -> m.setId(keyToId.get(uniqueKey(m))))
+                .toList();
+    }
+
+    /**
+     * 业务唯一键：matchId + tournamentId + year，与 tennis_match 表的唯一索引保持一致
+     */
+    private static String uniqueKey(TennisMatchPO po) {
+        return po.getMatchId() + "|" + po.getTournamentId() + "|" + po.getYear();
     }
 
     private void saveSetScores(List<Match> matches) {
@@ -190,11 +206,14 @@ public class AtpMatchService {
         try {
             String[] parts = matchTime.split(":");
             if (parts.length == 3) {
-                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1])
-                        + (Integer.parseInt(parts[2]) >= 30 ? 1 : 0);
+                return Integer.parseInt(parts[0].trim()) * 60 + Integer.parseInt(parts[1].trim())
+                        + (Integer.parseInt(parts[2].trim()) >= 30 ? 1 : 0);
             }
+            // 格式不是 HH:MM:SS（段数不对或含全角冒号）时打日志，避免静默返回 null
+            log.warn("解析比赛时长格式异常: value=[{}], len={}, codePoints={}",
+                    matchTime, matchTime.length(), matchTime.chars().boxed().toList());
         } catch (NumberFormatException e) {
-            log.warn("解析比赛时长失败: {}", matchTime);
+            log.warn("解析比赛时长失败: value=[{}]", matchTime, e);
         }
         return null;
     }

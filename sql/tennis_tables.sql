@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS tennis_player;
 CREATE TABLE tennis_player (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     player_id     VARCHAR(50)  COMMENT '外部API返回的球员ID，如 S0AG, DH50',
+    tour          VARCHAR(10)  NOT NULL DEFAULT 'ATP' COMMENT '所属巡回赛：ATP / WTA',
     first_name    VARCHAR(50)  NOT NULL,
     last_name     VARCHAR(50)  NOT NULL,
     nationality   CHAR(3)      NOT NULL COMMENT 'ISO 3166-1 alpha-3，如 CHN / USA',
@@ -17,7 +18,8 @@ CREATE TABLE tennis_player (
     create_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uk_tennis_player_player_id (player_id),
+    -- ATP 和 WTA 的 player_id 来自不同系统，可能重复，用 (player_id, tour) 作为唯一键
+    UNIQUE KEY uk_tennis_player_id_tour (player_id, tour),
     INDEX idx_tennis_player_name    (last_name, first_name),
     INDEX idx_tennis_player_ranking (ranking),
     INDEX idx_tennis_player_nation  (nationality)

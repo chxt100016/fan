@@ -13,6 +13,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Player {
     private String playerId;
+    /** 所属巡回赛：ATP / WTA */
+    private String tour;
     private String firstName;
     private String lastName;
     private String nationality;

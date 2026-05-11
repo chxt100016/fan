@@ -78,12 +78,14 @@ public class AtpPlayerService {
     }
 
     /**
-     * 批量保存球员
+     * 批量保存球员，统一标记为 ATP
      */
     public void savePlayers(List<Player> players) {
         if (CollectionUtils.isEmpty(players)) {
             return;
         }
+        // 标记所有球员来自 ATP 巡回赛
+        players.forEach(p -> p.setTour("ATP"));
         tennisPlayerService.saveOrUpdateBatch(
                 PlayerAppConvertMapper.INSTANCE.toPlayerPOList(players));
     }

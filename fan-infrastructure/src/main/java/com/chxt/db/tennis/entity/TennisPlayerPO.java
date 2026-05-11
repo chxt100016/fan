@@ -19,6 +19,8 @@ public class TennisPlayerPO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String playerId;
+    /** 所属巡回赛：ATP / WTA */
+    private String tour;
     private String firstName;
     private String lastName;
     private String nationality;
