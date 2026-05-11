@@ -7,7 +7,9 @@ import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.client.wta.WtaClient;
 import com.chxt.client.wta.model.WtaTournamentsResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
+import com.chxt.db.tennis.entity.TennisTournamentEntryPO;
 import com.chxt.db.tennis.service.TennisDrawService;
+import com.chxt.db.tennis.service.TennisTournamentEntryService;
 import com.chxt.db.tennis.service.TennisTournamentService;
 import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
@@ -45,6 +47,9 @@ public class TennisCollectService {
 
     @Resource
     private TennisTournamentService tennisTournamentService;
+
+    @Resource
+    private TennisTournamentEntryService tennisTournamentEntryService;
 
     public int tournaments(int year) {
         // 采集 TennisTV (ATP) 赛事
@@ -137,6 +142,10 @@ public class TennisCollectService {
 
             allMatches.addAll(atpMatchService.buildFromDraw(msDraw, tournamentId, drawId, year));
 
+            // 从第一轮签表中提取种子球员数据
+            List<TennisTournamentEntryPO> entries = extractEntriesFromDraw(
+                    msDraw, tournamentId, year, drawId, "MS");
+
             for (DrawsResponse.Round round : response.getMS().getRounds()) {
                 if (CollectionUtils.isEmpty(round.getFixtures())) {
                     continue;
@@ -145,12 +154,68 @@ public class TennisCollectService {
                     allPlayers.addAll(atpPlayerService.extractFromDrawFixture(fixture));
                 }
             }
+
+            // 保存种子球员数据
+            if (CollectionUtils.isNotEmpty(entries)) {
+                tennisTournamentEntryService.saveEntries(entries);
+            }
         }
 
         atpPlayerService.savePlayers(allPlayers);
         atpMatchService.saveMatches(allMatches);
 
         log.info("签表采集完成: 球员={}, 比赛={}", allPlayers.size(), allMatches.size());
+    }
+
+    /**
+     * 从签表所有轮次中提取种子球员数据，用 Map 去重，重复的覆盖
+     */
+    private List<TennisTournamentEntryPO> extractEntriesFromDraw(
+            DrawsResponse.Draw draw, String tournamentId, int year, Long drawId, String drawType) {
+        // key: playerId, value: TennisTournamentEntryPO
+        java.util.Map<String, TennisTournamentEntryPO> entryMap = new java.util.LinkedHashMap<>();
+
+        if (draw == null || CollectionUtils.isEmpty(draw.getRounds())) {
+            return new ArrayList<>(entryMap.values());
+        }
+
+        for (DrawsResponse.Round round : draw.getRounds()) {
+            if (CollectionUtils.isEmpty(round.getFixtures())) {
+                continue;
+            }
+            for (DrawsResponse.Fixture fixture : round.getFixtures()) {
+                extractEntriesFromDrawLine(fixture.getDrawLineTop(), tournamentId, year, drawId, drawType, entryMap);
+                extractEntriesFromDrawLine(fixture.getDrawLineBottom(), tournamentId, year, drawId, drawType, entryMap);
+            }
+        }
+
+        return new ArrayList<>(entryMap.values());
+    }
+
+    /**
+     * 从 DrawLine 中提取球员种子信息
+     */
+    private void extractEntriesFromDrawLine(
+            DrawsResponse.DrawLine drawLine, String tournamentId, int year,
+            Long drawId, String drawType, java.util.Map<String, TennisTournamentEntryPO> entryMap) {
+        if (drawLine == null || CollectionUtils.isEmpty(drawLine.getPlayers())) {
+            return;
+        }
+
+        for (DrawsResponse.PlayerInfo playerInfo : drawLine.getPlayers()) {
+            if (playerInfo == null || playerInfo.getPlayerId() == null) {
+                continue;
+            }
+            TennisTournamentEntryPO entry = new TennisTournamentEntryPO();
+            entry.setTournamentId(tournamentId);
+            entry.setYear(year);
+            entry.setPlayerId(playerInfo.getPlayerId());
+            entry.setDrawId(drawId);
+            entry.setDrawType(drawType);
+            entry.setSeed(drawLine.getSeed() != null ? drawLine.getSeed().shortValue() : null);
+            // 相同 playerId 覆盖，保留最新的种子数
+            entryMap.put(playerInfo.getPlayerId(), entry);
+        }
     }
 
 

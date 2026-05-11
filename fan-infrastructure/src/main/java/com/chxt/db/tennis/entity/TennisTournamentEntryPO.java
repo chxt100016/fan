@@ -19,6 +19,7 @@ public class TennisTournamentEntryPO {
     private String tournamentId;
     private Integer year;
     private String playerId;
+    private Long drawId;
     private String drawType;
     private Short seed;
     private String entryType;
