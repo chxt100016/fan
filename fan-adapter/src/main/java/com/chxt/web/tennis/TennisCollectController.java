@@ -14,9 +14,8 @@ public class TennisCollectController {
     private TennisCollectService tennisCollectService;
 
     @GetMapping("/tournaments")
-    public String tournaments(@RequestParam("year") Integer year) {
-        int size = tennisCollectService.tournaments(year);
-        return "赛事API采集完成, 数量=" + size;
+    public void tournaments(@RequestParam("year") Integer year) {
+        tennisCollectService.tournaments(year);
     }
 
 
@@ -27,8 +26,8 @@ public class TennisCollectController {
     }
 
     @GetMapping("/draws")
-    public String draws(@RequestParam("tournamentId") String tournamentId, @RequestParam("year") int year) {
-        tennisCollectService.draws(tournamentId, year);
+    public String draws(@RequestParam("tour") String tour, @RequestParam("tournamentId") String tournamentId, @RequestParam("year") int year) {
+        tennisCollectService.draws(tour, tournamentId, year);
         return "签表采集完成: " + tournamentId + "/" + year;
     }
 

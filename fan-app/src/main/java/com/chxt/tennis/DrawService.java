@@ -1,7 +1,7 @@
 package com.chxt.tennis;
 
 import com.chxt.client.tennistv.model.DrawsResponse;
-import com.chxt.db.tennis.service.TennisDrawService;
+import com.chxt.db.tennis.repository.TennisDrawRepository;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DrawService {
 
     @Resource
-    private TennisDrawService tennisDrawService;
+    private TennisDrawRepository tennisDrawService;
 
 
     public Long atp(DrawsResponse response, String tournamentId, int year) {

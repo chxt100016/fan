@@ -5,8 +5,8 @@ import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisMatchPO;
 import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.db.tennis.entity.TennisSetScorePO;
-import com.chxt.db.tennis.service.TennisMatchService;
-import com.chxt.db.tennis.service.TennisSetScoreService;
+import com.chxt.db.tennis.repository.TennisMatchRepository;
+import com.chxt.db.tennis.repository.TennisSetScoreRepository;
 import com.chxt.tennis.convert.DrawMatchAppConvertMapper;
 import com.chxt.tennis.convert.MatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 public class AtpMatchService {
 
     @Resource
-    private TennisMatchService tennisMatchService;
+    private TennisMatchRepository tennisMatchService;
 
     @Resource
-    private TennisSetScoreService tennisSetScoreService;
+    private TennisSetScoreRepository tennisSetScoreService;
 
     public int collect(List<MatchesResponse.MatchInfo> matches) {
         if (CollectionUtils.isEmpty(matches)) {
@@ -154,9 +154,8 @@ public class AtpMatchService {
             return List.of();
         }
         // matchId 在不同赛事/年份下会重复，必须用 (matchId, tournamentId, year) 三元组作为唯一键
-        Map<String, Long> keyToId = tennisMatchService.lambdaQuery()
-                .in(TennisMatchPO::getMatchId, matchIds)
-                .list().stream()
+        Map<String, Long> keyToId = tennisMatchService.lambdaQuery(matchIds)
+                .stream()
                 .collect(Collectors.toMap(
                         AtpMatchService::uniqueKey,
                         TennisMatchPO::getId,

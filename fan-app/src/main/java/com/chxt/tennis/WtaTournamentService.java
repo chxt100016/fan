@@ -3,7 +3,7 @@ package com.chxt.tennis;
 import com.chxt.client.wta.WtaClient;
 import com.chxt.client.wta.model.WtaTournamentsResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
-import com.chxt.db.tennis.service.TennisTournamentService;
+import com.chxt.db.tennis.repository.TennisTournamentRepository;
 import com.chxt.tennis.convert.WtaTournamentAppConvertMapper;
 import com.chxt.tennis.model.Tournament;
 import jakarta.annotation.Resource;
@@ -21,7 +21,7 @@ public class WtaTournamentService {
     private WtaClient wtaClient;
 
     @Resource
-    private TennisTournamentService tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentService;
 
     /**
      * 拉取并保存指定年份的 WTA 赛事

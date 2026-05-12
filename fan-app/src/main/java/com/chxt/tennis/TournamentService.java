@@ -3,7 +3,7 @@ package com.chxt.tennis;
 import com.chxt.client.tennistv.TennisTvClient;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
-import com.chxt.db.tennis.service.TennisTournamentService;
+import com.chxt.db.tennis.repository.TennisTournamentRepository;
 import com.chxt.tennis.convert.TournamentAppConvertMapper;
 import com.chxt.tennis.model.Tournament;
 import jakarta.annotation.Resource;
@@ -22,7 +22,7 @@ public class TournamentService {
     private TennisTvClient tennisTvClient;
 
     @Resource
-    private TennisTournamentService tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentService;
 
     /**
      * 查询当前时间在 start_date 和 end_date 之间的赛事

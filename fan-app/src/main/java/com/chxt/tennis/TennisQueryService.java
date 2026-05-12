@@ -1,7 +1,7 @@
 package com.chxt.tennis;
 
 import com.chxt.db.tennis.entity.TennisTournamentPO;
-import com.chxt.db.tennis.service.TennisTournamentService;
+import com.chxt.db.tennis.repository.TennisTournamentRepository;
 import com.chxt.domain.tennis.gateway.MatchQueryGateway;
 import com.chxt.domain.tennis.model.*;
 import jakarta.annotation.Resource;
@@ -20,7 +20,7 @@ public class TennisQueryService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Resource
-    private TennisTournamentService tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentService;
 
     @Resource
     private MatchQueryGateway matchQueryGateway;

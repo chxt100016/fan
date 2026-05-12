@@ -6,8 +6,8 @@ import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.db.tennis.entity.TennisTournamentEntryPO;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
-import com.chxt.db.tennis.service.TennisDrawService;
-import com.chxt.db.tennis.service.TennisTournamentEntryService;
+import com.chxt.db.tennis.repository.TennisDrawRepository;
+import com.chxt.db.tennis.repository.TennisTournamentEntryRepository;
 import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.Player;
@@ -43,7 +43,7 @@ public class TennisCollectService {
 
 
     @Resource
-    private TennisTournamentEntryService tennisTournamentEntryService;
+    private TennisTournamentEntryRepository tennisTournamentEntryService;
 
     /**
      * 采集指定年份的赛事列表：ATP（TennisTV）+ WTA

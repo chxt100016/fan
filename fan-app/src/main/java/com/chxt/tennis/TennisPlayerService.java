@@ -3,7 +3,6 @@ package com.chxt.tennis;
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
-import com.chxt.db.tennis.service.TennisPlayerService;
 import com.chxt.tennis.convert.PlayerAppConvertMapper;
 import com.chxt.tennis.model.Player;
 import jakarta.annotation.Resource;
@@ -16,10 +15,10 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class AtpPlayerService {
+public class TennisPlayerService {
 
     @Resource
-    private TennisPlayerService tennisPlayerService;
+    private com.chxt.db.tennis.repository.TennisPlayerRepository tennisPlayerService;
 
     /**
      * 从 live matches 响应中提取球员
