@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class DrawService {
 
     @Resource
-    private TennisDrawRepository tennisDrawService;
+    private TennisDrawRepository tennisDrawRepository;
 
 
     public Long atp(DrawsResponse response, String tournamentId, int year) {
@@ -20,7 +20,7 @@ public class DrawService {
             // 先创建 draw 记录，获取 drawId
             DrawsResponse.Draw msDraw = response.getMS();
             Integer totalRounds = msDraw.getRounds() != null ? msDraw.getRounds().size() : 0;
-            return tennisDrawService.saveOrUpdate(tournamentId, year, "MS", msDraw.getDrawSize(), totalRounds);
+            return tennisDrawRepository.saveOrUpdate(tournamentId, year, "MS", msDraw.getDrawSize(), totalRounds);
         }
         return null;
     }

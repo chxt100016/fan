@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class AtpMatchService {
+public class MatchService {
 
     @Resource
-    private TennisMatchRepository tennisMatchService;
+    private TennisMatchRepository tennisMatchRepository;
 
     @Resource
-    private TennisSetScoreRepository tennisSetScoreService;
+    private TennisSetScoreRepository tennisSetScoreRepository;
 
     public int collect(List<MatchesResponse.MatchInfo> matches) {
         if (CollectionUtils.isEmpty(matches)) {
@@ -80,7 +80,7 @@ public class AtpMatchService {
             return;
         }
         List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(matches);
-        tennisMatchService.saveOrUpdateBatch(matchPOs);
+        tennisMatchRepository.saveOrUpdateBatch(matchPOs);
 
         // 保存 SetScore 数据
         saveSetScores(matches);
@@ -118,12 +118,12 @@ public class AtpMatchService {
         List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(allMatches);
         List<TennisMatchPO> toUpdate = fillIdForUpdate(matchPOs);
         if (CollectionUtils.isNotEmpty(toUpdate)) {
-            tennisMatchService.updateBatchById(toUpdate);
+            tennisMatchRepository.updateBatchById(toUpdate);
         }
 
         // 更新盘分
         if (CollectionUtils.isNotEmpty(allSetScores)) {
-            tennisSetScoreService.saveOrUpdateBatch(allSetScores);
+            tennisSetScoreRepository.saveOrUpdateBatch(allSetScores);
         }
 
         log.info("进行中比赛更新完成: 比赛={}, 盘分={}", allMatches.size(), allSetScores.size());
@@ -136,7 +136,7 @@ public class AtpMatchService {
         List<TennisMatchPO> matchPOs = MatchAppConvertMapper.INSTANCE.toMatchPOList(matches);
         List<TennisMatchPO> toUpdate = fillIdForUpdate(matchPOs);
         if (CollectionUtils.isNotEmpty(toUpdate)) {
-            tennisMatchService.updateBatchById(toUpdate);
+            tennisMatchRepository.updateBatchById(toUpdate);
             log.info("更新已有比赛: {}条", toUpdate.size());
         }
     }
@@ -154,10 +154,10 @@ public class AtpMatchService {
             return List.of();
         }
         // matchId 在不同赛事/年份下会重复，必须用 (matchId, tournamentId, year) 三元组作为唯一键
-        Map<String, Long> keyToId = tennisMatchService.lambdaQuery(matchIds)
+        Map<String, Long> keyToId = tennisMatchRepository.lambdaQuery(matchIds)
                 .stream()
                 .collect(Collectors.toMap(
-                        AtpMatchService::uniqueKey,
+                        MatchService::uniqueKey,
                         TennisMatchPO::getId,
                         (a, b) -> a));
 
@@ -194,7 +194,7 @@ public class AtpMatchService {
                 allSetScores.add(po);
             }
         }
-        tennisSetScoreService.saveOrUpdateBatch(allSetScores);
+        tennisSetScoreRepository.saveOrUpdateBatch(allSetScores);
     }
 
     /**

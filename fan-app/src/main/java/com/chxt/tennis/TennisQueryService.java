@@ -20,7 +20,7 @@ public class TennisQueryService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Resource
-    private TennisTournamentRepository tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentRepository;
 
     @Resource
     private MatchQueryGateway matchQueryGateway;
@@ -42,7 +42,7 @@ public class TennisQueryService {
             dateTo = today.plusMonths(1);
         }
 
-        List<TennisTournamentPO> list = tennisTournamentService.listByCondition(dbStatus, tour, dateFrom, dateTo);
+        List<TennisTournamentPO> list = tennisTournamentRepository.listByCondition(dbStatus, tour, dateFrom, dateTo);
         if (CollectionUtils.isEmpty(list)) {
             return List.of();
         }

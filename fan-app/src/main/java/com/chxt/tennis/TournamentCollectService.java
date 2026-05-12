@@ -16,20 +16,20 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TournamentService {
+public class TournamentCollectService {
 
     @Resource
     private TennisTvClient tennisTvClient;
 
     @Resource
-    private TennisTournamentRepository tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentRepository;
 
     /**
      * 查询当前时间在 start_date 和 end_date 之间的赛事
      */
     public List<TennisTournamentPO> current() {
         LocalDate today = LocalDate.now();
-        return tennisTournamentService.findCurrentTournaments(today);
+        return tennisTournamentRepository.findCurrentTournaments(today);
     }
 
     public void collectTournament(int year) {
@@ -46,7 +46,7 @@ public class TournamentService {
         List<Tournament> tournaments = infos.stream()
                 .map(TournamentAppConvertMapper.INSTANCE::toTournament)
                 .toList();
-        tennisTournamentService.saveOrUpdateBatch(TournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments));
+        tennisTournamentRepository.saveOrUpdateBatch(TournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments));
         log.info("ATP赛事采集完成: year={}, 数量={}", year, tournaments.size());
     }
 

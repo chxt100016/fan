@@ -3,6 +3,7 @@ package com.chxt.tennis;
 import com.chxt.client.tennistv.model.DrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.db.tennis.repository.TennisPlayerRepository;
 import com.chxt.tennis.convert.PlayerAppConvertMapper;
 import com.chxt.tennis.model.Player;
 import jakarta.annotation.Resource;
@@ -15,10 +16,10 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TennisPlayerService {
+public class PlayerCollectService {
 
     @Resource
-    private com.chxt.db.tennis.repository.TennisPlayerRepository tennisPlayerService;
+    private TennisPlayerRepository tennisPlayerRepository;
 
     /**
      * 从 live matches 响应中提取球员
@@ -85,7 +86,7 @@ public class TennisPlayerService {
         }
         // 标记所有球员来自 ATP 巡回赛
         players.forEach(p -> p.setTour("ATP"));
-        tennisPlayerService.saveOrUpdateBatch(
+        tennisPlayerRepository.saveOrUpdateBatch(
                 PlayerAppConvertMapper.INSTANCE.toPlayerPOList(players));
     }
 }

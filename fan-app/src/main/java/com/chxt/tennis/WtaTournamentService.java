@@ -21,7 +21,7 @@ public class WtaTournamentService {
     private WtaClient wtaClient;
 
     @Resource
-    private TennisTournamentRepository tennisTournamentService;
+    private TennisTournamentRepository tennisTournamentRepository;
 
     /**
      * 拉取并保存指定年份的 WTA 赛事
@@ -37,7 +37,7 @@ public class WtaTournamentService {
                 .map(WtaTournamentAppConvertMapper.INSTANCE::toTournament)
                 .toList();
         List<TennisTournamentPO> poList = WtaTournamentAppConvertMapper.INSTANCE.toTournamentPOList(tournaments);
-        tennisTournamentService.saveOrUpdateBatch(poList);
+        tennisTournamentRepository.saveOrUpdateBatch(poList);
 
         log.info("WTA赛事采集完成: year={}, 数量={}", year, poList.size());
         return poList.size();

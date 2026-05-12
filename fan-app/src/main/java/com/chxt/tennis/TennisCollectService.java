@@ -6,7 +6,6 @@ import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.client.tennistv.model.OopResponse;
 import com.chxt.db.tennis.entity.TennisTournamentEntryPO;
 import com.chxt.db.tennis.entity.TennisTournamentPO;
-import com.chxt.db.tennis.repository.TennisDrawRepository;
 import com.chxt.db.tennis.repository.TennisTournamentEntryRepository;
 import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
@@ -29,32 +28,32 @@ public class TennisCollectService {
     private TennisTvClient tennisTvClient;
 
     @Resource
-    private TournamentService tournamentService;
+    private TournamentCollectService tournamentCollectService;
 
     @Resource
     private DrawService drawService;
 
     @Resource
-    private AtpPlayerService atpPlayerService;
+    private PlayerCollectService playerCollectService;
 
     @Resource
-    private AtpMatchService atpMatchService;
+    private MatchService matchService;
 
 
 
     @Resource
-    private TennisTournamentEntryRepository tennisTournamentEntryService;
+    private TennisTournamentEntryRepository tennisTournamentEntryRepository;
 
     /**
      * 采集指定年份的赛事列表：ATP（TennisTV）+ WTA
      */
     public void tournaments(int year) {
-        tournamentService.collectTournament(year);
+        tournamentCollectService.collectTournament(year);
     }
 
 
     public void currentDraws() {
-        List<TennisTournamentPO> tournaments = tournamentService.current();
+        List<TennisTournamentPO> tournaments = tournamentCollectService.current();
 
         if (CollectionUtils.isEmpty(tournaments)) {
             log.info("当前无进行中的赛事");
@@ -81,7 +80,7 @@ public class TennisCollectService {
 
                 Long drawId = drawService.atp(response, tournamentId, year);
                 DrawsResponse.Draw msDraw = response.getMS();
-                List<Match> allMatches = new ArrayList<>(atpMatchService.buildFromDraw(msDraw, tournamentId, drawId, year));
+                List<Match> allMatches = new ArrayList<>(matchService.buildFromDraw(msDraw, tournamentId, drawId, year));
 
                 // 从第一轮签表中提取种子球员数据
                 List<TennisTournamentEntryPO> entries = extractEntriesFromDraw(msDraw, tournamentId, year, drawId, "MS");
@@ -91,17 +90,17 @@ public class TennisCollectService {
                         continue;
                     }
                     for (DrawsResponse.Fixture fixture : round.getFixtures()) {
-                        allPlayers.addAll(atpPlayerService.extractFromDrawFixture(fixture));
+                        allPlayers.addAll(playerCollectService.extractFromDrawFixture(fixture));
                     }
                 }
 
                 // 保存种子球员数据
                 if (CollectionUtils.isNotEmpty(entries)) {
-                    tennisTournamentEntryService.saveEntries(entries);
+                    tennisTournamentEntryRepository.saveEntries(entries);
                 }
 
-                atpPlayerService.savePlayers(allPlayers);
-                atpMatchService.saveMatches(allMatches);
+                playerCollectService.savePlayers(allPlayers);
+                matchService.saveMatches(allMatches);
 
                 log.info("签表采集完成: 球员={}, 比赛={}", allPlayers.size(), allMatches.size());
             }
@@ -176,7 +175,7 @@ public class TennisCollectService {
             log.info("无进行中的比赛");
             return;
         }
-        atpMatchService.updateLiveMatches(response.getMatches());
+        matchService.updateLiveMatches(response.getMatches());
     }
 
     public void currentMatch() {
@@ -232,7 +231,7 @@ public class TennisCollectService {
             return;
         }
 
-        atpMatchService.saveMatches(allMatches);
+        matchService.saveMatches(allMatches);
         log.info("比赛详情采集完成: 数量={}", allMatches.size());
     }
 }
