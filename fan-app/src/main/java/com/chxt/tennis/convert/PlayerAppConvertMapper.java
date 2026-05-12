@@ -1,8 +1,8 @@
 package com.chxt.tennis.convert;
 
-import com.chxt.client.tennistv.model.DrawsResponse;
+import com.chxt.client.tennistv.model.AtpDrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
-import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.client.tennistv.model.AtpOopResponse;
 import com.chxt.db.tennis.entity.TennisPlayerPO;
 import com.chxt.tennis.model.Player;
 import org.mapstruct.Mapper;
@@ -29,13 +29,13 @@ public interface PlayerAppConvertMapper {
     @Mapping(target = "birthDate", ignore = true)
     @Mapping(target = "gender", ignore = true)
     @Mapping(target = "hand", ignore = true)
-    Player toPlayerFromDraw(DrawsResponse.PlayerInfo info);
+    Player toPlayerFromDraw(AtpDrawsResponse.PlayerInfo info);
 
     @Mapping(target = "nationality", source = "playerCountryCode")
     @Mapping(target = "birthDate", ignore = true)
     @Mapping(target = "gender", ignore = true)
     @Mapping(target = "hand", ignore = true)
-    Player toPlayerFromOop(OopResponse.PlayerTeam team);
+    Player toPlayerFromOop(AtpOopResponse.PlayerTeam team);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createTime", ignore = true)

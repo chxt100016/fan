@@ -25,7 +25,7 @@ public class AtpCollectJob {
     /** 每小时采集比赛详情 */
     @Scheduled(cron = "${job.tennis.collect.matches.cron}")
     public void currentMatch() {
-        tennisCollectService.currentMatch();
+        tennisCollectService.oop();
     }
 
     /** 每3分钟采集进行中比赛实时状态 */

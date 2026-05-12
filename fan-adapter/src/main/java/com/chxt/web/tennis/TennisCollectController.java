@@ -31,9 +31,9 @@ public class TennisCollectController {
         return "签表采集完成: " + tournamentId + "/" + year;
     }
 
-    @GetMapping("/currentMatch")
+    @GetMapping("/oop")
     public String collectCurrentMatch() {
-        tennisCollectService.currentMatch();
+        tennisCollectService.oop();
         return "比赛详情采集完成";
     }
 

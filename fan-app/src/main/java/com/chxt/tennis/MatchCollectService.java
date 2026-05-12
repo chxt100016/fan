@@ -1,14 +1,17 @@
 package com.chxt.tennis;
 
-import com.chxt.client.tennistv.model.DrawsResponse;
+import com.chxt.client.tennistv.TennisTvClient;
+import com.chxt.client.tennistv.model.AtpDrawsResponse;
+import com.chxt.client.tennistv.model.AtpOopResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
 import com.chxt.db.tennis.entity.TennisMatchPO;
-import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.db.tennis.entity.TennisSetScorePO;
 import com.chxt.db.tennis.repository.TennisMatchRepository;
 import com.chxt.db.tennis.repository.TennisSetScoreRepository;
+import com.chxt.domain.tennis.model.TennisRoundEnum;
 import com.chxt.tennis.convert.DrawMatchAppConvertMapper;
 import com.chxt.tennis.convert.MatchAppConvertMapper;
+import com.chxt.tennis.convert.OopMatchAppConvertMapper;
 import com.chxt.tennis.model.Match;
 import com.chxt.tennis.model.MatchStatus;
 import com.chxt.tennis.model.SetScore;
@@ -25,13 +28,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class MatchService {
+public class MatchCollectService {
 
     @Resource
     private TennisMatchRepository tennisMatchRepository;
 
     @Resource
     private TennisSetScoreRepository tennisSetScoreRepository;
+
+    @Resource
+    private TennisTvClient tennisTvClient;
 
     public int collect(List<MatchesResponse.MatchInfo> matches) {
         if (CollectionUtils.isEmpty(matches)) {
@@ -44,17 +50,18 @@ public class MatchService {
         return data.size();
     }
 
-    public List<Match> buildFromDraw(DrawsResponse.Draw draw, String tournamentId, Long drawId, Integer year) {
+    public void atpFromDraw(AtpDrawsResponse response, String tournamentId, Long drawId, Integer year) {
+        AtpDrawsResponse.Draw draw = response.getMS();
         List<Match> allMatches = new ArrayList<>();
         if (draw == null || CollectionUtils.isEmpty(draw.getRounds())) {
-            return allMatches;
+            return;
         }
 
-        for (DrawsResponse.Round round : draw.getRounds()) {
+        for (AtpDrawsResponse.Round round : draw.getRounds()) {
             if (CollectionUtils.isEmpty(round.getFixtures())) {
                 continue;
             }
-            for (DrawsResponse.Fixture fixture : round.getFixtures()) {
+            for (AtpDrawsResponse.Fixture fixture : round.getFixtures()) {
                 Match match = DrawMatchAppConvertMapper.INSTANCE.toMatch(fixture);
                 match.setTournamentId(tournamentId);
                 match.setDrawId(drawId);
@@ -72,7 +79,62 @@ public class MatchService {
                 allMatches.add(match);
             }
         }
-        return allMatches;
+
+        this.saveMatches(allMatches);
+    }
+
+    public void atpFromOop() {
+        List<AtpOopResponse> oop = tennisTvClient.getOop();
+        if (CollectionUtils.isEmpty(oop)) {
+            return;
+        }
+
+        List<Match> allMatches = new ArrayList<>();
+        for (AtpOopResponse tournament : oop) {
+            if (CollectionUtils.isEmpty(tournament.getOop())) {
+                continue;
+            }
+            for (AtpOopResponse.OopDay day : tournament.getOop()) {
+                if (day.getCourts() == null) {
+                    continue;
+                }
+                for (AtpOopResponse.CourtDetail court : day.getCourts().values()) {
+                    if (CollectionUtils.isEmpty(court.getMatches())) {
+                        continue;
+                    }
+
+                    java.time.LocalDateTime lastMatchScheduledAt = null;
+
+                    for (AtpOopResponse.MatchDetail detail : court.getMatches()) {
+                        if (!detail.getAssociationCode().equals("ATP")) {
+                            continue;
+                        }
+                        Match match = OopMatchAppConvertMapper.INSTANCE.toMatch(detail);
+
+                        // 处理 "Followed By" 的情况：使用上一场比赛时间 + 70分钟
+                        if ("Followed By".equals(detail.getNotBeforeText()) && match.getScheduledAt() == null) {
+                            if (lastMatchScheduledAt != null) {
+                                match.setScheduledAt(lastMatchScheduledAt.plusMinutes(70));
+                            }
+                        }
+
+                        // 更新上一场比赛的时间
+                        if (match.getScheduledAt() != null) {
+                            lastMatchScheduledAt = match.getScheduledAt();
+                        }
+
+                        allMatches.add(match);
+                    }
+                }
+            }
+        }
+
+        if (CollectionUtils.isEmpty(allMatches)) {
+            log.info("OOP中无比赛数据");
+            return;
+        }
+
+        this.saveMatches(allMatches);
     }
 
     public void saveMatches(List<Match> matches) {
@@ -157,7 +219,7 @@ public class MatchService {
         Map<String, Long> keyToId = tennisMatchRepository.lambdaQuery(matchIds)
                 .stream()
                 .collect(Collectors.toMap(
-                        MatchService::uniqueKey,
+                        MatchCollectService::uniqueKey,
                         TennisMatchPO::getId,
                         (a, b) -> a));
 
@@ -263,5 +325,14 @@ public class MatchService {
         if (Player1Id != null) sb.append("P").append(Player1Id);
         if (Player2Id != null) sb.append("p").append(Player2Id);
         return sb.toString();
+    }
+
+    public void atpFromLive() {
+        MatchesResponse response = tennisTvClient.getMatchesByStatus("L");
+        if (response == null || CollectionUtils.isEmpty(response.getMatches())) {
+            log.info("无进行中的比赛");
+            return;
+        }
+        this.updateLiveMatches(response.getMatches());
     }
 }

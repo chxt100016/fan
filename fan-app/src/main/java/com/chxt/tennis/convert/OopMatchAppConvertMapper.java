@@ -1,7 +1,6 @@
 package com.chxt.tennis.convert;
 
-import com.chxt.client.tennistv.model.OopResponse;
-import com.chxt.domain.tennis.model.TennisRoundEnum;
+import com.chxt.client.tennistv.model.AtpOopResponse;
 import com.chxt.tennis.model.Match;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -39,9 +38,9 @@ public interface OopMatchAppConvertMapper {
     @Mapping(target = "durationMinutes", ignore = true)
     @Mapping(target = "sets", ignore = true)
     @Mapping(target = "matchDate", expression = "java(parseMatchDate(detail.getMatchDate()))")
-    Match toMatch(OopResponse.MatchDetail detail);
+    Match toMatch(AtpOopResponse.MatchDetail detail);
 
-    default String buildPlayerName(OopResponse.PlayerTeam team) {
+    default String buildPlayerName(AtpOopResponse.PlayerTeam team) {
         if (team == null) return null;
         StringBuilder sb = new StringBuilder();
         if (team.getPlayerFirstNameFull() != null) {
@@ -57,7 +56,7 @@ public interface OopMatchAppConvertMapper {
     }
 
     @Named("parseNotBeforeText")
-    default String parseNotBeforeText(OopResponse.MatchDetail detail) {
+    default String parseNotBeforeText(AtpOopResponse.MatchDetail detail) {
         if (Objects.isNull(detail.getNotBeforeText())) {
             return null;
         }

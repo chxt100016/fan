@@ -1,8 +1,8 @@
 package com.chxt.client.tennistv;
 
-import com.chxt.client.tennistv.model.DrawsResponse;
+import com.chxt.client.tennistv.model.AtpDrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
-import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.client.tennistv.model.AtpOopResponse;
 import com.chxt.domain.utils.Http;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -51,11 +51,11 @@ public class TennisTvClient {
     /**
      * 接口2: 查询签表数据
      */
-    public DrawsResponse getDraws(String tournamentId, int year) {
+    public AtpDrawsResponse getDraws(String tournamentId, int year) {
         try {
             return Http.uri(BASE_URI + "/tournaments/" + tournamentId + "/" + year + "/draws")
                     .doGet()
-                    .result(DrawsResponse.class);
+                    .result(AtpDrawsResponse.class);
         } catch (Exception e) {
             log.error("获取签表数据失败, tournamentId={}, year={}", tournamentId, year, e);
             return null;
@@ -83,11 +83,11 @@ public class TennisTvClient {
     /**
      * 接口3: 查询比赛详情 (每日安排)
      */
-    public List<OopResponse> getOop() {
+    public List<AtpOopResponse> getOop() {
         try {
             Http http = Http.uri(BASE_URI + "/oop")
                     .doGet();
-            return http.resultArray(OopResponse.class);
+            return http.resultArray(AtpOopResponse.class);
         } catch (Exception e) {
             log.error("获取比赛详情失败", e);
             return null;

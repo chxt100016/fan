@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DrawsResponse {
+public class AtpDrawsResponse {
     private Draw MS;
     private Draw MD;
     private Draw WS;

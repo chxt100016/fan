@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class OopResponse {
+public class AtpOopResponse {
 
     private Integer id;
     private Integer year;

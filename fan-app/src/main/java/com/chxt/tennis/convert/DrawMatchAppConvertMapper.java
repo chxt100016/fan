@@ -1,8 +1,7 @@
 package com.chxt.tennis.convert;
 
-import com.chxt.client.tennistv.model.DrawsResponse;
+import com.chxt.client.tennistv.model.AtpDrawsResponse;
 import com.chxt.tennis.model.Match;
-import com.chxt.tennis.model.MatchStatus;
 import com.chxt.tennis.model.SetScore;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -38,7 +37,7 @@ public interface DrawMatchAppConvertMapper {
     @Mapping(target = "sets", expression = "java(parseSetResults(fixture))")
     @Mapping(target = "description", expression = "java(fixture.getMetadata().getDescription())")
     @Mapping(target = "matchDate", expression = "java(parseMatchDateToOnlyDate(fixture))")
-    Match toMatch(DrawsResponse.Fixture fixture);
+    Match toMatch(AtpDrawsResponse.Fixture fixture);
 
     default Long parseLong(Object value) {
         if (value == null) return null;
@@ -49,7 +48,7 @@ public interface DrawMatchAppConvertMapper {
         }
     }
 
-    default String getMatchId(DrawsResponse.Fixture fixture) {
+    default String getMatchId(AtpDrawsResponse.Fixture fixture) {
         if (fixture == null) return null;
         // 优先从 MatchInfo 获取 MatchId
         if (fixture.getMatch() != null && fixture.getMatch().getMatchId() != null) {
@@ -72,21 +71,21 @@ public interface DrawMatchAppConvertMapper {
         return null;
     }
 
-    default String getPlayer1Id(DrawsResponse.Fixture fixture) {
+    default String getPlayer1Id(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getResult() == null) return null;
         if (fixture.getResult().getTeamTop() == null) return null;
         if (fixture.getResult().getTeamTop().getPlayer() == null) return null;
         return fixture.getResult().getTeamTop().getPlayer().getPlayerId();
     }
 
-    default String getPlayer2Id(DrawsResponse.Fixture fixture) {
+    default String getPlayer2Id(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getResult() == null) return null;
         if (fixture.getResult().getTeamBottom() == null) return null;
         if (fixture.getResult().getTeamBottom().getPlayer() == null) return null;
         return fixture.getResult().getTeamBottom().getPlayer().getPlayerId();
     }
 
-    default String getWinnerId(DrawsResponse.Fixture fixture) {
+    default String getWinnerId(AtpDrawsResponse.Fixture fixture) {
         // 从 MatchInfo.WinningPlayerId 获取胜利者球员 ID
         if (fixture.getMatch() != null && fixture.getMatch().getWinningPlayerId() != null) {
             return fixture.getMatch().getWinningPlayerId();
@@ -102,19 +101,19 @@ public interface DrawMatchAppConvertMapper {
         return null;
     }
 
-    default DrawsResponse.PlayerInfo getPlayer1(DrawsResponse.Fixture fixture) {
+    default AtpDrawsResponse.PlayerInfo getPlayer1(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getResult() == null) return null;
         if (fixture.getResult().getTeamTop() == null) return null;
         return fixture.getResult().getTeamTop().getPlayer();
     }
 
-    default DrawsResponse.PlayerInfo getPlayer2(DrawsResponse.Fixture fixture) {
+    default AtpDrawsResponse.PlayerInfo getPlayer2(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getResult() == null) return null;
         if (fixture.getResult().getTeamBottom() == null) return null;
         return fixture.getResult().getTeamBottom().getPlayer();
     }
 
-    default String buildFullName(DrawsResponse.PlayerInfo info) {
+    default String buildFullName(AtpDrawsResponse.PlayerInfo info) {
         if (info == null) return null;
         StringBuilder sb = new StringBuilder();
         if (info.getFirstName() != null) sb.append(info.getFirstName());
@@ -125,7 +124,7 @@ public interface DrawMatchAppConvertMapper {
         return sb.length() > 0 ? sb.toString() : null;
     }
 
-    default LocalDateTime parseMatchDate(DrawsResponse.Fixture fixture) {
+    default LocalDateTime parseMatchDate(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getMatch() == null || fixture.getMatch().getMatchDate() == null) {
             return null;
         }
@@ -136,7 +135,7 @@ public interface DrawMatchAppConvertMapper {
         }
     }
 
-    default LocalDate parseMatchDateToOnlyDate(DrawsResponse.Fixture fixture) {
+    default LocalDate parseMatchDateToOnlyDate(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getMatch() == null) {
             return null;
         }
@@ -151,7 +150,7 @@ public interface DrawMatchAppConvertMapper {
         }
     }
 
-    default Integer parseDuration(DrawsResponse.ResultInfo result) {
+    default Integer parseDuration(AtpDrawsResponse.ResultInfo result) {
         if (result == null || result.getMatchTime() == null) {
             return null;
         }
@@ -169,17 +168,17 @@ public interface DrawMatchAppConvertMapper {
         return null;
     }
 
-    default String getCourtName(DrawsResponse.Fixture fixture) {
+    default String getCourtName(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getMatch() == null) return null;
         return fixture.getMatch().getCourtName();
     }
 
-    default List<SetScore> parseSetResults(DrawsResponse.Fixture fixture) {
+    default List<SetScore> parseSetResults(AtpDrawsResponse.Fixture fixture) {
         if (fixture.getResult() == null || fixture.getResult().getSetResults() == null) {
             return null;
         }
         List<SetScore> sets = new ArrayList<>();
-        for (DrawsResponse.SetResult sr : fixture.getResult().getSetResults()) {
+        for (AtpDrawsResponse.SetResult sr : fixture.getResult().getSetResults()) {
             SetScore setScore = SetScore.builder()
                     .setNumber(sr.getSetNumber())
                     .p1Games(sr.getGamesA())

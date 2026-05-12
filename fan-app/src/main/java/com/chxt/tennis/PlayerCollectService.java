@@ -1,8 +1,8 @@
 package com.chxt.tennis;
 
-import com.chxt.client.tennistv.model.DrawsResponse;
+import com.chxt.client.tennistv.model.AtpDrawsResponse;
 import com.chxt.client.tennistv.model.MatchesResponse;
-import com.chxt.client.tennistv.model.OopResponse;
+import com.chxt.client.tennistv.model.AtpOopResponse;
 import com.chxt.db.tennis.repository.TennisPlayerRepository;
 import com.chxt.tennis.convert.PlayerAppConvertMapper;
 import com.chxt.tennis.model.Player;
@@ -42,10 +42,27 @@ public class PlayerCollectService {
         return players.size();
     }
 
+    public void atpFromDraw(AtpDrawsResponse response) {
+        if (response == null || response.getMS() == null || CollectionUtils.isEmpty(response.getMS().getRounds())) {
+            return;
+        }
+        List<Player> allPlayers = new ArrayList<>();
+        for (AtpDrawsResponse.Round round : response.getMS().getRounds()) {
+            if (CollectionUtils.isEmpty(round.getFixtures())) {
+                continue;
+            }
+            for (AtpDrawsResponse.Fixture fixture : round.getFixtures()) {
+                allPlayers.addAll(this.extractFromDrawFixture(fixture));
+            }
+        }
+
+        this.savePlayers(allPlayers);
+    }
+
     /**
      * 从签表 fixture 中提取球员（teamTop + teamBottom）
      */
-    public List<Player> extractFromDrawFixture(DrawsResponse.Fixture fixture) {
+    public List<Player> extractFromDrawFixture(AtpDrawsResponse.Fixture fixture) {
         List<Player> players = new ArrayList<>();
         if (fixture.getResult() == null) {
             return players;
@@ -66,7 +83,7 @@ public class PlayerCollectService {
     /**
      * 从 OOP match detail 中提取球员
      */
-    public List<Player> extractFromOopMatch(OopResponse.MatchDetail detail) {
+    public List<Player> extractFromOopMatch(AtpOopResponse.MatchDetail detail) {
         List<Player> players = new ArrayList<>();
         if (detail.getPlayerTeam1() != null) {
             players.add(PlayerAppConvertMapper.INSTANCE.toPlayerFromOop(detail.getPlayerTeam1()));
