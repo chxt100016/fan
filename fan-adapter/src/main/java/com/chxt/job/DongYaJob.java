@@ -17,6 +17,7 @@ public class DongYaJob {
 
     @Scheduled(cron = "${job.dongya58.cron:0 0 */2 * * *}")
     public void monitorTennisMatches() {
+
         activityMonitorService.monitorActivities();
     }
 }
