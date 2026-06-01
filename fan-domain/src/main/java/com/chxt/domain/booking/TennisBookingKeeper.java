@@ -18,13 +18,13 @@ public class TennisBookingKeeper {
 
     private static final List<String> likelist = TennisCourt.buildUniqueNo()
             // 一
-//            .monday().key(TimetableEnum.HL_OUT).hour(8)
+            .monday().key(TimetableEnum.HL_OUT).hour(20)
             // 二
-//            .tuesday().key(TimetableEnum.HL_OUT).hour(8)
+            .tuesday().key(TimetableEnum.HL_OUT).hour(20)
             // 三
-//            .wednesday().key(TimetableEnum.HL_OUT).hour(8)
+            .wednesday().key(TimetableEnum.HL_OUT).hour(20)
             // 四
-//            .thursday().key(TimetableEnum.HL_OUT).hour(8)
+            .thursday().key(TimetableEnum.HL_OUT).hour(20)
             // 五
             .friday().key(TimetableEnum.HL_OUT).hour(19,20)
 //            .friday().key(TimetableEnum.HL_IN).hour(19,20)
